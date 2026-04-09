@@ -1,0 +1,349 @@
+{
+  "version": 1,
+  "documents": {
+    "ideal": "docs/ideal.md",
+    "spec": "docs/spec.md",
+    "state": "docs/methodology/state.yaml",
+    "graph": "docs/methodology/graph.json",
+    "stories_index": "docs/stories.md",
+    "coverage_matrix": "tests/fixtures/formats/_coverage-matrix.json",
+    "evals_registry": "docs/evals/registry.yaml"
+  },
+  "ideal": {
+    "path": "docs/ideal.md",
+    "title": "The Ideal"
+  },
+  "spec": {
+    "path": "docs/spec.md",
+    "title": "Spec",
+    "categories": [
+      {
+        "id": "spec:1",
+        "title": "Source Intake & Content Inventory",
+        "summary": "The repo needs a clear inventory of what comes from `doc-web` and what comes from separate family-archive sources.",
+        "compromise_refs": [
+          "C1"
+        ],
+        "substrate": "partial",
+        "last_reviewed": "2026-04-09"
+      },
+      {
+        "id": "spec:2",
+        "title": "Canonical Content Model & Transformation",
+        "summary": "The repo should turn imported source material into canonical site data rather than binding directly to the first presentation format it receives.",
+        "compromise_refs": [
+          "C2"
+        ],
+        "substrate": "missing",
+        "last_reviewed": "2026-04-09"
+      },
+      {
+        "id": "spec:3",
+        "title": "Information Architecture & Navigation",
+        "summary": "The site should make the book easy to traverse by chapter, topic, and companion material without losing narrative continuity.",
+        "compromise_refs": [
+          "C3"
+        ],
+        "substrate": "missing",
+        "last_reviewed": "2026-04-09"
+      },
+      {
+        "id": "spec:4",
+        "title": "Companion Media & Archive Materials",
+        "summary": "The website should package scans, audio, and reunion extras as first-class materials without obscuring what belongs to the core book.",
+        "compromise_refs": [
+          "C4"
+        ],
+        "substrate": "partial",
+        "last_reviewed": "2026-04-09"
+      },
+      {
+        "id": "spec:5",
+        "title": "Site Experience & Presentation",
+        "summary": "This repo eventually needs a real website runtime and design system, but it does not have one yet.",
+        "compromise_refs": [
+          "C5"
+        ],
+        "substrate": "missing",
+        "last_reviewed": "2026-04-09"
+      },
+      {
+        "id": "spec:6",
+        "title": "Provenance, Editorial Controls & Publishing",
+        "summary": "The repo should make imports, changes, and publication decisions inspectable.",
+        "compromise_refs": [
+          "C6"
+        ],
+        "substrate": "partial",
+        "last_reviewed": "2026-04-09"
+      },
+      {
+        "id": "spec:7",
+        "title": "Accessibility, Performance & Delivery",
+        "summary": "The final site should be readable, fast enough, and robust across devices and connection quality.",
+        "compromise_refs": [
+          "C7"
+        ],
+        "substrate": "missing",
+        "last_reviewed": "2026-04-09"
+      },
+      {
+        "id": "spec:8",
+        "title": "AI Harnesses & Content Ops",
+        "summary": "AI should reduce repetitive cleanup and comparison work, but the outputs still need inspectable records and human review where the archive demands it.",
+        "compromise_refs": [
+          "B1"
+        ],
+        "substrate": "partial",
+        "last_reviewed": "2026-04-09"
+      },
+      {
+        "id": "spec:9",
+        "title": "Planning Infrastructure",
+        "summary": "The repo needs enough planning structure to survive long gaps and handoffs without turning into process theater.",
+        "compromise_refs": [
+          "B2",
+          "B3"
+        ],
+        "substrate": "exists",
+        "last_reviewed": "2026-04-09"
+      }
+    ]
+  },
+  "state": {
+    "version": 1,
+    "format": "json-compatible-yaml",
+    "seeded_at": "2026-04-09",
+    "seeded_from": [
+      "docs/ideal.md",
+      "docs/spec.md",
+      "tests/fixtures/formats/_coverage-matrix.json"
+    ],
+    "categories": {
+      "spec:1": {
+        "substrate": "partial",
+        "last_reviewed": "2026-04-09"
+      },
+      "spec:2": {
+        "substrate": "missing",
+        "last_reviewed": "2026-04-09"
+      },
+      "spec:3": {
+        "substrate": "missing",
+        "last_reviewed": "2026-04-09"
+      },
+      "spec:4": {
+        "substrate": "partial",
+        "last_reviewed": "2026-04-09"
+      },
+      "spec:5": {
+        "substrate": "missing",
+        "last_reviewed": "2026-04-09"
+      },
+      "spec:6": {
+        "substrate": "partial",
+        "last_reviewed": "2026-04-09"
+      },
+      "spec:7": {
+        "substrate": "missing",
+        "last_reviewed": "2026-04-09"
+      },
+      "spec:8": {
+        "substrate": "partial",
+        "last_reviewed": "2026-04-09"
+      },
+      "spec:9": {
+        "substrate": "exists",
+        "last_reviewed": "2026-04-09"
+      }
+    },
+    "compromises": {
+      "C1": {
+        "phase": "climb",
+        "last_reviewed": "2026-04-09"
+      },
+      "C2": {
+        "phase": "climb",
+        "last_reviewed": "2026-04-09"
+      },
+      "C3": {
+        "phase": "climb",
+        "last_reviewed": "2026-04-09"
+      },
+      "C4": {
+        "phase": "climb",
+        "last_reviewed": "2026-04-09"
+      },
+      "C5": {
+        "phase": "climb",
+        "last_reviewed": "2026-04-09"
+      },
+      "C6": {
+        "phase": "climb",
+        "last_reviewed": "2026-04-09"
+      },
+      "C7": {
+        "phase": "climb",
+        "last_reviewed": "2026-04-09"
+      },
+      "B1": {
+        "phase": "hold",
+        "last_reviewed": "2026-04-09"
+      },
+      "B2": {
+        "phase": "hold",
+        "last_reviewed": "2026-04-09"
+      },
+      "B3": {
+        "phase": "climb",
+        "last_reviewed": "2026-04-09"
+      }
+    },
+    "coverage_matrix": {
+      "path": "tests/fixtures/formats/_coverage-matrix.json",
+      "last_reviewed": "2026-04-09",
+      "notes": "Canonical machine-readable inventory of upstream content surfaces and companion archive inputs."
+    },
+    "roadmap": {
+      "active_focus": [
+        "campaign:bootstrap-canon-and-shell"
+      ],
+      "sequencing_bias": [
+        {
+          "target": "campaign:bootstrap-canon-and-shell",
+          "reason": "Define the import seam from doc-web, prove a canonical content model, then build the first real website slice instead of picking a frontend stack in the abstract."
+        }
+      ],
+      "campaigns": [
+        {
+          "id": "bootstrap-canon-and-shell",
+          "status": "active",
+          "story_refs": [],
+          "notes": "Early work should establish the upstream import contract, the site data model, and one end-to-end chapter rendering path with linked media."
+        }
+      ]
+    },
+    "stories_index": {
+      "sections": [
+        {
+          "id": "recommended-order",
+          "title": "Recommended Order",
+          "markdown": "Current priority: lock the `doc-web` import contract, define the canonical site content model, and prove one chapter-plus-media slice before spreading effort across extra archive surfaces or design polish."
+        }
+      ],
+      "uncategorized_label": "Legacy / Uncategorized Stories"
+    },
+    "architecture_audits": {
+      "cadence": {
+        "target_story_interval": 5
+      },
+      "domains": {
+        "upstream_integration": {
+          "label": "Upstream Integration",
+          "manual_priority": "high",
+          "last_audited_at": "2026-04-09",
+          "stories_since_audit": 0,
+          "recent_story_refs": [],
+          "open_findings": [],
+          "notes": "Primary risk surface while the repo decides how it consumes doc-web output."
+        },
+        "content_model": {
+          "label": "Content Model",
+          "manual_priority": "high",
+          "last_audited_at": "2026-04-09",
+          "stories_since_audit": 0,
+          "recent_story_refs": [],
+          "open_findings": [],
+          "notes": "Chapter, section, media, and provenance structures should stabilize before wide UI work."
+        },
+        "site_experience": {
+          "label": "Site Experience",
+          "manual_priority": "medium",
+          "last_audited_at": "2026-04-09",
+          "stories_since_audit": 0,
+          "recent_story_refs": [],
+          "open_findings": [],
+          "notes": "No frontend substrate exists yet; revisit after the first real rendering slice."
+        },
+        "methodology_tooling": {
+          "label": "Methodology Tooling",
+          "manual_priority": "medium",
+          "last_audited_at": "2026-04-09",
+          "stories_since_audit": 0,
+          "recent_story_refs": [],
+          "open_findings": [],
+          "notes": "Keep the imported methodology package honest and lightweight for this repo."
+        }
+      }
+    },
+    "archives": {},
+    "story_overrides": {
+      "category_refs": {}
+    }
+  },
+  "coverage_matrix": {
+    "version": 1,
+    "updated_at": "2026-04-09",
+    "surfaces": [
+      {
+        "id": "book-core-html",
+        "label": "Onward book core HTML",
+        "kind": "content-canon",
+        "upstream": "doc-web export",
+        "status": "planned",
+        "target_surface": "canonical chapter and section records",
+        "notes": "Primary authored book body for the website."
+      },
+      {
+        "id": "chapter-audio",
+        "label": "Chapter audiobook links",
+        "kind": "companion-media",
+        "upstream": "curated external links",
+        "status": "planned",
+        "target_surface": "chapter-level media metadata",
+        "notes": "Expected to attach to specific chapter pages."
+      },
+      {
+        "id": "full-book-audio",
+        "label": "Full book audio",
+        "kind": "companion-media",
+        "upstream": "curated external links",
+        "status": "planned",
+        "target_surface": "global book companion surface",
+        "notes": "Whole-book listening option."
+      },
+      {
+        "id": "chapter-podcasts",
+        "label": "Chapter podcast episodes",
+        "kind": "companion-media",
+        "upstream": "curated external links",
+        "status": "planned",
+        "target_surface": "chapter-level companion metadata",
+        "notes": "Podcast material connected to individual chapters."
+      },
+      {
+        "id": "full-book-podcast",
+        "label": "Full book podcast",
+        "kind": "companion-media",
+        "upstream": "curated external links",
+        "status": "planned",
+        "target_surface": "global companion surface",
+        "notes": "Long-form podcast coverage for the whole book."
+      },
+      {
+        "id": "scanned-supplements",
+        "label": "Scanned companion materials",
+        "kind": "archive-material",
+        "upstream": "family archive files",
+        "status": "planned",
+        "target_surface": "supplement galleries and source attachments",
+        "notes": "Scans that shipped with or relate directly to the book."
+      }
+    ]
+  },
+  "evals": [],
+  "stories": {
+    "items": [],
+    "counts_by_status": {}
+  }
+}

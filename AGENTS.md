@@ -1,0 +1,76 @@
+# AGENTS.md — Onward to the Unknown Website
+
+Read this file at the start of every session.
+
+> **Mission:** Turn *Onward to the Unknown* and its companion family-archive
+> materials into a trustworthy, navigable website. `doc-web` is the upstream
+> processor for the book source; this repo owns the import contract, site
+> structure, presentation, linked media surfaces, and publication workflow.
+>
+> **The Ideal (`docs/ideal.md`) is the primary decision filter.**
+> Every compromise in `docs/spec.md` should point back to a named limitation and
+> an honest evolution path.
+
+## Ideal-First Methodology
+
+**Graph + state structure:** `docs/ideal.md` captures the product and execution
+ideal. `docs/spec.md` records active constraints against that ideal.
+`docs/methodology/state.yaml` owns the mutable planning state,
+`tests/fixtures/formats/_coverage-matrix.json` owns the machine-readable source
+inventory, and `docs/methodology/graph.json` compiles those surfaces into a
+single inspectable planning artifact. `docs/stories.md` is generated from that
+graph.
+
+**Operating rule:** planning starts from `docs/methodology/state.yaml`,
+`docs/methodology/graph.json`, and
+`tests/fixtures/formats/_coverage-matrix.json`. Implementation starts from the
+active story, but you still need the relevant spec and state context first.
+
+**Canonical bootstrap / refresh surface:** `/setup-methodology`
+
+## Working Rules
+
+- `doc-web` is upstream, not a dumping ground. Reuse its processed output or
+  integration seams instead of rebuilding its ingestion logic here unless the
+  user explicitly wants that change.
+- Structure before presentation. Prefer canonical data/content artifacts that
+  can feed multiple site views over one-off HTML fixes.
+- Provenance matters. Links to audio, scans, and companion materials should be
+  inspectable and traceable to their source record.
+- Do not invent runtime commands or framework conventions that do not exist in
+  this repo yet.
+- No implicit commits or pushes.
+- Fresh verification required. Do not claim a content transform, import seam,
+  or site behavior is working unless it was checked in this pass.
+
+## Skills
+
+Canonical location: `.agents/skills/`
+
+- Use `/setup-methodology` to install or refresh the methodology package
+- Use `/triage` to choose the next highest-leverage slice
+- Use `/align` after meaningful changes to sweep for methodology drift
+- Run `scripts/sync-agent-skills.sh` after changing project skills
+
+## Core Docs
+
+- `docs/ideal.md` — product and execution ideals
+- `docs/spec.md` — active project constraints with stable `spec:N` ids
+- `docs/methodology/state.yaml` — mutable planning state
+- `docs/methodology/graph.json` — compiled methodology view
+- `docs/setup-checklist.md` — working setup checklist
+- `docs/evals/README.md` — eval registry protocol
+- `docs/evals/registry.yaml` — eval source of truth
+- `docs/runbooks/setup-methodology.md` — setup/refresh runbook
+- `docs/runbooks/golden-build.md` — honest statement of current golden/build proof surface
+- `docs/scout.md` — scout expedition index
+- `docs/stories.md` — generated story index
+- `docs/stories/` — story files
+- `docs/decisions/` — decision records
+- `CHANGELOG.md` — repo change log
+
+## Current Repo Reality
+
+This repo is newly bootstrapped. There is no chosen frontend stack, app shell,
+or deployment target yet. Treat any missing runtime surface as genuinely
+missing, not implied.

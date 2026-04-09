@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "updated_at": "2026-04-09",
+  "surfaces": [
+    {
+      "id": "book-core-html",
+      "label": "Onward book core HTML",
+      "kind": "content-canon",
+      "upstream": "doc-web export",
+      "status": "planned",
+      "target_surface": "canonical chapter and section records",
+      "notes": "Primary authored book body for the website."
+    },
+    {
+      "id": "chapter-audio",
+      "label": "Chapter audiobook links",
+      "kind": "companion-media",
+      "upstream": "curated external links",
+      "status": "planned",
+      "target_surface": "chapter-level media metadata",
+      "notes": "Expected to attach to specific chapter pages."
+    },
+    {
+      "id": "full-book-audio",
+      "label": "Full book audio",
+      "kind": "companion-media",
+      "upstream": "curated external links",
+      "status": "planned",
+      "target_surface": "global book companion surface",
+      "notes": "Whole-book listening option."
+    },
+    {
+      "id": "chapter-podcasts",
+      "label": "Chapter podcast episodes",
+      "kind": "companion-media",
+      "upstream": "curated external links",
+      "status": "planned",
+      "target_surface": "chapter-level companion metadata",
+      "notes": "Podcast material connected to individual chapters."
+    },
+    {
+      "id": "full-book-podcast",
+      "label": "Full book podcast",
+      "kind": "companion-media",
+      "upstream": "curated external links",
+      "status": "planned",
+      "target_surface": "global companion surface",
+      "notes": "Long-form podcast coverage for the whole book."
+    },
+    {
+      "id": "scanned-supplements",
+      "label": "Scanned companion materials",
+      "kind": "archive-material",
+      "upstream": "family archive files",
+      "status": "planned",
+      "target_surface": "supplement galleries and source attachments",
+      "notes": "Scans that shipped with or relate directly to the book."
+    }
+  ]
+}
+

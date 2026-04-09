@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "format": "json-compatible-yaml",
+  "seeded_at": "2026-04-09",
+  "seeded_from": [
+    "docs/ideal.md",
+    "docs/spec.md",
+    "tests/fixtures/formats/_coverage-matrix.json"
+  ],
+  "categories": {
+    "spec:1": { "substrate": "partial", "last_reviewed": "2026-04-09" },
+    "spec:2": { "substrate": "missing", "last_reviewed": "2026-04-09" },
+    "spec:3": { "substrate": "missing", "last_reviewed": "2026-04-09" },
+    "spec:4": { "substrate": "partial", "last_reviewed": "2026-04-09" },
+    "spec:5": { "substrate": "missing", "last_reviewed": "2026-04-09" },
+    "spec:6": { "substrate": "partial", "last_reviewed": "2026-04-09" },
+    "spec:7": { "substrate": "missing", "last_reviewed": "2026-04-09" },
+    "spec:8": { "substrate": "partial", "last_reviewed": "2026-04-09" },
+    "spec:9": { "substrate": "exists", "last_reviewed": "2026-04-09" }
+  },
+  "compromises": {
+    "C1": { "phase": "climb", "last_reviewed": "2026-04-09" },
+    "C2": { "phase": "climb", "last_reviewed": "2026-04-09" },
+    "C3": { "phase": "climb", "last_reviewed": "2026-04-09" },
+    "C4": { "phase": "climb", "last_reviewed": "2026-04-09" },
+    "C5": { "phase": "climb", "last_reviewed": "2026-04-09" },
+    "C6": { "phase": "climb", "last_reviewed": "2026-04-09" },
+    "C7": { "phase": "climb", "last_reviewed": "2026-04-09" },
+    "B1": { "phase": "hold", "last_reviewed": "2026-04-09" },
+    "B2": { "phase": "hold", "last_reviewed": "2026-04-09" },
+    "B3": { "phase": "climb", "last_reviewed": "2026-04-09" }
+  },
+  "coverage_matrix": {
+    "path": "tests/fixtures/formats/_coverage-matrix.json",
+    "last_reviewed": "2026-04-09",
+    "notes": "Canonical machine-readable inventory of upstream content surfaces and companion archive inputs."
+  },
+  "roadmap": {
+    "active_focus": [
+      "campaign:bootstrap-canon-and-shell"
+    ],
+    "sequencing_bias": [
+      {
+        "target": "campaign:bootstrap-canon-and-shell",
+        "reason": "Define the import seam from doc-web, prove a canonical content model, then build the first real website slice instead of picking a frontend stack in the abstract."
+      }
+    ],
+    "campaigns": [
+      {
+        "id": "bootstrap-canon-and-shell",
+        "status": "active",
+        "story_refs": [],
+        "notes": "Early work should establish the upstream import contract, the site data model, and one end-to-end chapter rendering path with linked media."
+      }
+    ]
+  },
+  "stories_index": {
+    "sections": [
+      {
+        "id": "recommended-order",
+        "title": "Recommended Order",
+        "markdown": "Current priority: lock the `doc-web` import contract, define the canonical site content model, and prove one chapter-plus-media slice before spreading effort across extra archive surfaces or design polish."
+      }
+    ],
+    "uncategorized_label": "Legacy / Uncategorized Stories"
+  },
+  "architecture_audits": {
+    "cadence": {
+      "target_story_interval": 5
+    },
+    "domains": {
+      "upstream_integration": {
+        "label": "Upstream Integration",
+        "manual_priority": "high",
+        "last_audited_at": "2026-04-09",
+        "stories_since_audit": 0,
+        "recent_story_refs": [],
+        "open_findings": [],
+        "notes": "Primary risk surface while the repo decides how it consumes doc-web output."
+      },
+      "content_model": {
+        "label": "Content Model",
+        "manual_priority": "high",
+        "last_audited_at": "2026-04-09",
+        "stories_since_audit": 0,
+        "recent_story_refs": [],
+        "open_findings": [],
+        "notes": "Chapter, section, media, and provenance structures should stabilize before wide UI work."
+      },
+      "site_experience": {
+        "label": "Site Experience",
+        "manual_priority": "medium",
+        "last_audited_at": "2026-04-09",
+        "stories_since_audit": 0,
+        "recent_story_refs": [],
+        "open_findings": [],
+        "notes": "No frontend substrate exists yet; revisit after the first real rendering slice."
+      },
+      "methodology_tooling": {
+        "label": "Methodology Tooling",
+        "manual_priority": "medium",
+        "last_audited_at": "2026-04-09",
+        "stories_since_audit": 0,
+        "recent_story_refs": [],
+        "open_findings": [],
+        "notes": "Keep the imported methodology package honest and lightweight for this repo."
+      }
+    }
+  },
+  "archives": {},
+  "story_overrides": {
+    "category_refs": {}
+  }
+}
+
