@@ -1,5 +1,22 @@
 # Changelog
 
+## [2026-04-10-02] - Built the first local family-site slice (Story 004)
+
+### Added
+- Added a thin local family-site builder, fixture-backed tests, and repo build
+  commands for rendering the first accessible family-story slice from the
+  staged `input/` bundle.
+- Added `docs/input-contract.md` and `docs/presentation-decisions.md` to record
+  the real staged-bundle contract and the first site-presentation rules.
+- Added follow-up Story 005 for whole-book accessibility coverage and omission
+  accounting beyond the family slice.
+
+### Changed
+- Updated repo docs, methodology state, and the golden-build runbook to reflect
+  the first real local render path.
+- Clarified that any source material omitted from reshaped surfaces must be an
+  intentional, documented deferral rather than accidental loss.
+
 ## [2026-04-10-01] - Established DreamHost and Cloudflare deploy path (Story 001)
 
 ### Added

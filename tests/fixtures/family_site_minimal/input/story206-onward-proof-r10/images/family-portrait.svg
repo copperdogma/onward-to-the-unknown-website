@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 90" role="img" aria-labelledby="title">
+  <title>Family portrait placeholder</title>
+  <rect width="120" height="90" fill="#f2e6d8" />
+  <rect x="8" y="8" width="104" height="74" rx="8" fill="#c87c5a" opacity="0.35" />
+  <circle cx="42" cy="42" r="14" fill="#7a3b1d" opacity="0.78" />
+  <circle cx="78" cy="42" r="14" fill="#7a3b1d" opacity="0.78" />
+  <rect x="32" y="58" width="56" height="12" rx="6" fill="#7a3b1d" opacity="0.78" />
+</svg>

@@ -1,6 +1,8 @@
 PYTHON ?= $(shell command -v python 2>/dev/null || command -v python3 2>/dev/null)
+FAMILY_SITE_OUTPUT ?= build/family-site
+FAMILY_SITE_PORT ?= 4173
 
-.PHONY: skills-sync skills-check methodology-compile methodology-check deploy-static
+.PHONY: skills-sync skills-check methodology-compile methodology-check deploy-static test lint build-family-site preview-family-site
 
 skills-sync:
 	./scripts/sync-agent-skills.sh
@@ -16,3 +18,17 @@ methodology-check:
 
 deploy-static:
 	$(PYTHON) scripts/deploy_static_site.py
+
+test:
+	$(PYTHON) -m pytest tests/
+
+lint:
+	$(PYTHON) -m ruff check modules/ scripts/ tests/
+
+build-family-site:
+	$(PYTHON) scripts/build_family_site.py \
+		$(if $(SOURCE),--source "$(SOURCE)",) \
+		--output "$(FAMILY_SITE_OUTPUT)"
+
+preview-family-site:
+	$(PYTHON) -m http.server "$(FAMILY_SITE_PORT)" --directory "$(FAMILY_SITE_OUTPUT)"

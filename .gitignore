@@ -9,4 +9,6 @@ node_modules/
 dist/
 build/
 input/
+!tests/fixtures/**/input/
+!tests/fixtures/**/input/**
 .env

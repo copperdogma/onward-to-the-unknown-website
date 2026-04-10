@@ -59,7 +59,9 @@ material without losing narrative continuity.
 ### spec:3.1 Reading flow and cross-links
 
 Readers need stable chapter navigation, contextual next/previous flow, and
-clear links out to companion materials.
+clear links out to companion materials. Subsection-oriented views are fine, but
+they should not accidentally make parts of the book disappear; any deferred or
+omitted source material needs to be intentional and documented.
 
 ### C3 Navigation and chapter-to-media links are still a handcrafted editorial surface
 

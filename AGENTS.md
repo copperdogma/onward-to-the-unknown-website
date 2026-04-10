@@ -59,6 +59,8 @@ Canonical location: `.agents/skills/`
 - `docs/ideal.md` — product and execution ideals
 - `docs/spec.md` — active project constraints with stable `spec:N` ids
 - `docs/infrastructure.md` — hosting, DNS, and deployment truth surface
+- `docs/input-contract.md` — current staged-bundle intake contract
+- `docs/presentation-decisions.md` — first recorded site-presentation choices
 - `docs/methodology/state.yaml` — mutable planning state
 - `docs/methodology/graph.json` — compiled methodology view
 - `docs/setup-checklist.md` — working setup checklist
@@ -74,6 +76,7 @@ Canonical location: `.agents/skills/`
 
 ## Current Repo Reality
 
-This repo is newly bootstrapped. There is no chosen frontend stack, app shell,
-or deployment target yet. Treat any missing runtime surface as genuinely
+This repo now has a verified DreamHost/Cloudflare deploy path and a thin local
+family-site builder, but it still does not have a fully generalized frontend
+stack or final site shell. Treat any broader runtime surface as genuinely
 missing, not implied.

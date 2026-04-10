@@ -8,6 +8,11 @@ frictionless: a person can move chapter by chapter, jump by topic or person,
 follow links to companion audio and scans, and trust that every piece of
 content belongs where it appears.
 
+The site should make the full book materially accessible on the web. If any
+source material is deferred, hidden from a given surface, or omitted from an
+early slice, that needs to be an intentional and inspectable choice rather than
+an accidental loss during reshaping.
+
 The site should treat the book as the center of a living archive rather than a
 single isolated artifact. Chapters, recordings, scans, reunion ephemera, and
 future annotations should all connect cleanly without making the site feel like

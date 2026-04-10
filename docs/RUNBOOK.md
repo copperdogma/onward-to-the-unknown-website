@@ -10,6 +10,9 @@ python -m pip install -r requirements-deploy.txt
 make skills-sync
 make methodology-compile
 make methodology-check
+make test
+make lint
+make build-family-site
 make deploy-static
 ```
 
@@ -18,7 +21,12 @@ make deploy-static
 - the imported skill surface lives in `.agents/skills/`
 - the staged source material is expected to live in the local `input/` folder
 - infrastructure truth lives in `docs/infrastructure.md`
-- there is no chosen long-term site runtime yet
+- the first local site runtime exists as a thin family-site static builder in
+  `scripts/build_family_site.py`
+- the current input-bundle contract is documented in `docs/input-contract.md`
+- the first presentation choices are documented in
+  `docs/presentation-decisions.md`
+- there is still no fully generalized long-term site runtime yet
 - the current deploy command is `python scripts/deploy_static_site.py` (or
   `make deploy-static`), which uploads an existing static bundle to the
   DreamHost shared-hosting site path over SFTP using the local gitignored
@@ -32,5 +40,34 @@ Current default deploy payload: the staged `doc-web` export bundle at
 `input/doc-web-html/story206-onward-proof-r10` via
 `DREAMHOST_DEPLOY_SOURCE_DIR` in the local `.env`.
 
-When the first real import and render paths land, extend this runbook rather
-than replacing the current honest static-upload path in the abstract.
+## Local Family-Site Slice
+
+Build the current local family-story slice:
+
+```bash
+make build-family-site
+```
+
+Override the bundle path if needed:
+
+```bash
+make build-family-site SOURCE=/absolute/path/to/bundle
+```
+
+Preview the generated output locally:
+
+```bash
+make preview-family-site
+```
+
+That serves `build/family-site/` on `http://127.0.0.1:4173` by default.
+
+Validation commands for the current local builder:
+
+```bash
+make test
+make lint
+```
+
+Keep extending this runbook from the real local builder and deploy paths rather
+than replacing them in the abstract.

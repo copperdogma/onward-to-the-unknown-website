@@ -1,0 +1,37 @@
+{
+  "schema_version": "doc_web_bundle_manifest_v1",
+  "module_id": "build_chapter_html_v1",
+  "run_id": "story206-onward-proof-r10",
+  "created_at": "2026-04-10T17:44:53.198201Z",
+  "document_id": "onward-to-the-unknown",
+  "title": "Onward to the Unknown",
+  "index_path": "index.html",
+  "entries": [
+    {
+      "entry_id": "chapter-009",
+      "kind": "chapter",
+      "title": "Alma Marie (L'Heureux) Alain",
+      "path": "chapter-009.html",
+      "order": 18,
+      "prev_entry_id": "chapter-008",
+      "next_entry_id": "chapter-010",
+      "source_pages": [22, 23],
+      "printed_pages": [13, 14],
+      "printed_page_start": 13,
+      "printed_page_end": 14
+    },
+    {
+      "entry_id": "chapter-010",
+      "kind": "chapter",
+      "title": "ARTHUR L'HEUREUX",
+      "path": "chapter-010.html",
+      "order": 19,
+      "prev_entry_id": "chapter-009",
+      "next_entry_id": "chapter-011",
+      "source_pages": [24, 25],
+      "printed_pages": [19, 20],
+      "printed_page_start": 19,
+      "printed_page_end": 20
+    }
+  ]
+}

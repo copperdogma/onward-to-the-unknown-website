@@ -27,6 +27,10 @@ python -m pip install -r requirements-deploy.txt
 make skills-sync
 make methodology-compile
 make methodology-check
+make test
+make lint
+make build-family-site
+make preview-family-site
 make deploy-static
 ```
 
@@ -35,15 +39,17 @@ Operational environment truth lives in
 
 ## Current State
 
-The methodology package is installed. The current deploy path can already ship
-an existing static bundle to DreamHost shared hosting, but the long-term site
-runtime has not been chosen yet. The next substantive work should define:
+The methodology package is installed. The repo now has a first local
+family-site builder that reshapes the staged export into a more accessible
+family-story slice, but the broader site runtime is still partial. The next
+substantive work should define:
 
-1. the intake contract for the staged source material in `input/`
-2. the canonical content/data model for the website
-3. the first end-to-end website slice for one chapter plus linked media
-4. the first reshaped website slice beyond the raw staged export now being
-   used for infrastructure proof
+1. the broader canonical content/data model for the website
+2. how the non-family chapters and standalone page/image surfaces should be
+   presented
+3. chapter/media linkage beyond the first reading slice
+4. whether the local family-site approach should become the foundation for the
+   wider site shell
 
 Currently confirmed infrastructure:
 
@@ -55,3 +61,11 @@ Currently confirmed infrastructure:
 - Deploy helper dependency: `python -m pip install -r requirements-deploy.txt`
 - Deploy behavior: manifest-backed SFTP sync that can remove stale previously
   deployed files
+
+Current local build surface:
+
+- Input contract: [`docs/input-contract.md`](/Users/cam/.codex/worktrees/4201/onward-to-the-unknown-website/docs/input-contract.md)
+- Presentation decisions: [`docs/presentation-decisions.md`](/Users/cam/.codex/worktrees/4201/onward-to-the-unknown-website/docs/presentation-decisions.md)
+- Local family-site build: `python scripts/build_family_site.py` (or
+  `make build-family-site`)
+- Default local output: `build/family-site/`

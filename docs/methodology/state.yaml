@@ -9,12 +9,12 @@
   ],
   "categories": {
     "spec:1": { "substrate": "partial", "last_reviewed": "2026-04-09" },
-    "spec:2": { "substrate": "missing", "last_reviewed": "2026-04-09" },
-    "spec:3": { "substrate": "missing", "last_reviewed": "2026-04-09" },
+    "spec:2": { "substrate": "partial", "last_reviewed": "2026-04-10" },
+    "spec:3": { "substrate": "partial", "last_reviewed": "2026-04-10" },
     "spec:4": { "substrate": "partial", "last_reviewed": "2026-04-09" },
-    "spec:5": { "substrate": "missing", "last_reviewed": "2026-04-09" },
+    "spec:5": { "substrate": "partial", "last_reviewed": "2026-04-10" },
     "spec:6": { "substrate": "partial", "last_reviewed": "2026-04-09" },
-    "spec:7": { "substrate": "missing", "last_reviewed": "2026-04-09" },
+    "spec:7": { "substrate": "partial", "last_reviewed": "2026-04-10" },
     "spec:8": { "substrate": "partial", "last_reviewed": "2026-04-09" },
     "spec:9": { "substrate": "exists", "last_reviewed": "2026-04-09" }
   },
@@ -85,7 +85,7 @@
         "stories_since_audit": 0,
         "recent_story_refs": [],
         "open_findings": [],
-        "notes": "Chapter, section, media, and provenance structures should stabilize before wide UI work."
+        "notes": "The first local family-site builder now normalizes manifest, article, image, and provenance inputs just enough to render a real slice, but broader canonical records still need to stabilize before wide UI work."
       },
       "site_experience": {
         "label": "Site Experience",
@@ -94,7 +94,7 @@
         "stories_since_audit": 0,
         "recent_story_refs": [],
         "open_findings": [],
-        "notes": "No frontend substrate exists yet; revisit after the first real rendering slice."
+        "notes": "A thin local family-site rendering slice now exists; revisit after evaluating whether that shell should expand or be replaced."
       },
       "methodology_tooling": {
         "label": "Methodology Tooling",
