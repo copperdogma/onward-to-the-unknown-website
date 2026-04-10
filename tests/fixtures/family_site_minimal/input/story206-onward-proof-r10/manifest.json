@@ -8,30 +8,43 @@
   "index_path": "index.html",
   "entries": [
     {
+      "entry_id": "page-001",
+      "kind": "page",
+      "title": "Image 1",
+      "path": "page-001.html",
+      "order": 1,
+      "prev_entry_id": null,
+      "next_entry_id": "chapter-001",
+      "source_pages": [1],
+      "printed_pages": [],
+      "printed_page_start": null,
+      "printed_page_end": null
+    },
+    {
+      "entry_id": "chapter-001",
+      "kind": "chapter",
+      "title": "The Ancestral Lineage of Moïse and Sophie",
+      "path": "chapter-001.html",
+      "order": 2,
+      "prev_entry_id": "page-001",
+      "next_entry_id": "chapter-009",
+      "source_pages": [10, 11],
+      "printed_pages": [1, 2],
+      "printed_page_start": 1,
+      "printed_page_end": 2
+    },
+    {
       "entry_id": "chapter-009",
       "kind": "chapter",
       "title": "Alma Marie (L'Heureux) Alain",
       "path": "chapter-009.html",
-      "order": 18,
-      "prev_entry_id": "chapter-008",
-      "next_entry_id": "chapter-010",
+      "order": 3,
+      "prev_entry_id": "chapter-001",
+      "next_entry_id": null,
       "source_pages": [22, 23],
       "printed_pages": [13, 14],
       "printed_page_start": 13,
       "printed_page_end": 14
-    },
-    {
-      "entry_id": "chapter-010",
-      "kind": "chapter",
-      "title": "ARTHUR L'HEUREUX",
-      "path": "chapter-010.html",
-      "order": 19,
-      "prev_entry_id": "chapter-009",
-      "next_entry_id": "chapter-011",
-      "source_pages": [24, 25],
-      "printed_pages": [19, 20],
-      "printed_page_start": 19,
-      "printed_page_end": 20
     }
   ]
 }

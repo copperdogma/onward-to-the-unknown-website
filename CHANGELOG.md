@@ -1,5 +1,23 @@
 # Changelog
 
+## [2026-04-10-03] - Expanded the local builder to the full book (Story 005)
+
+### Added
+- Added a checked-in omission-audit snapshot at `docs/omission-audit.json` and
+  mixed fixture coverage for a standalone page, a non-family chapter, and a
+  family chapter.
+
+### Changed
+- Expanded the local `build-family-site` path into a whole-book reading surface
+  with grouped landing sections, manifest-order navigation, and updated
+  methodology/runbook truth surfaces.
+- Moved provenance and source-manifest artifacts behind internal maintenance
+  paths so the public reading surface stays focused on the book itself.
+
+### Fixed
+- Fixed the builder's default source resolution so `make build-family-site`
+  works against the committed `input/` bundle without hidden env setup.
+
 ## [2026-04-10-02] - Built the first local family-site slice (Story 004)
 
 ### Added

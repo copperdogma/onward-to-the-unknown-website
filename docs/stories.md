@@ -12,4 +12,4 @@ Current priority: lock the `input/` intake contract, define the canonical site c
 - **Draft** — `docs/stories/story-002-notebooklm-family-story-podcasts.md` — NotebookLM Family-Story Podcasts
 - **Draft** — `docs/stories/story-003-elevenlabs-full-audiobook.md` — ElevenLabs Full Audiobook
 - **Done** — `docs/stories/story-004-first-local-accessible-family-pages-slice.md` — First Local Accessible Family-Pages Slice
-- **Pending** — `docs/stories/story-005-whole-book-accessible-reading-surface-and-omission-audit.md` — Whole-Book Accessible Reading Surface And Omission Audit
+- **Done** — `docs/stories/story-005-whole-book-accessible-reading-surface-and-omission-audit.md` — Whole-Book Accessible Reading Surface And Omission Audit

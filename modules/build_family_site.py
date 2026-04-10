@@ -10,11 +10,13 @@ from html import escape, unescape
 from pathlib import Path
 from textwrap import dedent
 
-DEFAULT_FAMILY_ENTRY_IDS = [f"chapter-{number:03d}" for number in range(9, 24)]
+REPO_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_SOURCE_DIR = REPO_ROOT / "input" / "doc-web-html" / "story206-onward-proof-r10"
+DEFAULT_FAMILY_ENTRY_IDS = frozenset(f"chapter-{number:03d}" for number in range(9, 24))
 DEFAULT_OUTPUT_DIR = Path("build/family-site")
-DEFAULT_SITE_TITLE = "Onward Family Stories"
+DEFAULT_SITE_TITLE = "Onward to the Unknown"
 SOURCE_ENV_KEYS = ("ONWARD_INPUT_SOURCE_DIR", "DREAMHOST_DEPLOY_SOURCE_DIR")
-ARTICLE_PATTERN = re.compile(r"<article>(.*)</article>", re.DOTALL)
+ARTICLE_PATTERN = re.compile(r"<article>(.*?)</article>", re.DOTALL)
 TAG_PATTERN = re.compile(r"<[^>]+>")
 WHITESPACE_PATTERN = re.compile(r"\s+")
 
@@ -33,7 +35,7 @@ SITE_STYLESHEET = dedent(
       --shadow: 0 18px 45px rgba(71, 48, 26, 0.09);
       --body-font: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
       --ui-font: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-      --max-width: 72rem;
+      --max-width: 74rem;
       --hit-target: 3.5rem;
     }
 
@@ -66,6 +68,11 @@ SITE_STYLESHEET = dedent(
       display: block;
     }
 
+    code {
+      font-family: "SFMono-Regular", "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.92em;
+    }
+
     .site-shell {
       width: min(var(--max-width), calc(100% - 1.5rem));
       margin: 0 auto;
@@ -81,20 +88,27 @@ SITE_STYLESHEET = dedent(
       margin-bottom: 1.25rem;
     }
 
-    .eyebrow,
-    .meta-kicker {
+    .site-title,
+    .section-title {
       font-family: var(--ui-font);
-      font-size: 0.85rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--accent-strong);
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+    }
+
+    .site-title {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      margin: 0;
+    }
+
+    .section-title {
+      font-size: clamp(1.4rem, 3vw, 1.9rem);
+      margin: 0;
     }
 
     .hero,
     .panel,
     .story-card,
-    .article-card,
-    .provenance-card {
+    .article-card {
       background: var(--paper);
       border: 1px solid var(--border);
       border-radius: 1.15rem;
@@ -117,58 +131,42 @@ SITE_STYLESHEET = dedent(
     }
 
     .hero h1 {
-      font-size: clamp(2.2rem, 4vw, 3.6rem);
-      margin: 0.35rem 0 0.9rem;
-    }
-
-    .lede {
-      font-size: 1.12rem;
-      max-width: 48rem;
-      color: var(--ink);
-      margin: 0 0 1rem;
-    }
-
-    .hero-note {
+      font-size: clamp(2.6rem, 5vw, 4.2rem);
       margin: 0;
-      font-size: 0.98rem;
-      color: var(--muted);
-      max-width: 48rem;
+      max-width: 40rem;
     }
 
-    .decision-list,
-    .provenance-list,
-    .meta-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
+    .jump-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
     }
 
-    .decision-list li,
-    .provenance-list li,
-    .meta-list li {
-      padding: 0.55rem 0;
-      border-top: 1px solid rgba(111, 46, 29, 0.12);
+    .jump-row {
+      margin-top: 1.25rem;
     }
 
-    .decision-list li:first-child,
-    .provenance-list li:first-child,
-    .meta-list li:first-child {
-      border-top: none;
-      padding-top: 0;
+    .section-panel {
+      padding: 1.3rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-header {
+      margin-bottom: 1rem;
     }
 
     .story-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
       gap: 1rem;
-      margin: 1.5rem 0;
+      margin: 0;
     }
 
     .story-card {
       display: block;
       text-decoration: none;
       padding: 1.15rem;
-      min-height: 16rem;
+      min-height: 15rem;
       transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
     }
 
@@ -181,19 +179,13 @@ SITE_STYLESHEET = dedent(
     }
 
     .story-card .story-title {
-      font-size: 1.4rem;
+      font-size: 1.35rem;
       margin: 0.35rem 0 0.75rem;
     }
 
     .story-card p {
       margin: 0.7rem 0 0;
       color: var(--ink);
-    }
-
-    .story-meta {
-      font-family: var(--ui-font);
-      font-size: 0.95rem;
-      color: var(--muted);
     }
 
     .page-nav {
@@ -215,9 +207,13 @@ SITE_STYLESHEET = dedent(
       font-size: 1rem;
       line-height: 1.2;
       text-decoration: none;
-      flex: 1 1 12rem;
       border: 1px solid var(--border);
       background: var(--paper-strong);
+    }
+
+    .nav-button,
+    .nav-placeholder {
+      flex: 1 1 12rem;
     }
 
     .nav-button.primary {
@@ -235,15 +231,7 @@ SITE_STYLESHEET = dedent(
       background: rgba(255, 255, 255, 0.4);
     }
 
-    .page-layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem);
-      gap: 1rem;
-      align-items: start;
-    }
-
-    .article-card,
-    .provenance-card {
+    .article-card {
       padding: 1.4rem;
     }
 
@@ -313,60 +301,11 @@ SITE_STYLESHEET = dedent(
       background: rgba(255, 255, 255, 0.35);
     }
 
-    .article-card .page-meta {
-      font-family: var(--ui-font);
-      font-size: 0.97rem;
-      color: var(--muted);
-      margin-bottom: 1rem;
-    }
-
-    .provenance-card h2 {
-      margin: 0.2rem 0 1rem;
-      font-size: 1.2rem;
-      font-family: var(--ui-font);
-    }
-
-    .provenance-card p {
-      margin: 0 0 1rem;
-      color: var(--muted);
-    }
-
-    .link-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.65rem;
-      margin-top: 1rem;
-    }
-
-    .inline-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 2.8rem;
-      padding: 0.7rem 0.95rem;
-      border-radius: 0.85rem;
-      border: 1px solid rgba(111, 46, 29, 0.16);
-      background: rgba(255, 255, 255, 0.72);
-      text-decoration: none;
-      font-family: var(--ui-font);
-      font-size: 0.98rem;
-    }
-
-    .site-footer {
-      margin-top: 2rem;
-      color: var(--muted);
-      font-size: 0.98rem;
-    }
-
     @media (max-width: 54rem) {
       html { font-size: 106.25%; }
 
       .site-shell {
         width: min(var(--max-width), calc(100% - 1rem));
-      }
-
-      .page-layout {
-        grid-template-columns: 1fr;
       }
     }
 
@@ -374,8 +313,8 @@ SITE_STYLESHEET = dedent(
       html { font-size: 100%; }
 
       .hero,
+      .section-panel,
       .article-card,
-      .provenance-card,
       .story-card {
         padding: 1rem;
       }
@@ -387,6 +326,33 @@ SITE_STYLESHEET = dedent(
     }
     """
 ).strip()
+
+
+@dataclass(frozen=True)
+class EntryGroup:
+    id: str
+    label: str
+    rendered_rationale: str
+
+
+ENTRY_GROUPS = (
+    EntryGroup(
+        id="book-chapters",
+        label="Book Chapters",
+        rendered_rationale="Rendered as a whole-book chapter page in the accessible local reading surface.",
+    ),
+    EntryGroup(
+        id="family-stories",
+        label="Family stories",
+        rendered_rationale="Rendered as a whole-page family story inside the whole-book local reading surface.",
+    ),
+    EntryGroup(
+        id="pages-and-images",
+        label="Pages & Images",
+        rendered_rationale="Rendered as a standalone page/image entry with light reshaping so the source page remains reachable.",
+    ),
+)
+ENTRY_GROUPS_BY_ID = {group.id: group for group in ENTRY_GROUPS}
 
 
 @dataclass(frozen=True)
@@ -407,10 +373,19 @@ class BundleEntry:
 @dataclass(frozen=True)
 class RenderedEntry:
     entry: BundleEntry
+    group: EntryGroup
     article_html: str
     summary_text: str
-    block_counts: dict[str, int]
-    provenance_path: str
+
+
+@dataclass(frozen=True)
+class AuditRow:
+    entry: BundleEntry
+    group: EntryGroup
+    status: str
+    surface: str
+    output_path: str | None
+    rationale: str
 
 
 @dataclass(frozen=True)
@@ -418,6 +393,7 @@ class BuildResult:
     source_dir: Path
     output_dir: Path
     rendered_entry_ids: tuple[str, ...]
+    omission_audit_path: Path
 
 
 def bundle_entry_from_manifest(row: dict) -> BundleEntry:
@@ -444,6 +420,7 @@ def resolve_source_dir(source: str | Path | None = None) -> Path:
         value = os.environ.get(key)
         if value:
             candidates.append(Path(value))
+    candidates.append(DEFAULT_SOURCE_DIR)
 
     for candidate in candidates:
         resolved = candidate.expanduser().resolve()
@@ -507,15 +484,32 @@ def format_list(label: str, values: tuple[int, ...]) -> str:
     return f"{label}: {', '.join(str(value) for value in values)}"
 
 
-def build_block_counts(provenance_rows: list[dict]) -> dict[str, int]:
-    counts = Counter(row["block_kind"] for row in provenance_rows)
-    return dict(sorted(counts.items()))
+def group_for_entry(entry: BundleEntry) -> EntryGroup:
+    if entry.kind == "page":
+        return ENTRY_GROUPS_BY_ID["pages-and-images"]
+    if entry.entry_id in DEFAULT_FAMILY_ENTRY_IDS:
+        return ENTRY_GROUPS_BY_ID["family-stories"]
+    return ENTRY_GROUPS_BY_ID["book-chapters"]
+
+
+def select_entries(all_entries: list[BundleEntry], entry_ids: list[str] | None) -> list[BundleEntry]:
+    if not entry_ids:
+        return list(all_entries)
+
+    entries_by_id = {entry.entry_id: entry for entry in all_entries}
+    missing = [entry_id for entry_id in entry_ids if entry_id not in entries_by_id]
+    if missing:
+        raise SystemExit(
+            "Manifest does not contain requested entry id(s): " + ", ".join(sorted(missing))
+        )
+
+    requested_ids = set(entry_ids)
+    return [entry for entry in all_entries if entry.entry_id in requested_ids]
 
 
 def build_rendered_entries(
     source_dir: Path,
     entries: list[BundleEntry],
-    provenance_rows: dict[str, list[dict]],
 ) -> list[RenderedEntry]:
     rendered: list[RenderedEntry] = []
     for entry in entries:
@@ -524,13 +518,46 @@ def build_rendered_entries(
         rendered.append(
             RenderedEntry(
                 entry=entry,
+                group=group_for_entry(entry),
                 article_html=article_html,
                 summary_text=plain_text_excerpt(article_html),
-                block_counts=build_block_counts(provenance_rows.get(entry.entry_id, [])),
-                provenance_path=f"provenance/entries/{entry.entry_id}.json",
             )
         )
     return rendered
+
+
+def build_omission_audit(
+    all_entries: list[BundleEntry],
+    selected_entries: list[BundleEntry],
+) -> list[AuditRow]:
+    selected_ids = {entry.entry_id for entry in selected_entries}
+    audit_rows: list[AuditRow] = []
+    for entry in all_entries:
+        group = group_for_entry(entry)
+        if entry.entry_id in selected_ids:
+            audit_rows.append(
+                AuditRow(
+                    entry=entry,
+                    group=group,
+                    status="rendered",
+                    surface="whole-entry-page",
+                    output_path=entry.path,
+                    rationale=group.rendered_rationale,
+                )
+            )
+            continue
+
+        audit_rows.append(
+            AuditRow(
+                entry=entry,
+                group=group,
+                status="intentionally_deferred",
+                surface="audit-only",
+                output_path=None,
+                rationale="Excluded from this filtered build invocation because `--entry-id` requested a smaller subset.",
+            )
+        )
+    return audit_rows
 
 
 def ensure_clean_output_dir(output_dir: Path) -> None:
@@ -563,96 +590,70 @@ def render_layout(title: str, body_html: str) -> str:
     )
 
 
+def render_entry_card(rendered: RenderedEntry) -> str:
+    entry = rendered.entry
+    return dedent(
+        f"""\
+        <a class="story-card" href="{escape(entry.path)}">
+          <h3 class="story-title">{escape(entry.title)}</h3>
+          <p>{escape(rendered.summary_text)}</p>
+        </a>
+        """
+    ).strip()
+
+
+def render_index_section(group: EntryGroup, rendered_entries: list[RenderedEntry]) -> str:
+    if not rendered_entries:
+        return ""
+
+    cards = "\n".join(render_entry_card(rendered) for rendered in rendered_entries)
+    return dedent(
+        f"""\
+        <section class="panel section-panel" id="{escape(group.id)}">
+          <div class="section-header">
+            <h2 class="section-title">{escape(group.label)}</h2>
+          </div>
+          <div class="story-grid">
+            {cards}
+          </div>
+        </section>
+        """
+    )
+
+
 def render_index_page(
     site_title: str,
     manifest: dict,
     rendered_entries: list[RenderedEntry],
 ) -> str:
-    cards: list[str] = []
-    for rendered in rendered_entries:
-        entry = rendered.entry
-        cards.append(
-            dedent(
-                f"""\
-                <a class="story-card" href="{escape(entry.path)}">
-                  <div class="eyebrow">Family story</div>
-                  <h2 class="story-title">{escape(entry.title)}</h2>
-                  <div class="story-meta">
-                    {escape(format_range("Printed pages", entry.printed_page_start, entry.printed_page_end))}
-                  </div>
-                  <p>{escape(rendered.summary_text)}</p>
-                  <p class="story-meta">{escape(format_list("Source pages", entry.source_pages))}</p>
-                </a>
-                """
-            ).strip()
-        )
-
-    decisions = "\n".join(
-        [
-            "<li>Each selected family story stays a whole page in this first pass.</li>",
-            "<li>The landing page covers the family-story run only, not the front matter or raw image-page sequence.</li>",
-            "<li>Every page exposes source-page and provenance cues instead of hiding the bundle lineage.</li>",
-            "<li>Navigation and control sizing are tuned for older readers on both desktop and mobile.</li>",
-        ]
+    sections = {
+        group.id: [rendered for rendered in rendered_entries if rendered.group.id == group.id]
+        for group in ENTRY_GROUPS
+    }
+    section_links = " ".join(
+        render_nav_link(group.label, f"#{group.id}")
+        for group in ENTRY_GROUPS
+        if sections[group.id]
+    )
+    section_html = "\n".join(
+        render_index_section(group, sections[group.id])
+        for group in ENTRY_GROUPS
+        if sections[group.id]
     )
 
     body = dedent(
         f"""\
         <main class="site-shell">
-          <header class="site-header">
-            <div>
-              <div class="eyebrow">First local family-site slice</div>
-              <strong>{escape(site_title)}</strong>
-            </div>
-            <div class="meta-kicker">Source run {escape(manifest["run_id"])}</div>
-          </header>
           <section class="hero">
-            <div class="eyebrow">Archive-first reading surface</div>
-            <h1>Family stories, preserved as whole pages.</h1>
-            <p class="lede">
-              This local slice reshapes the staged export into a more readable family-story run
-              without fragmenting the source pages. It starts with the individual family stories
-              and leaves the rest of the raw export intact for later stories.
-            </p>
-            <p class="hero-note">
-              Built from <code>manifest.json</code>, chapter HTML, copied images, and raw provenance
-              records from the local input bundle. Use this slice to evaluate presentation decisions
-              before expanding the rest of the book.
-            </p>
+            <h1>{escape(manifest["title"])}</h1>
+            <div class="jump-row">{section_links}</div>
           </section>
 
-          <section class="panel" style="padding: 1.3rem; margin-bottom: 1.5rem;">
-            <div class="eyebrow">First presentation decisions</div>
-            <ul class="decision-list">
-              {decisions}
-            </ul>
-          </section>
-
-          <section class="story-grid">
-            {' '.join(cards)}
-          </section>
-
-          <footer class="site-footer">
-            <p>
-              Inspectable source artifacts:
-              <a href="source-manifest.json">bundle manifest</a> and
-              <a href="provenance/blocks.jsonl">raw provenance JSONL</a>.
-            </p>
-          </footer>
+          {section_html}
         </main>
         """
     )
-    return render_layout(title=f"{site_title} — Family stories", body_html=body)
-
-
-def render_block_counts(block_counts: dict[str, int]) -> str:
-    if not block_counts:
-        return "<li>No per-block provenance rows were found for this entry.</li>"
-    items = [
-        f"<li>{escape(kind.replace('_', ' ').title())}: {count}</li>"
-        for kind, count in block_counts.items()
-    ]
-    return "".join(items)
+    return render_layout(title=site_title, body_html=body)
 
 
 def render_nav_link(label: str, href: str | None, *, primary: bool = False) -> str:
@@ -664,7 +665,6 @@ def render_nav_link(label: str, href: str | None, *, primary: bool = False) -> s
 
 def render_entry_page(
     site_title: str,
-    manifest: dict,
     rendered_entries: list[RenderedEntry],
     index: int,
 ) -> str:
@@ -677,87 +677,90 @@ def render_entry_page(
         f"""\
         <main class="site-shell">
           <header class="site-header">
-            <div>
-              <div class="eyebrow">Whole-page family story</div>
-              <strong>{escape(site_title)}</strong>
-            </div>
-            <div class="meta-kicker">{escape(format_range("Printed pages", entry.printed_page_start, entry.printed_page_end))}</div>
+            <div class="site-title">{escape(site_title)}</div>
           </header>
 
-          <nav class="page-nav" aria-label="Family story navigation">
-            {render_nav_link(f"Previous: {previous_entry.title}" if previous_entry else "No previous family story", previous_entry.path if previous_entry else None)}
-            {render_nav_link("Back to family landing", "index.html", primary=True)}
-            {render_nav_link(f"Next: {next_entry.title}" if next_entry else "No next family story", next_entry.path if next_entry else None)}
+          <nav class="page-nav" aria-label="Book entry navigation">
+            {render_nav_link(previous_entry.title if previous_entry else "Previous", previous_entry.path if previous_entry else None)}
+            {render_nav_link("Contents", "index.html", primary=True)}
+            {render_nav_link(next_entry.title if next_entry else "Next", next_entry.path if next_entry else None)}
           </nav>
 
-          <section class="page-layout">
-            <article class="article-card">
-              <div class="page-meta">
-                {escape(format_list("Source pages", entry.source_pages))}
-              </div>
-              {rendered.article_html}
-            </article>
-
-            <aside class="provenance-card">
-              <div class="eyebrow">Where this page came from</div>
-              <h2>Visible provenance</h2>
-              <p>
-                This page keeps the source block ids from the staged export and links back to the
-                raw provenance records for inspection.
-              </p>
-              <ul class="meta-list">
-                <li>{escape(format_list("Source pages", entry.source_pages))}</li>
-                <li>{escape(format_range("Printed pages", entry.printed_page_start, entry.printed_page_end))}</li>
-                <li>Provenance rows: {sum(rendered.block_counts.values())}</li>
-              </ul>
-              <h2>Block types</h2>
-              <ul class="provenance-list">
-                {render_block_counts(rendered.block_counts)}
-              </ul>
-              <div class="link-row">
-                <a class="inline-link" href="{escape(rendered.provenance_path)}">Entry provenance JSON</a>
-                <a class="inline-link" href="provenance/blocks.jsonl">Raw provenance JSONL</a>
-                <a class="inline-link" href="source-manifest.json">Bundle manifest</a>
-              </div>
-            </aside>
-          </section>
-
-          <footer class="site-footer">
-            <p>
-              Built from source run <strong>{escape(manifest["run_id"])}</strong> and preserved as a whole page
-              for this first family-site slice.
-            </p>
-          </footer>
+          <article class="article-card">
+            {rendered.article_html}
+          </article>
         </main>
         """
     )
     return render_layout(title=f"{entry.title} — {site_title}", body_html=body)
 
 
+def serialize_omission_audit(
+    manifest: dict,
+    site_title: str,
+    audit_rows: list[AuditRow],
+) -> str:
+    status_counts = Counter(row.status for row in audit_rows)
+    group_rows = []
+    for group in ENTRY_GROUPS:
+        group_entries = [row for row in audit_rows if row.group.id == group.id]
+        if not group_entries:
+            continue
+        group_rows.append(
+            {
+                "group_id": group.id,
+                "group_label": group.label,
+                "entry_count": len(group_entries),
+                "rendered_count": sum(1 for row in group_entries if row.status == "rendered"),
+            }
+        )
+
+    payload = {
+        "schema_version": "onward_omission_audit_v1",
+        "run_id": manifest.get("run_id"),
+        "document_id": manifest.get("document_id"),
+        "title": manifest.get("title"),
+        "site_title": site_title,
+        "manifest_entry_count": len(audit_rows),
+        "status_counts": dict(sorted(status_counts.items())),
+        "groups": group_rows,
+        "entries": [
+            {
+                "entry_id": row.entry.entry_id,
+                "kind": row.entry.kind,
+                "title": row.entry.title,
+                "group_id": row.group.id,
+                "group_label": row.group.label,
+                "status": row.status,
+                "surface": row.surface,
+                "output_path": row.output_path,
+                "rationale": row.rationale,
+                "source_pages": list(row.entry.source_pages),
+                "printed_pages": list(row.entry.printed_pages),
+                "printed_page_start": row.entry.printed_page_start,
+                "printed_page_end": row.entry.printed_page_end,
+            }
+            for row in audit_rows
+        ],
+    }
+    return json.dumps(payload, indent=2, sort_keys=True) + "\n"
+
+
 def build_family_site(
     source_dir: Path,
     output_dir: Path,
     *,
-    family_entry_ids: list[str] | None = None,
+    entry_ids: list[str] | None = None,
     site_title: str = DEFAULT_SITE_TITLE,
 ) -> BuildResult:
     manifest = load_manifest(source_dir)
     all_entries = [bundle_entry_from_manifest(row) for row in manifest.get("entries", [])]
-    entries_by_id = {entry.entry_id: entry for entry in all_entries}
-    selected_ids = family_entry_ids or list(DEFAULT_FAMILY_ENTRY_IDS)
-
-    selected_entries: list[BundleEntry] = []
-    for entry_id in selected_ids:
-        entry = entries_by_id.get(entry_id)
-        if entry is None:
-            raise SystemExit(f"Manifest does not contain requested entry id: {entry_id}")
-        if entry.kind != "chapter":
-            raise SystemExit(f"Requested family entry is not a chapter: {entry_id}")
-        selected_entries.append(entry)
+    selected_entries = select_entries(all_entries, entry_ids)
 
     ensure_clean_output_dir(output_dir)
     write_text(output_dir / "assets" / "family-site.css", SITE_STYLESHEET + "\n")
-    write_text(output_dir / "source-manifest.json", json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+    internal_dir = output_dir / "_internal"
+    write_text(internal_dir / "source-manifest.json", json.dumps(manifest, indent=2, sort_keys=True) + "\n")
 
     images_source = source_dir / "images"
     if images_source.exists():
@@ -765,28 +768,46 @@ def build_family_site(
 
     provenance_source = source_dir / "provenance" / "blocks.jsonl"
     if provenance_source.exists():
-        write_text(output_dir / "provenance" / "blocks.jsonl", provenance_source.read_text(encoding="utf-8"))
+        write_text(internal_dir / "provenance" / "blocks.jsonl", provenance_source.read_text(encoding="utf-8"))
 
     provenance_rows = load_provenance_rows(source_dir)
-    rendered_entries = build_rendered_entries(source_dir, selected_entries, provenance_rows)
+    rendered_entries = build_rendered_entries(source_dir, selected_entries)
+    audit_rows = build_omission_audit(all_entries, selected_entries)
+    omission_audit_path = internal_dir / "omission-audit.json"
+
+    write_text(omission_audit_path, serialize_omission_audit(manifest, site_title, audit_rows))
 
     for rendered in rendered_entries:
         entry_rows = provenance_rows.get(rendered.entry.entry_id, [])
         write_text(
-            output_dir / rendered.provenance_path,
+            internal_dir / "provenance" / "entries" / f"{rendered.entry.entry_id}.json",
             json.dumps(entry_rows, indent=2, sort_keys=True) + "\n",
         )
+
+    for index, rendered in enumerate(rendered_entries):
         write_text(
             output_dir / rendered.entry.path,
-            render_entry_page(site_title=site_title, manifest=manifest, rendered_entries=rendered_entries, index=rendered_entries.index(rendered)),
+            render_entry_page(
+                site_title=site_title,
+                rendered_entries=rendered_entries,
+                index=index,
+            ),
         )
 
-    write_text(output_dir / "index.html", render_index_page(site_title=site_title, manifest=manifest, rendered_entries=rendered_entries))
+    write_text(
+        output_dir / "index.html",
+        render_index_page(
+            site_title=site_title,
+            manifest=manifest,
+            rendered_entries=rendered_entries,
+        ),
+    )
 
     return BuildResult(
         source_dir=source_dir,
         output_dir=output_dir,
         rendered_entry_ids=tuple(rendered.entry.entry_id for rendered in rendered_entries),
+        omission_audit_path=omission_audit_path,
     )
 
 
@@ -794,24 +815,24 @@ def cli_main(argv: list[str] | None = None) -> int:
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Build the first local accessible family-site slice from the staged input bundle."
+        description="Build the local accessible whole-book reading surface from the staged input bundle."
     )
     parser.add_argument("--source", help="Path to the staged input bundle directory containing manifest.json.")
     parser.add_argument(
         "--output",
         default=str(DEFAULT_OUTPUT_DIR),
-        help="Output directory for the generated local family-site slice.",
+        help="Output directory for the generated local whole-book reading surface.",
     )
     parser.add_argument(
         "--entry-id",
         action="append",
         dest="entry_ids",
-        help="Optional manifest chapter entry id to include. Repeat to override the default family sequence.",
+        help="Optional manifest entry id to include. Repeat to build a smaller subset while still auditing every manifest entry.",
     )
     parser.add_argument(
         "--site-title",
         default=DEFAULT_SITE_TITLE,
-        help="Display title for the generated family-site slice.",
+        help="Display title for the generated reading surface.",
     )
     args = parser.parse_args(argv)
 
@@ -820,9 +841,10 @@ def cli_main(argv: list[str] | None = None) -> int:
     result = build_family_site(
         source_dir=source_dir,
         output_dir=output_dir,
-        family_entry_ids=args.entry_ids,
+        entry_ids=args.entry_ids,
         site_title=args.site_title,
     )
-    print(f"Built family-site slice from {result.source_dir} into {result.output_dir}")
+    print(f"Built reading surface from {result.source_dir} into {result.output_dir}")
+    print(f"Omission audit: {result.omission_audit_path}")
     print("Rendered entries: " + ", ".join(result.rendered_entry_ids))
     return 0

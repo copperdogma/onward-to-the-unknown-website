@@ -13,6 +13,7 @@ make methodology-check
 make test
 make lint
 make build-family-site
+make refresh-omission-audit
 make deploy-static
 make doc-web-contract
 ```
@@ -22,10 +23,12 @@ make doc-web-contract
 - the imported skill surface lives in `.agents/skills/`
 - the staged source material is expected to live in the local `input/` folder
 - infrastructure truth lives in `docs/infrastructure.md`
-- the first local site runtime exists as a thin family-site static builder in
+- the first local site runtime exists as a thin whole-book static builder in
   `scripts/build_family_site.py`
 - the current input-bundle contract is documented in `docs/input-contract.md`
-- the first presentation choices are documented in
+- the current whole-book omission-audit snapshot lives at
+  `docs/omission-audit.json`
+- the active presentation choices are documented in
   `docs/presentation-decisions.md`
 - there is still no fully generalized long-term site runtime yet
 - the first committed accepted source bundle lives under
@@ -43,9 +46,9 @@ Current default deploy payload: the staged `doc-web` export bundle at
 `input/doc-web-html/story206-onward-proof-r10` via
 `DREAMHOST_DEPLOY_SOURCE_DIR` in the local `.env`.
 
-## Local Family-Site Slice
+## Local Whole-Book Slice
 
-Build the current local family-story slice:
+Build the current local whole-book reading surface:
 
 ```bash
 make build-family-site
@@ -65,11 +68,20 @@ make preview-family-site
 
 That serves `build/family-site/` on `http://127.0.0.1:4173` by default.
 
+Refresh the checked-in omission-audit snapshot from the current accepted
+bundle:
+
+```bash
+make refresh-omission-audit
+```
+
 Validation commands for the current local builder:
 
 ```bash
 make test
 make lint
+make methodology-compile
+make methodology-check
 ```
 
 ## `doc-web` Commands

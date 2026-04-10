@@ -25,7 +25,7 @@
           "C1"
         ],
         "substrate": "partial",
-        "last_reviewed": "2026-04-09"
+        "last_reviewed": "2026-04-10"
       },
       {
         "id": "spec:2",
@@ -122,7 +122,7 @@
     "categories": {
       "spec:1": {
         "substrate": "partial",
-        "last_reviewed": "2026-04-09"
+        "last_reviewed": "2026-04-10"
       },
       "spec:2": {
         "substrate": "partial",
@@ -254,7 +254,7 @@
           "stories_since_audit": 0,
           "recent_story_refs": [],
           "open_findings": [],
-          "notes": "The first local family-site builder now normalizes manifest, article, image, and provenance inputs just enough to render a real slice, but broader canonical records still need to stabilize before wide UI work."
+          "notes": "The local builder now normalizes manifest, article, image, and provenance inputs enough to render the full staged book and emit an omission audit, but broader canonical records still need to stabilize before wide UI work."
         },
         "site_experience": {
           "label": "Site Experience",
@@ -263,7 +263,7 @@
           "stories_since_audit": 0,
           "recent_story_refs": [],
           "open_findings": [],
-          "notes": "A thin local family-site rendering slice now exists; revisit after evaluating whether that shell should expand or be replaced."
+          "notes": "A thin local whole-book reading surface now exists with grouped navigation and explicit omission accounting; revisit after evaluating whether that shell should expand or be replaced."
         },
         "methodology_tooling": {
           "label": "Methodology Tooling",
@@ -291,8 +291,8 @@
         "kind": "content-canon",
         "upstream": "local staged website snapshot in input/",
         "status": "partial",
-        "target_surface": "first local family-site slice plus future canonical chapter and section records",
-        "notes": "Primary authored book body for the website, staged locally rather than pulled from a live repo integration. The first local family-site builder now consumes this surface directly."
+        "target_surface": "whole-book local reading surface plus future canonical chapter and section records",
+        "notes": "Primary authored book body for the website, staged locally rather than pulled from a live repo integration. The current local builder now renders every manifest entry into a whole-book reading surface and emits an omission audit, while broader canonical records and companion media remain future work."
       },
       {
         "id": "chapter-audio",
@@ -367,13 +367,12 @@
       {
         "path": "docs/stories/story-005-whole-book-accessible-reading-surface-and-omission-audit.md",
         "title": "Whole-Book Accessible Reading Surface And Omission Audit",
-        "status": "Pending"
+        "status": "Done"
       }
     ],
     "counts_by_status": {
-      "Done": 2,
-      "Draft": 2,
-      "Pending": 1
+      "Done": 3,
+      "Draft": 2
     }
   }
 }

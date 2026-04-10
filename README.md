@@ -18,8 +18,8 @@ snapshots stay uncommitted.
 
 ## Bootstrap Surface
 
-This repo is currently bootstrapped with the shared methodology package and an
-initial planning surface for the site work.
+This repo is currently bootstrapped with the shared methodology package and a
+working local whole-book reading surface for the staged bundle.
 
 Useful commands:
 
@@ -31,6 +31,7 @@ make methodology-check
 make test
 make lint
 make build-family-site
+make refresh-omission-audit
 make preview-family-site
 make deploy-static
 make doc-web-contract
@@ -40,16 +41,16 @@ Operational environment truth lives in `docs/infrastructure.md`.
 
 ## Current State
 
-The methodology package is installed. The repo now has a first local
-family-site builder that reshapes the staged export into a more accessible
-family-story slice, but the broader site runtime is still partial. The next
-substantive work should define:
+The methodology package is installed. The repo now has a thin local builder
+that renders the full staged book into an accessible whole-book reading
+surface, keeps family stories grouped as a recognizable run, and emits an
+inspectable omission audit at `docs/omission-audit.json`. The broader site
+runtime is still partial. The next substantive work should define:
 
 1. the broader canonical content/data model for the website
-2. how the non-family chapters and standalone page/image surfaces should be
-   presented
-3. chapter/media linkage beyond the first reading slice
-4. whether the local family-site approach should become the foundation for the
+2. chapter/media linkage beyond the current reading slice
+3. whether the historically named local `build-family-site` approach should
+   become the foundation for the
    wider site shell
 
 Currently confirmed infrastructure:
@@ -66,9 +67,10 @@ Currently confirmed infrastructure:
 Current local build surface:
 
 - Input contract: `docs/input-contract.md`
+- Omission audit snapshot: `docs/omission-audit.json`
 - Presentation decisions: `docs/presentation-decisions.md`
-- Local family-site build: `python scripts/build_family_site.py` (or
-  `make build-family-site`)
+- Local whole-book reading-surface build: `python scripts/build_family_site.py`
+  (or `make build-family-site`)
 - Default local output: `build/family-site/`
 
 ## `doc-web` Integration

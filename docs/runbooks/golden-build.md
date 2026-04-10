@@ -1,7 +1,7 @@
 # Runbook: Golden Build
 
-The first real rendered slice is now the local family-site build created in
-Story 004.
+The current real rendered slice is the local whole-book reading surface created
+by expanding the Story 004 builder in Story 005.
 
 ## Golden Source
 
@@ -23,6 +23,12 @@ This writes the local slice to:
 build/family-site/
 ```
 
+Refresh the checked-in omission-audit snapshot when the accepted bundle changes:
+
+```bash
+make refresh-omission-audit
+```
+
 ## Validate The Slice
 
 ```bash
@@ -37,18 +43,27 @@ make methodology-check
 Use the generated site under `build/family-site/` and inspect:
 
 - `index.html`
-  - shows the family-story landing page
-  - excludes the mixed front-matter/image-page sequence from the landing grid
-  - uses larger card-like hit targets for story navigation
+  - shows grouped sections for `Book Chapters`, `Family stories`, and
+    `Pages & Images`
+  - stays free of audit/provenance commentary in the reader-facing surface
+  - uses larger card-like hit targets for entry navigation
+- `page-001.html`
+  - keeps the standalone page/image entry reachable
+  - uses simple previous/contents/next navigation
 - `chapter-009.html`
   - preserves the source block ids inside the article body
-  - shows a visible provenance card with source pages, printed pages, block
-    counts, and links to inspectable provenance artifacts
+  - stays focused on the reading page rather than source/audit commentary
+- `chapter-001.html` and `chapter-024.html`
+  - confirm non-family chapters remain reachable through the same shell
+- `_internal/omission-audit.json`
+  - contains `33` manifest entries for the accepted bundle
+  - shows every entry with a coverage status and rationale
 - desktop width
-  - reading column and provenance panel remain clearly separated
+  - grouped landing sections and page navigation remain easy to scan
 - mobile width
   - navigation buttons stack cleanly and stay easy to tap
   - typography remains legible without dense chrome
+  - section jumps and contents links stay easy to operate
 
 Optional local preview:
 

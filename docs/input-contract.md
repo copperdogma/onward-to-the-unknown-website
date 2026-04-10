@@ -1,14 +1,15 @@
 # Input Contract
 
 This repo currently consumes a locally staged HTML bundle rather than a richer
-canonical content export. The first checked-in builder for Story 004 reads that
+canonical content export. The current whole-book local builder reads that
 bundle directly and depends on the following shape.
 
 ## Canonical Bundle Path
 
 - Default observed bundle on 2026-04-10:
   `input/doc-web-html/story206-onward-proof-r10`
-- The local family-site builder can also read:
+- Default builder fallback: the same committed bundle path above
+- The local builder can also read:
   - `ONWARD_INPUT_SOURCE_DIR`
   - `DREAMHOST_DEPLOY_SOURCE_DIR` as a compatibility fallback
 
@@ -58,8 +59,12 @@ Each entry row currently needs:
 - `printed_page_start`
 - `printed_page_end`
 
-For the first local family-site slice, Story 004 reads these fields directly
-instead of inventing a second metadata file.
+The current builder uses these fields directly to:
+
+- preserve manifest order for previous/next reading flow
+- group entries into non-family chapters, family stories, and standalone
+  page/image entries
+- emit a whole-book omission audit without inventing a second metadata file
 
 ## HTML Contract Assumptions
 
@@ -82,15 +87,18 @@ Each `provenance/blocks.jsonl` row is expected to expose:
 - `source_printed_page_label`
 - `text_quote`
 
-The first local builder keeps the raw JSONL, generates per-entry provenance
-JSON files, and surfaces summary counts on rendered family pages.
+The current local builder keeps the raw JSONL, copies it into internal build
+artifacts, and generates per-entry provenance JSON files for maintainer-facing
+inspection rather than reader-facing page chrome.
 
 ## What This Contract Does Not Promise Yet
 
 - A stable canonical chapter/section JSON model
-- Machine-readable family/story grouping metadata
+- Machine-readable family/story grouping metadata beyond the current manifest
+  kind plus the explicit family-chapter run
 - Normalized companion-media wiring
 - A one-command import refresh from upstream tools
 
 Those remain follow-on steps. For now, the contract is “this specific staged
-bundle shape exists locally and can be rendered repeatably.”
+bundle shape exists locally, can be rendered repeatably as a whole-book reading
+surface, and can be audited entry-by-entry for omissions.”

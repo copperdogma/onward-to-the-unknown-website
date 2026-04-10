@@ -2,7 +2,7 @@ PYTHON ?= $(shell command -v python 2>/dev/null || command -v python3 2>/dev/nul
 FAMILY_SITE_OUTPUT ?= build/family-site
 FAMILY_SITE_PORT ?= 4173
 
-.PHONY: skills-sync skills-check methodology-compile methodology-check deploy-static test lint build-family-site preview-family-site doc-web-contract doc-web-run-onward doc-web-import-run doc-web-import-bundle
+.PHONY: skills-sync skills-check methodology-compile methodology-check deploy-static test lint build-family-site preview-family-site refresh-omission-audit doc-web-contract doc-web-run-onward doc-web-import-run doc-web-import-bundle
 
 skills-sync:
 	./scripts/sync-agent-skills.sh
@@ -32,6 +32,9 @@ build-family-site:
 
 preview-family-site:
 	$(PYTHON) -m http.server "$(FAMILY_SITE_PORT)" --directory "$(FAMILY_SITE_OUTPUT)"
+
+refresh-omission-audit: build-family-site
+	cp "$(FAMILY_SITE_OUTPUT)/_internal/omission-audit.json" docs/omission-audit.json
 
 doc-web-contract:
 	$(PYTHON) scripts/doc_web_import.py contract

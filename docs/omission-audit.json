@@ -1,0 +1,830 @@
+{
+  "document_id": "onward-to-the-unknown",
+  "entries": [
+    {
+      "entry_id": "page-001",
+      "group_id": "pages-and-images",
+      "group_label": "Pages & Images",
+      "kind": "page",
+      "output_path": "page-001.html",
+      "printed_page_end": null,
+      "printed_page_start": null,
+      "printed_pages": [],
+      "rationale": "Rendered as a standalone page/image entry with light reshaping so the source page remains reachable.",
+      "source_pages": [
+        1
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "Image 1"
+    },
+    {
+      "entry_id": "chapter-001",
+      "group_id": "book-chapters",
+      "group_label": "Book Chapters",
+      "kind": "chapter",
+      "output_path": "chapter-001.html",
+      "printed_page_end": 1,
+      "printed_page_start": 1,
+      "printed_pages": [
+        1
+      ],
+      "rationale": "Rendered as a whole-book chapter page in the accessible local reading surface.",
+      "source_pages": [
+        10
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "The Ancestral Lineage of Mo\u00efse and Sophie"
+    },
+    {
+      "entry_id": "page-002",
+      "group_id": "pages-and-images",
+      "group_label": "Pages & Images",
+      "kind": "page",
+      "output_path": "page-002.html",
+      "printed_page_end": null,
+      "printed_page_start": null,
+      "printed_pages": [],
+      "rationale": "Rendered as a standalone page/image entry with light reshaping so the source page remains reachable.",
+      "source_pages": [
+        2
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "Page i"
+    },
+    {
+      "entry_id": "chapter-002",
+      "group_id": "book-chapters",
+      "group_label": "Book Chapters",
+      "kind": "chapter",
+      "output_path": "chapter-002.html",
+      "printed_page_end": 2,
+      "printed_page_start": 2,
+      "printed_pages": [
+        2
+      ],
+      "rationale": "Rendered as a whole-book chapter page in the accessible local reading surface.",
+      "source_pages": [
+        11
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "The First L'Heureux's in Canada"
+    },
+    {
+      "entry_id": "page-003",
+      "group_id": "pages-and-images",
+      "group_label": "Pages & Images",
+      "kind": "page",
+      "output_path": "page-003.html",
+      "printed_page_end": null,
+      "printed_page_start": null,
+      "printed_pages": [],
+      "rationale": "Rendered as a standalone page/image entry with light reshaping so the source page remains reachable.",
+      "source_pages": [
+        3
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "Image 3"
+    },
+    {
+      "entry_id": "chapter-003",
+      "group_id": "book-chapters",
+      "group_label": "Book Chapters",
+      "kind": "chapter",
+      "output_path": "chapter-003.html",
+      "printed_page_end": 3,
+      "printed_page_start": 3,
+      "printed_pages": [
+        3
+      ],
+      "rationale": "Rendered as a whole-book chapter page in the accessible local reading surface.",
+      "source_pages": [
+        12
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "Farm Heritage Award"
+    },
+    {
+      "entry_id": "page-004",
+      "group_id": "pages-and-images",
+      "group_label": "Pages & Images",
+      "kind": "page",
+      "output_path": "page-004.html",
+      "printed_page_end": null,
+      "printed_page_start": null,
+      "printed_pages": [],
+      "rationale": "Rendered as a standalone page/image entry with light reshaping so the source page remains reachable.",
+      "source_pages": [
+        4
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "Page iii"
+    },
+    {
+      "entry_id": "chapter-004",
+      "group_id": "book-chapters",
+      "group_label": "Book Chapters",
+      "kind": "chapter",
+      "output_path": "chapter-004.html",
+      "printed_page_end": 4,
+      "printed_page_start": 4,
+      "printed_pages": [
+        4
+      ],
+      "rationale": "Rendered as a whole-book chapter page in the accessible local reading surface.",
+      "source_pages": [
+        13
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "The Reunion's Beginning"
+    },
+    {
+      "entry_id": "page-005",
+      "group_id": "pages-and-images",
+      "group_label": "Pages & Images",
+      "kind": "page",
+      "output_path": "page-005.html",
+      "printed_page_end": null,
+      "printed_page_start": null,
+      "printed_pages": [],
+      "rationale": "Rendered as a standalone page/image entry with light reshaping so the source page remains reachable.",
+      "source_pages": [
+        5
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "Image 5"
+    },
+    {
+      "entry_id": "chapter-005",
+      "group_id": "book-chapters",
+      "group_label": "Book Chapters",
+      "kind": "chapter",
+      "output_path": "chapter-005.html",
+      "printed_page_end": 8,
+      "printed_page_start": 5,
+      "printed_pages": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "rationale": "Rendered as a whole-book chapter page in the accessible local reading surface.",
+      "source_pages": [
+        14,
+        15,
+        16,
+        17
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "Mo\u00efse and Sophie"
+    },
+    {
+      "entry_id": "page-006",
+      "group_id": "pages-and-images",
+      "group_label": "Pages & Images",
+      "kind": "page",
+      "output_path": "page-006.html",
+      "printed_page_end": null,
+      "printed_page_start": null,
+      "printed_pages": [],
+      "rationale": "Rendered as a standalone page/image entry with light reshaping so the source page remains reachable.",
+      "source_pages": [
+        6
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "Page v"
+    },
+    {
+      "entry_id": "page-007",
+      "group_id": "pages-and-images",
+      "group_label": "Pages & Images",
+      "kind": "page",
+      "output_path": "page-007.html",
+      "printed_page_end": null,
+      "printed_page_start": null,
+      "printed_pages": [],
+      "rationale": "Rendered as a standalone page/image entry with light reshaping so the source page remains reachable.",
+      "source_pages": [
+        7
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "Image 7"
+    },
+    {
+      "entry_id": "page-008",
+      "group_id": "pages-and-images",
+      "group_label": "Pages & Images",
+      "kind": "page",
+      "output_path": "page-008.html",
+      "printed_page_end": null,
+      "printed_page_start": null,
+      "printed_pages": [],
+      "rationale": "Rendered as a standalone page/image entry with light reshaping so the source page remains reachable.",
+      "source_pages": [
+        8
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "Page vii"
+    },
+    {
+      "entry_id": "page-009",
+      "group_id": "pages-and-images",
+      "group_label": "Pages & Images",
+      "kind": "page",
+      "output_path": "page-009.html",
+      "printed_page_end": null,
+      "printed_page_start": null,
+      "printed_pages": [],
+      "rationale": "Rendered as a standalone page/image entry with light reshaping so the source page remains reachable.",
+      "source_pages": [
+        9
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "Page viii"
+    },
+    {
+      "entry_id": "chapter-006",
+      "group_id": "book-chapters",
+      "group_label": "Book Chapters",
+      "kind": "chapter",
+      "output_path": "chapter-006.html",
+      "printed_page_end": 9,
+      "printed_page_start": 9,
+      "printed_pages": [
+        9
+      ],
+      "rationale": "Rendered as a whole-book chapter page in the accessible local reading surface.",
+      "source_pages": [
+        18
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "Family Portrait"
+    },
+    {
+      "entry_id": "chapter-007",
+      "group_id": "book-chapters",
+      "group_label": "Book Chapters",
+      "kind": "chapter",
+      "output_path": "chapter-007.html",
+      "printed_page_end": 10,
+      "printed_page_start": 10,
+      "printed_pages": [
+        10
+      ],
+      "rationale": "Rendered as a whole-book chapter page in the accessible local reading surface.",
+      "source_pages": [
+        19
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "MEMORIES"
+    },
+    {
+      "entry_id": "chapter-008",
+      "group_id": "book-chapters",
+      "group_label": "Book Chapters",
+      "kind": "chapter",
+      "output_path": "chapter-008.html",
+      "printed_page_end": 12,
+      "printed_page_start": 11,
+      "printed_pages": [
+        11,
+        12
+      ],
+      "rationale": "Rendered as a whole-book chapter page in the accessible local reading surface.",
+      "source_pages": [
+        20,
+        21
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "L'HEUREUX VETERANS OF WORLD WAR I & II"
+    },
+    {
+      "entry_id": "chapter-009",
+      "group_id": "family-stories",
+      "group_label": "Family stories",
+      "kind": "chapter",
+      "output_path": "chapter-009.html",
+      "printed_page_end": 18,
+      "printed_page_start": 13,
+      "printed_pages": [
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "rationale": "Rendered as a whole-page family story inside the whole-book local reading surface.",
+      "source_pages": [
+        22,
+        23,
+        24,
+        25,
+        26,
+        27
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "Alma Marie (L'Heureux) Alain"
+    },
+    {
+      "entry_id": "chapter-010",
+      "group_id": "family-stories",
+      "group_label": "Family stories",
+      "kind": "chapter",
+      "output_path": "chapter-010.html",
+      "printed_page_end": 28,
+      "printed_page_start": 19,
+      "printed_pages": [
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28
+      ],
+      "rationale": "Rendered as a whole-page family story inside the whole-book local reading surface.",
+      "source_pages": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "ARTHUR L'HEUREUX"
+    },
+    {
+      "entry_id": "chapter-011",
+      "group_id": "family-stories",
+      "group_label": "Family stories",
+      "kind": "chapter",
+      "output_path": "chapter-011.html",
+      "printed_page_end": 38,
+      "printed_page_start": 29,
+      "printed_pages": [
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38
+      ],
+      "rationale": "Rendered as a whole-page family story inside the whole-book local reading surface.",
+      "source_pages": [
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "LEONIDAS L'HEUREUX"
+    },
+    {
+      "entry_id": "chapter-012",
+      "group_id": "family-stories",
+      "group_label": "Family stories",
+      "kind": "chapter",
+      "output_path": "chapter-012.html",
+      "printed_page_end": 44,
+      "printed_page_start": 39,
+      "printed_pages": [
+        39,
+        40,
+        41,
+        42,
+        43,
+        44
+      ],
+      "rationale": "Rendered as a whole-page family story inside the whole-book local reading surface.",
+      "source_pages": [
+        48,
+        49,
+        50,
+        51,
+        52,
+        53
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "JOSEPHINE (L'HEUREUX ) ALAIN"
+    },
+    {
+      "entry_id": "chapter-013",
+      "group_id": "family-stories",
+      "group_label": "Family stories",
+      "kind": "chapter",
+      "output_path": "chapter-013.html",
+      "printed_page_end": 50,
+      "printed_page_start": 45,
+      "printed_pages": [
+        45,
+        46,
+        47,
+        48,
+        49,
+        50
+      ],
+      "rationale": "Rendered as a whole-page family story inside the whole-book local reading surface.",
+      "source_pages": [
+        54,
+        55,
+        56,
+        57,
+        58,
+        59
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "PAUL L'HEUREUX"
+    },
+    {
+      "entry_id": "chapter-014",
+      "group_id": "family-stories",
+      "group_label": "Family stories",
+      "kind": "chapter",
+      "output_path": "chapter-014.html",
+      "printed_page_end": 56,
+      "printed_page_start": 51,
+      "printed_pages": [
+        51,
+        52,
+        53,
+        54,
+        55,
+        56
+      ],
+      "rationale": "Rendered as a whole-page family story inside the whole-book local reading surface.",
+      "source_pages": [
+        60,
+        61,
+        62,
+        63,
+        64,
+        65
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "GEORGE L'HEUREUX"
+    },
+    {
+      "entry_id": "chapter-015",
+      "group_id": "family-stories",
+      "group_label": "Family stories",
+      "kind": "chapter",
+      "output_path": "chapter-015.html",
+      "printed_page_end": 62,
+      "printed_page_start": 57,
+      "printed_pages": [
+        57,
+        58,
+        59,
+        60,
+        61,
+        62
+      ],
+      "rationale": "Rendered as a whole-page family story inside the whole-book local reading surface.",
+      "source_pages": [
+        66,
+        67,
+        68,
+        69,
+        70,
+        71
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "JOE (JOSEPH) L'HEUREUX"
+    },
+    {
+      "entry_id": "chapter-016",
+      "group_id": "family-stories",
+      "group_label": "Family stories",
+      "kind": "chapter",
+      "output_path": "chapter-016.html",
+      "printed_page_end": 68,
+      "printed_page_start": 63,
+      "printed_pages": [
+        63,
+        64,
+        65,
+        66,
+        67,
+        68
+      ],
+      "rationale": "Rendered as a whole-page family story inside the whole-book local reading surface.",
+      "source_pages": [
+        72,
+        73,
+        74,
+        75,
+        76,
+        77
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "MATHILDA (L'HEUREUX) DEVLIN"
+    },
+    {
+      "entry_id": "chapter-017",
+      "group_id": "family-stories",
+      "group_label": "Family stories",
+      "kind": "chapter",
+      "output_path": "chapter-017.html",
+      "printed_page_end": 76,
+      "printed_page_start": 69,
+      "printed_pages": [
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76
+      ],
+      "rationale": "Rendered as a whole-page family story inside the whole-book local reading surface.",
+      "source_pages": [
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "MARIE-LOUISE (L'HEUREUX) LaCLARE"
+    },
+    {
+      "entry_id": "chapter-018",
+      "group_id": "family-stories",
+      "group_label": "Family stories",
+      "kind": "chapter",
+      "output_path": "chapter-018.html",
+      "printed_page_end": 82,
+      "printed_page_start": 77,
+      "printed_pages": [
+        77,
+        78,
+        79,
+        80,
+        81,
+        82
+      ],
+      "rationale": "Rendered as a whole-page family story inside the whole-book local reading surface.",
+      "source_pages": [
+        86,
+        87,
+        88,
+        89,
+        90,
+        91
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "ROSEANNA (L'HEUREUX) LANDREVILLE"
+    },
+    {
+      "entry_id": "chapter-019",
+      "group_id": "family-stories",
+      "group_label": "Family stories",
+      "kind": "chapter",
+      "output_path": "chapter-019.html",
+      "printed_page_end": 86,
+      "printed_page_start": 83,
+      "printed_pages": [
+        83,
+        84,
+        85,
+        86
+      ],
+      "rationale": "Rendered as a whole-page family story inside the whole-book local reading surface.",
+      "source_pages": [
+        92,
+        93,
+        94,
+        95
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "ANTOINETTE (L'HEUREUX) RICHARD"
+    },
+    {
+      "entry_id": "chapter-020",
+      "group_id": "family-stories",
+      "group_label": "Family stories",
+      "kind": "chapter",
+      "output_path": "chapter-020.html",
+      "printed_page_end": 92,
+      "printed_page_start": 87,
+      "printed_pages": [
+        87,
+        88,
+        89,
+        90,
+        91,
+        92
+      ],
+      "rationale": "Rendered as a whole-page family story inside the whole-book local reading surface.",
+      "source_pages": [
+        96,
+        97,
+        98,
+        99,
+        100,
+        101
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "EMILIE (L'HEUREUX) NOLIN"
+    },
+    {
+      "entry_id": "chapter-021",
+      "group_id": "family-stories",
+      "group_label": "Family stories",
+      "kind": "chapter",
+      "output_path": "chapter-021.html",
+      "printed_page_end": 98,
+      "printed_page_start": 93,
+      "printed_pages": [
+        93,
+        94,
+        95,
+        96,
+        97,
+        98
+      ],
+      "rationale": "Rendered as a whole-page family story inside the whole-book local reading surface.",
+      "source_pages": [
+        102,
+        103,
+        104,
+        105,
+        106,
+        107
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "WILFRID L'HEUREUX"
+    },
+    {
+      "entry_id": "chapter-022",
+      "group_id": "family-stories",
+      "group_label": "Family stories",
+      "kind": "chapter",
+      "output_path": "chapter-022.html",
+      "printed_page_end": 106,
+      "printed_page_start": 99,
+      "printed_pages": [
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106
+      ],
+      "rationale": "Rendered as a whole-page family story inside the whole-book local reading surface.",
+      "source_pages": [
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "PIERRE L'HEUREUX"
+    },
+    {
+      "entry_id": "chapter-023",
+      "group_id": "family-stories",
+      "group_label": "Family stories",
+      "kind": "chapter",
+      "output_path": "chapter-023.html",
+      "printed_page_end": 110,
+      "printed_page_start": 107,
+      "printed_pages": [
+        107,
+        108,
+        109,
+        110
+      ],
+      "rationale": "Rendered as a whole-page family story inside the whole-book local reading surface.",
+      "source_pages": [
+        116,
+        117,
+        118,
+        119
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "ANTOINE L'HEUREUX"
+    },
+    {
+      "entry_id": "chapter-024",
+      "group_id": "book-chapters",
+      "group_label": "Book Chapters",
+      "kind": "chapter",
+      "output_path": "chapter-024.html",
+      "printed_page_end": 118,
+      "printed_page_start": 111,
+      "printed_pages": [
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118
+      ],
+      "rationale": "Rendered as a whole-book chapter page in the accessible local reading surface.",
+      "source_pages": [
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127
+      ],
+      "status": "rendered",
+      "surface": "whole-entry-page",
+      "title": "I WISH"
+    }
+  ],
+  "groups": [
+    {
+      "entry_count": 9,
+      "group_id": "book-chapters",
+      "group_label": "Book Chapters",
+      "rendered_count": 9
+    },
+    {
+      "entry_count": 15,
+      "group_id": "family-stories",
+      "group_label": "Family stories",
+      "rendered_count": 15
+    },
+    {
+      "entry_count": 9,
+      "group_id": "pages-and-images",
+      "group_label": "Pages & Images",
+      "rendered_count": 9
+    }
+  ],
+  "manifest_entry_count": 33,
+  "run_id": "story206-onward-proof-r10",
+  "schema_version": "onward_omission_audit_v1",
+  "site_title": "Onward to the Unknown",
+  "status_counts": {
+    "rendered": 33
+  },
+  "title": "Onward to the Unknown"
+}

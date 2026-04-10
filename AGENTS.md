@@ -60,6 +60,7 @@ Canonical location: `.agents/skills/`
 - `docs/spec.md` — active project constraints with stable `spec:N` ids
 - `docs/infrastructure.md` — hosting, DNS, and deployment truth surface
 - `docs/input-contract.md` — current staged-bundle intake contract
+- `docs/omission-audit.json` — current manifest-entry coverage accounting snapshot
 - `docs/presentation-decisions.md` — first recorded site-presentation choices
 - `docs/methodology/state.yaml` — mutable planning state
 - `docs/methodology/graph.json` — compiled methodology view
@@ -79,6 +80,6 @@ Canonical location: `.agents/skills/`
 ## Current Repo Reality
 
 This repo now has a verified DreamHost/Cloudflare deploy path and a thin local
-family-site builder, but it still does not have a fully generalized frontend
-stack or final site shell. Treat any broader runtime surface as genuinely
-missing, not implied.
+whole-book reading-surface builder with omission accounting, but it still does
+not have a fully generalized frontend stack or final site shell. Treat any
+broader runtime surface as genuinely missing, not implied.
