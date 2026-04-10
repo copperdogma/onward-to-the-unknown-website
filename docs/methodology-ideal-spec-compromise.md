@@ -40,8 +40,8 @@ The method is simple:
 
 For this repo, common early examples include:
 
-- importing from `doc-web` HTML because there is not yet a richer maintained
-  upstream contract
+- importing from the staged `input/` website snapshot because there is not yet
+  a richer maintained intake contract
 - manually curating companion media because those materials are not yet in a
   canonical inventory
 - carrying setup, story, and eval scaffolding because AI and human memory still
@@ -63,8 +63,8 @@ Examples here:
 
 - keeping an explicit methodology state and compiled graph
 - keeping an eval registry even before the first runtime exists
-- documenting the `doc-web` relationship instead of assuming it will stay in
-  someone's head
+- documenting the local `input/` intake relationship instead of assuming it
+  will stay in someone's head
 
 ## Phase Governance
 
@@ -94,4 +94,3 @@ mutable planning state, and source inventory aligned for AI and human readers.
 
 If the graph, checklist, or eval surfaces stop paying for themselves, they
 should be simplified. They are scaffolding, not a sacred ritual.
-

@@ -6,20 +6,21 @@ can point at them without depending on heading wording.
 
 ## spec:1 Source Intake & Content Inventory
 
-The repo needs a clear inventory of what comes from `doc-web` and what comes
-from separate family-archive sources.
+The repo needs a clear inventory of what comes from the staged `input/`
+snapshot and what comes from separate family-archive sources.
 
 ### spec:1.1 Upstream Truth
 
 The website should consume named, inspectable upstream inputs rather than a
 bundle of undocumented local files.
 
-### C1 Source content still arrives as a `doc-web` HTML export plus hand-curated companion assets
+### C1 Source content still arrives as a staged website snapshot plus hand-curated companion assets
 
 - Ideal: ingest a stable structured canon directly from the upstream book and
   companion sources
-- Constraint: start from `doc-web` output for the book body and manually
-  curated companion links/files for everything else
+- Constraint: start from the locally staged website/source files in `input/`
+  for the book body and manually curated companion links/files for everything
+  else
 - Limitation: the source material is currently fragmented across separate tools
   and asset locations
 - Limitation type: ecosystem
@@ -39,15 +40,15 @@ structured artifacts that are reusable across pages and future tools.
 
 ### C2 Canonical site data still has to be derived from presentation-oriented HTML
 
-- Ideal: upstream delivers a stable structured export tailored for downstream
-  site composition
-- Constraint: derive the canonical site model from HTML that was originally
-  generated for generic browsing
+- Ideal: the intake boundary delivers a stable structured export tailored for
+  downstream site composition
+- Constraint: derive the canonical site model from staged website files that
+  were originally generated for browsing rather than downstream reuse
 - Limitation: the existing upstream output is intentionally simple and does not
   yet expose all website-oriented structure
 - Limitation type: ecosystem
-- Evolution signal: `doc-web` exposes a durable structured export contract or
-  this repo proves a better ingest seam
+- Evolution signal: the `input/` intake shape is documented by a durable
+  structured export contract or this repo proves a better ingest seam
 - Residual form: keep only a thin adapter layer
 
 ## spec:3 Information Architecture & Navigation
@@ -102,7 +103,10 @@ does not have one yet.
 ### spec:5.1 Frontend substrate
 
 The chosen site stack should support a reading experience, archive browsing,
-audio embeds, and later expansion without fighting the content model.
+audio embeds, and later expansion without fighting the content model. It also
+needs to support an interface that is highly usable on both desktop and mobile,
+with room for large interactive targets and straightforward navigation for
+older readers.
 
 ### C5 The website shell and design system do not exist yet
 
@@ -146,11 +150,15 @@ connection quality.
 ### spec:7.1 Public-readiness quality floor
 
 Accessibility, performance, and link integrity should be treated as product
-requirements, not late polish.
+requirements, not late polish. For this project, accessibility explicitly
+includes large hit targets, strong legibility, and forgiving interactions for
+an audience that will skew 80+ years old across desktop and mobile use.
 
 ### C7 Public-readiness quality still lacks measured proof on real content
 
-- Ideal: accessibility, performance, and media integrity have repeatable checks
+- Ideal: accessibility, performance, and media integrity have repeatable checks,
+  including verification that critical controls stay large, readable, and easy
+  to operate across desktop and mobile
 - Constraint: establish the content and site substrate first, then add measured
   proof instead of inventing fake completeness
 - Limitation: there is no runtime yet to evaluate
@@ -201,14 +209,13 @@ Ideal, spec, state, graph, stories, evals, and decisions should stay aligned.
   longer needs the full package
 - Residual form: keep only the pieces that still pay for themselves
 
-### B3 `doc-web` integration is not yet a one-command contract
+### B3 Local intake is not yet a one-command contract
 
-- Ideal: this repo can ingest the authoritative upstream export through a small
-  documented interface
-- Constraint: define the integration seam before automating it
-- Limitation: the current upstream relationship is known conceptually but not
-  encoded as a maintained contract here
+- Ideal: this repo can ingest the authoritative staged source snapshot through
+  a small documented interface
+- Constraint: define the `input/` intake seam before automating it
+- Limitation: the current local intake relationship is known conceptually but
+  not encoded as a maintained contract here
 - Limitation type: ecosystem
 - Evolution signal: import commands, formats, and validation live in this repo
 - Residual form: keep a thin import command and its validation
-

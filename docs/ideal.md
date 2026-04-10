@@ -13,6 +13,11 @@ single isolated artifact. Chapters, recordings, scans, reunion ephemera, and
 future annotations should all connect cleanly without making the site feel like
 a cluttered grab bag.
 
+The reading and browsing experience should be especially accommodating for
+older family members. Core actions need large hit targets, legible controls,
+clear page structure, and interaction patterns that remain easy to use on both
+desktop and mobile devices.
+
 ## Execution Ideal
 
 Bootstrapping or updating the site should feel boring in the best sense. The
@@ -49,7 +54,7 @@ instead of relying on memory.
 4. **Reusable Content Model** — Normalize imported material into data and
    content structures that can outlive the first frontend implementation.
 5. **Accessible Family Archive** — Reading, listening, and browsing should be
-   legible, performant, and usable across devices.
+   legible, forgiving, and usable across devices, with large hit targets and
+   clear controls that work well for older readers on desktop and mobile.
 6. **Low-Friction Maintenance** — Updating the site with revised content or new
    archive assets should not require heroic manual cleanup.
-

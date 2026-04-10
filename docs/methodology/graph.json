@@ -20,7 +20,7 @@
       {
         "id": "spec:1",
         "title": "Source Intake & Content Inventory",
-        "summary": "The repo needs a clear inventory of what comes from `doc-web` and what comes from separate family-archive sources.",
+        "summary": "The repo needs a clear inventory of what comes from the staged `input/` snapshot and what comes from separate family-archive sources.",
         "compromise_refs": [
           "C1"
         ],
@@ -211,7 +211,7 @@
       "sequencing_bias": [
         {
           "target": "campaign:bootstrap-canon-and-shell",
-          "reason": "Define the import seam from doc-web, prove a canonical content model, then build the first real website slice instead of picking a frontend stack in the abstract."
+          "reason": "Define the intake seam from the staged `input/` snapshot, prove a canonical content model, then build the first real website slice before choosing extra tooling or polish in the abstract."
         }
       ],
       "campaigns": [
@@ -219,7 +219,7 @@
           "id": "bootstrap-canon-and-shell",
           "status": "active",
           "story_refs": [],
-          "notes": "Early work should establish the upstream import contract, the site data model, and one end-to-end chapter rendering path with linked media."
+          "notes": "Early work should establish the local intake contract, the site data model, and one end-to-end chapter rendering path with linked media."
         }
       ]
     },
@@ -228,7 +228,7 @@
         {
           "id": "recommended-order",
           "title": "Recommended Order",
-          "markdown": "Current priority: lock the `doc-web` import contract, define the canonical site content model, and prove one chapter-plus-media slice before spreading effort across extra archive surfaces or design polish."
+          "markdown": "Current priority: lock the `input/` intake contract, define the canonical site content model, and prove one chapter-plus-media slice before spreading effort across extra archive surfaces, audio derivatives, or design polish."
         }
       ],
       "uncategorized_label": "Legacy / Uncategorized Stories"
@@ -245,7 +245,7 @@
           "stories_since_audit": 0,
           "recent_story_refs": [],
           "open_findings": [],
-          "notes": "Primary risk surface while the repo decides how it consumes doc-web output."
+          "notes": "Primary risk surface while the repo decides how it consumes the staged source material in `input/`."
         },
         "content_model": {
           "label": "Content Model",
@@ -289,10 +289,10 @@
         "id": "book-core-html",
         "label": "Onward book core HTML",
         "kind": "content-canon",
-        "upstream": "doc-web export",
+        "upstream": "local staged website snapshot in input/",
         "status": "planned",
         "target_surface": "canonical chapter and section records",
-        "notes": "Primary authored book body for the website."
+        "notes": "Primary authored book body for the website, staged locally rather than pulled from a live repo integration."
       },
       {
         "id": "chapter-audio",
@@ -343,7 +343,32 @@
   },
   "evals": [],
   "stories": {
-    "items": [],
-    "counts_by_status": {}
+    "items": [
+      {
+        "path": "docs/stories/story-001-first-accessible-site-and-dreamhost-deploy.md",
+        "title": "DreamHost Hosted Subdomain, DNS, and Static Deploy Path",
+        "status": "Done"
+      },
+      {
+        "path": "docs/stories/story-002-notebooklm-family-story-podcasts.md",
+        "title": "NotebookLM Family-Story Podcasts",
+        "status": "Draft"
+      },
+      {
+        "path": "docs/stories/story-003-elevenlabs-full-audiobook.md",
+        "title": "ElevenLabs Full Audiobook",
+        "status": "Draft"
+      },
+      {
+        "path": "docs/stories/story-004-first-local-accessible-family-pages-slice.md",
+        "title": "First Local Accessible Family-Pages Slice",
+        "status": "Pending"
+      }
+    ],
+    "counts_by_status": {
+      "Done": 1,
+      "Draft": 2,
+      "Pending": 1
+    }
   }
 }

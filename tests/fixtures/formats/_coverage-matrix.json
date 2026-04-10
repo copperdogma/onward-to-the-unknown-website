@@ -6,10 +6,10 @@
       "id": "book-core-html",
       "label": "Onward book core HTML",
       "kind": "content-canon",
-      "upstream": "doc-web export",
+      "upstream": "local staged website snapshot in input/",
       "status": "planned",
       "target_surface": "canonical chapter and section records",
-      "notes": "Primary authored book body for the website."
+      "notes": "Primary authored book body for the website, staged locally rather than pulled from a live repo integration."
     },
     {
       "id": "chapter-audio",
@@ -58,4 +58,3 @@
     }
   ]
 }
-

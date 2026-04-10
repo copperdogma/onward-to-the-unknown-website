@@ -3,8 +3,9 @@
 Read this file at the start of every session.
 
 > **Mission:** Turn *Onward to the Unknown* and its companion family-archive
-> materials into a trustworthy, navigable website. `doc-web` is the upstream
-> processor for the book source; this repo owns the import contract, site
+> materials into a trustworthy, navigable website. The current intake boundary
+> is the local `input/` folder, which holds the staged website/source material
+> this repo needs to consume; this repo owns that intake contract, site
 > structure, presentation, linked media surfaces, and publication workflow.
 >
 > **The Ideal (`docs/ideal.md`) is the primary decision filter.**
@@ -30,9 +31,10 @@ active story, but you still need the relevant spec and state context first.
 
 ## Working Rules
 
-- `doc-web` is upstream, not a dumping ground. Reuse its processed output or
-  integration seams instead of rebuilding its ingestion logic here unless the
-  user explicitly wants that change.
+- Treat `input/` as the current source contract unless the user explicitly
+  redirects the project. If `doc-web` remains part of the historical source
+  lineage, preserve that provenance, but do not assume a live repo-to-repo
+  integration exists.
 - Structure before presentation. Prefer canonical data/content artifacts that
   can feed multiple site views over one-off HTML fixes.
 - Provenance matters. Links to audio, scans, and companion materials should be
@@ -56,6 +58,7 @@ Canonical location: `.agents/skills/`
 
 - `docs/ideal.md` — product and execution ideals
 - `docs/spec.md` — active project constraints with stable `spec:N` ids
+- `docs/infrastructure.md` — hosting, DNS, and deployment truth surface
 - `docs/methodology/state.yaml` — mutable planning state
 - `docs/methodology/graph.json` — compiled methodology view
 - `docs/setup-checklist.md` — working setup checklist

@@ -4,8 +4,11 @@
 
 ## Recommended Order
 
-Current priority: lock the `doc-web` import contract, define the canonical site content model, and prove one chapter-plus-media slice before spreading effort across extra archive surfaces or design polish.
+Current priority: lock the `input/` intake contract, define the canonical site content model, and prove one chapter-plus-media slice before spreading effort across extra archive surfaces, audio derivatives, or design polish.
 
 ## Current Stories
 
-_No story files exist yet. The next story should package the first end-to-end slice of import, canonical data shaping, and site presentation._
+- **Done** — `docs/stories/story-001-first-accessible-site-and-dreamhost-deploy.md` — DreamHost Hosted Subdomain, DNS, and Static Deploy Path
+- **Draft** — `docs/stories/story-002-notebooklm-family-story-podcasts.md` — NotebookLM Family-Story Podcasts
+- **Draft** — `docs/stories/story-003-elevenlabs-full-audiobook.md` — ElevenLabs Full Audiobook
+- **Pending** — `docs/stories/story-004-first-local-accessible-family-pages-slice.md` — First Local Accessible Family-Pages Slice

@@ -21,7 +21,7 @@ docs/evals/
 
 Likely early eval families for this repo:
 
-- import fidelity from `doc-web` into the canonical site model
+- intake fidelity from the staged `input/` snapshot into the canonical site model
 - chapter/media linkage integrity
 - link rot or missing-asset checks
 - accessibility checks on real rendered pages
@@ -61,4 +61,3 @@ For non-trivial or ambiguous retries:
 
 Do not create fake eval completeness for surfaces that do not exist yet. Be
 honest about what can be measured today.
-
