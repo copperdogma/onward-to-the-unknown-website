@@ -1,0 +1,26 @@
+{
+  "schema_version": "doc_web_bundle_manifest_v1",
+  "document_id": "fixture-book",
+  "title": "Fixture Book",
+  "source_artifact": "tests fixture",
+  "index_path": "index.html",
+  "entries": [
+    {
+      "entry_id": "chapter-001",
+      "kind": "chapter",
+      "title": "Fixture Chapter",
+      "path": "chapter-001.html",
+      "order": 1,
+      "prev_entry_id": null,
+      "next_entry_id": null,
+      "source_pages": [1],
+      "printed_pages": [1],
+      "printed_page_start": 1,
+      "printed_page_end": 1
+    }
+  ],
+  "reading_order": ["chapter-001"],
+  "asset_roots": ["images"],
+  "provenance_path": "provenance/blocks.jsonl"
+}
+

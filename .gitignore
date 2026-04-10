@@ -8,7 +8,6 @@ __pycache__/
 node_modules/
 dist/
 build/
-input/
-!tests/fixtures/**/input/
-!tests/fixtures/**/input/**
+.runtime/
+input/Onward to the Unknown.pdf
 .env

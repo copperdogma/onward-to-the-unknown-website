@@ -67,12 +67,14 @@ Canonical location: `.agents/skills/`
 - `docs/evals/README.md` — eval registry protocol
 - `docs/evals/registry.yaml` — eval source of truth
 - `docs/runbooks/setup-methodology.md` — setup/refresh runbook
+- `docs/runbooks/doc-web-import.md` — local `doc-web` run/import contract for this repo
 - `docs/runbooks/golden-build.md` — honest statement of current golden/build proof surface
 - `docs/scout.md` — scout expedition index
 - `docs/stories.md` — generated story index
 - `docs/stories/` — story files
 - `docs/decisions/` — decision records
 - `CHANGELOG.md` — repo change log
+- `doc-web-runtime.json` — local upstream manifest for the sibling `doc-web` checkout
 
 ## Current Repo Reality
 

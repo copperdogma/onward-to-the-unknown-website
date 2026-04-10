@@ -12,8 +12,9 @@ into a real published site. This repo owns the website-specific layer:
 - connect book chapters to companion media and scans
 - present the material as a durable, navigable family archive site
 
-`input/` is intentionally gitignored because the family/source material is
-local working data rather than committed repo content.
+The first accepted `doc-web` HTML export and a curated set of companion archive
+assets are now committed under `input/`. The large source PDF and local runtime
+snapshots stay uncommitted.
 
 ## Bootstrap Surface
 
@@ -32,10 +33,10 @@ make lint
 make build-family-site
 make preview-family-site
 make deploy-static
+make doc-web-contract
 ```
 
-Operational environment truth lives in
-[`docs/infrastructure.md`](/Users/cam/.codex/worktrees/4201/onward-to-the-unknown-website/docs/infrastructure.md).
+Operational environment truth lives in `docs/infrastructure.md`.
 
 ## Current State
 
@@ -64,8 +65,34 @@ Currently confirmed infrastructure:
 
 Current local build surface:
 
-- Input contract: [`docs/input-contract.md`](/Users/cam/.codex/worktrees/4201/onward-to-the-unknown-website/docs/input-contract.md)
-- Presentation decisions: [`docs/presentation-decisions.md`](/Users/cam/.codex/worktrees/4201/onward-to-the-unknown-website/docs/presentation-decisions.md)
+- Input contract: `docs/input-contract.md`
+- Presentation decisions: `docs/presentation-decisions.md`
 - Local family-site build: `python scripts/build_family_site.py` (or
   `make build-family-site`)
 - Default local output: `build/family-site/`
+
+## `doc-web` Integration
+
+This repo now carries an explicit local integration manifest at
+`doc-web-runtime.json` plus an upstream import wrapper at
+`scripts/doc_web_import.py`.
+
+The intended flow is:
+
+```bash
+# Inspect the sibling checkout's contract payload
+make doc-web-contract
+
+# Run the maintained Onward recipe from the sibling checkout
+python scripts/doc_web_import.py run-onward --run-id onward-book-r1 --force
+
+# Snapshot the accepted bundle into this repo's local import root
+python scripts/doc_web_import.py import-run --run-id onward-book-r1
+```
+
+Accepted bundle snapshots are stored under `.runtime/doc-web-imports/` and are
+local-only by default. Each snapshot records the source run id, bundle summary,
+and the `doc-web` contract fingerprint that produced it.
+
+The first committed accepted bundle lives at
+`input/doc-web-html/story206-onward-proof-r10/`.

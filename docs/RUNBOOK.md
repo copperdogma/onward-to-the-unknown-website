@@ -14,6 +14,7 @@ make test
 make lint
 make build-family-site
 make deploy-static
+make doc-web-contract
 ```
 
 ## Current Truth
@@ -27,6 +28,8 @@ make deploy-static
 - the first presentation choices are documented in
   `docs/presentation-decisions.md`
 - there is still no fully generalized long-term site runtime yet
+- the first committed accepted source bundle lives under
+  `input/doc-web-html/story206-onward-proof-r10/`
 - the current deploy command is `python scripts/deploy_static_site.py` (or
   `make deploy-static`), which uploads an existing static bundle to the
   DreamHost shared-hosting site path over SFTP using the local gitignored
@@ -69,5 +72,15 @@ make test
 make lint
 ```
 
-Keep extending this runbook from the real local builder and deploy paths rather
-than replacing them in the abstract.
+## `doc-web` Commands
+
+```bash
+make doc-web-contract
+python scripts/doc_web_import.py run-onward --run-id onward-book-r1 --force
+python scripts/doc_web_import.py import-run --run-id onward-book-r1
+```
+
+See `docs/runbooks/doc-web-import.md` for the maintained upstream/import flow.
+
+Keep extending this runbook from the real local builder, deploy, and import
+paths rather than replacing them in the abstract.

@@ -39,3 +39,9 @@
 - Bootstrapped the repository with imported project skills from `doc-web`,
   greenfield methodology docs, skill sync wiring, and an initial methodology
   graph/compiler surface.
+- Added the first explicit `doc-web` integration seam: repo-owned upstream
+  manifest, local run/import wrapper, bundle validator, import snapshot
+  metadata, and fixture-backed tests.
+- Checked in the first committed source-material bundle for Onward: the staged
+  `doc-web` HTML export plus companion archive PDFs and images needed for local
+  evaluation and future site reshaping.

@@ -1,0 +1,9 @@
+{
+  "sourcePath": "../doc-web",
+  "pythonExecutable": "python",
+  "defaultRecipe": "configs/recipes/recipe-onward-pdf-html-mvp.yaml",
+  "defaultInputPdf": "input/Onward to the Unknown.pdf",
+  "sourceRunsRoot": "output/runs",
+  "snapshotRoot": ".runtime/doc-web-imports"
+}
+
