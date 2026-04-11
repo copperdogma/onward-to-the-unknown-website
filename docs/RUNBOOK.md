@@ -13,6 +13,7 @@ make methodology-check
 make test
 make lint
 make build-family-site
+make build-audiobook-script
 make refresh-omission-audit
 make deploy-static
 make doc-web-contract
@@ -89,6 +90,25 @@ make lint
 make methodology-compile
 make methodology-check
 ```
+
+## Audiobook Script Corpus
+
+Build the source-derived audiobook chapters from the staged bundle:
+
+```bash
+make build-audiobook-script
+```
+
+Regenerate those source-derived chapters only when you intentionally want to
+refresh them from the HTML source:
+
+```bash
+make build-audiobook-script FORCE=1
+```
+
+The manual preamble lives at `audiobook-script/01-preamble.md` and is not
+touched by the generator. See `docs/runbooks/elevenlabs-audiobook.md` for the
+source-fidelity review and ElevenLabs handoff flow.
 
 ## UI Scout Lane
 

@@ -17,6 +17,26 @@
 - Regenerated the story index and methodology graph to include the new planning
   slices and updated story statuses.
 
+## [2026-04-11-03] - Built and verified the audiobook script corpus (Story 003)
+
+### Added
+- Added the repo-owned `audiobook-script/` Markdown corpus, deterministic
+  builder entrypoints, regression tests, and a maintained ElevenLabs handoff
+  runbook.
+
+### Changed
+- Narrowed the documented audiobook boundary to the verified spoken surface so
+  the canonical corpus stays source-faithful while omitting figures, captions,
+  tables, and headings that only introduce omitted tables.
+- Clarified in story and runbook docs that ElevenLabs upload and final audio
+  generation are downstream manual work, not part of the repo-owned
+  implementation slice.
+
+### Fixed
+- Fixed the story/runbook contract drift around `20-i-wish.md` so it remains a
+  poem-only epilogue instead of implying that the visual appendix should be
+  spoken.
+
 ## [2026-04-11-01] - Refined whole-book presentation and archive flow
 
 ### Changed

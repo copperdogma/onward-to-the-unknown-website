@@ -373,7 +373,7 @@
       {
         "path": "docs/stories/story-003-elevenlabs-full-audiobook.md",
         "title": "ElevenLabs Full Audiobook",
-        "status": "Draft"
+        "status": "Done"
       },
       {
         "path": "docs/stories/story-004-first-local-accessible-family-pages-slice.md",
@@ -412,8 +412,8 @@
       }
     ],
     "counts_by_status": {
-      "Done": 4,
-      "Draft": 3,
+      "Done": 5,
+      "Draft": 2,
       "Pending": 3
     }
   }

@@ -31,6 +31,7 @@ make methodology-check
 make test
 make lint
 make build-family-site
+make build-audiobook-script
 make refresh-omission-audit
 make preview-family-site
 make deploy-static
@@ -70,13 +71,18 @@ Current local build surface:
 
 - Input contract: `docs/input-contract.md`
 - Omission audit snapshot: `docs/omission-audit.json`
+- Audiobook script corpus: `audiobook-script/`
 - Presentation decisions: `docs/presentation-decisions.md`
 - Local whole-book reading-surface build: `python scripts/build_family_site.py`
   (or `make build-family-site`)
+- Audiobook script build: `python scripts/build_audiobook_script.py`
+  (or `make build-audiobook-script`)
 - Default local output: `build/family-site/`
 - UI scout lane: `docs/ui-scout.md` and `docs/ui-scout/`
 - Manual walkthrough runbook:
   `docs/runbooks/whole-book-ui-manual-walkthrough.md`
+- Audiobook handoff runbook:
+  `docs/runbooks/elevenlabs-audiobook.md`
 
 ## `doc-web` Integration
 
