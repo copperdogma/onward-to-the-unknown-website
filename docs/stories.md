@@ -9,8 +9,12 @@ Current priority: refine the existing whole-book reading surface into a site tha
 ## Current Stories
 
 - **Done** — `docs/stories/story-001-first-accessible-site-and-dreamhost-deploy.md` — DreamHost Hosted Subdomain, DNS, and Static Deploy Path
-- **Draft** — `docs/stories/story-002-notebooklm-family-story-podcasts.md` — NotebookLM Family-Story Podcasts
+- **Draft** — `docs/stories/story-002-notebooklm-family-story-podcasts.md` — NotebookLM Whole-Book And Family-Story Podcasts
 - **Draft** — `docs/stories/story-003-elevenlabs-full-audiobook.md` — ElevenLabs Full Audiobook
 - **Done** — `docs/stories/story-004-first-local-accessible-family-pages-slice.md` — First Local Accessible Family-Pages Slice
 - **Done** — `docs/stories/story-005-whole-book-accessible-reading-surface-and-omission-audit.md` — Whole-Book Accessible Reading Surface And Omission Audit
 - **Done** — `docs/stories/story-006-whole-book-landing-scannability-and-page-label-clarity.md` — Whole-Book Landing Scannability And Page Label Clarity
+- **Pending** — `docs/stories/story-007-rolland-alain-memoir-family-story.md` — Rolland Alain Memoir Family Story
+- **Pending** — `docs/stories/story-008-audiobook-distribution-scout-and-elder-friendly-listening.md` — Audiobook Distribution Scout And Elder-Friendly Listening
+- **Pending** — `docs/stories/story-009-podcast-distribution-scout-and-elder-friendly-listening.md` — Podcast Distribution Scout And Elder-Friendly Listening
+- **Draft** — `docs/stories/story-010-notebooklm-video-companions.md` — NotebookLM Whole-Book And Chapter Video Companions

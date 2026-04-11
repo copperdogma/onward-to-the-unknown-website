@@ -1,18 +1,21 @@
 ---
-title: "NotebookLM Family-Story Podcasts"
+title: "NotebookLM Whole-Book And Family-Story Podcasts"
 status: "Draft"
 priority: "Medium"
 ideal_refs:
+  - "1. Canonical Book Experience"
   - "2. Connected Companion Media"
   - "4. Reusable Content Model"
   - "5. Accessible Family Archive"
   - "6. Low-Friction Maintenance"
 spec_refs:
+  - "spec:1"
   - "spec:2"
   - "spec:3"
   - "spec:4"
   - "spec:6"
   - "spec:8"
+  - "C1"
   - "C2"
   - "C3"
   - "C4"
@@ -20,14 +23,16 @@ spec_refs:
   - "B1"
 adr_refs: []
 depends_on:
-  - "story-001"
+  - "story-005"
 category_refs:
+  - "spec:1"
   - "spec:2"
   - "spec:3"
   - "spec:4"
   - "spec:6"
   - "spec:8"
 compromise_refs:
+  - "C1"
   - "C2"
   - "C3"
   - "C4"
@@ -44,41 +49,43 @@ roadmap_tags:
 legacy_system: "Google NotebookLM workflow over staged archive materials"
 ---
 
-# Story 002 — NotebookLM Family-Story Podcasts
+# Story 002 — NotebookLM Whole-Book And Family-Story Podcasts
 
 **Priority**: Medium
 **Status**: Draft
-**Decision Refs**: `docs/inbox.md`, `docs/evals/README.md`, `tests/fixtures/formats/_coverage-matrix.json`, none found after search for repo-local ADRs or NotebookLM runbooks
-**Depends On**: Story 001 or equivalent canonical source-slice work
+**Decision Refs**: `docs/evals/README.md`, `docs/input-contract.md`, `docs/RUNBOOK.md`, `tests/fixtures/formats/_coverage-matrix.json`, none found after search for repo-local ADRs or NotebookLM runbooks
+**Depends On**: Story 005
 
 ## Goal
 
 Create a repeatable, provenance-aware NotebookLM workflow that can generate one
-overall podcast about the family stories as a whole and one podcast per family
-story from authoritative source packets, without turning the process into a set
-of opaque one-off uploads.
+podcast for the whole book and one podcast per family story from authoritative
+source packets, without turning the process into a set of opaque one-off
+uploads that drift from the repo's source truth.
 
 ## Acceptance Criteria
 
-- [ ] A documented source-prep workflow exists for creating one overall
+- [ ] A documented source-prep workflow exists for creating one whole-book
       NotebookLM podcast from authoritative staged or canonical source
       materials.
-- [ ] Reliable per-family source packets are defined with naming, lineage, and
-      review rules so one podcast can be generated for each family's story.
-- [ ] The repo records where generated podcast outputs and metadata should live
-      so the site can later link to them with inspectable provenance.
+- [ ] Reliable per-family-story source packets are defined with naming,
+      lineage, and review rules so one podcast can be generated for each family
+      story without ad hoc selection.
+- [ ] The repo records where generated podcast outputs, prompts, and metadata
+      should live so the site can later link to them with inspectable
+      provenance.
 
 ## Out of Scope
 
 - Building the public website runtime itself.
-- ElevenLabs audiobook production.
-- Final audio hosting or player UI beyond the metadata needed for future site
+- ElevenLabs audiobook production or distribution.
+- Final podcast hosting or player UI beyond the metadata needed for future site
   integration.
 
 ## Approach Evaluation
 
 - **Simplification baseline**: A single NotebookLM upload may already be good
-  enough for the overall podcast, so the first task should measure that before
+  enough for the whole-book pilot, so the first task should measure that before
   inventing elaborate prep tooling.
 - **AI-only**: Viable for draft audio generation, but weak on repeatability,
   source packaging, and provenance unless the surrounding workflow is explicit.
@@ -87,25 +94,26 @@ of opaque one-off uploads.
 - **Pure code**: Not realistic for the generation step because the core
   capability lives in an external AI product.
 - **Repo constraints / prior decisions**: There is no existing NotebookLM
-  workflow, no family-slice packaging rule, and no output inventory path in the
-  repo yet. The content model and site slice work should shape the packet
-  boundaries instead of every audio workflow inventing its own format.
-- **Existing patterns to reuse**: Coverage rows already acknowledge chapter and
-  full-book podcast surfaces. Story 001 should establish the authoritative
-  source slices that this workflow reuses.
-- **Eval**: Pilot the overall-corpus workflow and one family packet. Compare
-  repeatability, source lineage, and manual review burden before scaling to the
-  full set.
+  workflow, no packet-generation rule for whole-book versus family-story
+  variants, and no output inventory path in the repo yet. The whole-book site
+  slice should shape the packet boundaries instead of every audio workflow
+  inventing its own format.
+- **Existing patterns to reuse**: Story 005 established the authoritative
+  whole-book source slice. Coverage rows already acknowledge chapter and
+  full-book podcast surfaces.
+- **Eval**: Pilot the whole-book workflow and one representative family-story
+  packet. Compare repeatability, source lineage, and manual review burden
+  before scaling to the full set.
 
 ## Tasks
 
-- [ ] Define how overall and per-family source packets will be derived from the
-      staged source snapshot or canonical site data.
-- [ ] Run a small baseline NotebookLM experiment on the overall corpus before
-      building extra prep or packaging logic.
+- [ ] Define how whole-book and per-family-story source packets will be derived
+      from the staged source snapshot or canonical site data.
+- [ ] Run a small baseline NotebookLM experiment on the whole-book corpus
+      before building extra prep or packaging logic.
 - [ ] Document naming, provenance, storage, and human-review rules for
       generated podcasts.
-- [ ] Generate the overall podcast and one podcast per family story once the
+- [ ] Generate the whole-book podcast and one podcast per family story once the
       source packets are ready.
 - [ ] Record links and metadata for generated podcasts so they can become
       inspectable companion media on the site.
@@ -152,52 +160,56 @@ N/A
 
 - **Owning module / area**: Companion-media workflow docs, source-packet
   packaging, and future podcast metadata surfaces.
-- **Methodology reality**: `spec:2` and `spec:3` are `missing`, `spec:4` and
-  `spec:6` are `partial`, and `spec:8` is `partial`; all relevant compromises
-  are still in `climb` except `B1`, which is in `hold`.
-- **Substrate evidence**: Coverage rows for podcast surfaces exist, but there
-  are no family packets, no NotebookLM workflow docs, and no recorded outputs
-  in the repo yet.
+- **Methodology reality**: `spec:1`, `spec:2`, `spec:3`, `spec:4`, and
+  `spec:6` are `partial`, while `spec:8` remains `partial`; all relevant
+  compromises are still in `climb` except `B1`, which remains in `hold`.
+- **Substrate evidence**: Story 005 proved a real whole-book source slice and
+  coverage rows for podcast surfaces exist, but there are no packet rules, no
+  NotebookLM workflow docs, and no recorded outputs in the repo yet.
 - **Data contracts / schemas**: This story should define packet boundaries,
-  naming, provenance metadata, and output-recording rules rather than inventing
-  per-run conventions.
-- **File sizes**: `docs/RUNBOOK.md` (21), `docs/evals/registry.yaml` (6),
+  naming, prompt/provenance metadata, and output-recording rules rather than
+  inventing per-run conventions.
+- **File sizes**: `docs/RUNBOOK.md` (117), `docs/evals/registry.yaml` (6),
   `tests/fixtures/formats/_coverage-matrix.json` (60), packet/output docs TBD.
 - **Decision context**: Reviewed `docs/ideal.md`, `docs/spec.md`,
-  `docs/evals/README.md`, `docs/methodology/state.yaml`,
-  `docs/methodology/graph.json`, `tests/fixtures/formats/_coverage-matrix.json`,
-  and `docs/inbox.md`. No repo-local ADRs or NotebookLM-specific runbooks
-  exist yet.
+  `docs/input-contract.md`, `docs/evals/README.md`,
+  `docs/methodology/state.yaml`, `docs/methodology/graph.json`,
+  `tests/fixtures/formats/_coverage-matrix.json`, and `docs/RUNBOOK.md`. No
+  repo-local ADRs or NotebookLM-specific runbooks exist yet.
 
 ## Files to Modify
 
 - `tests/fixtures/formats/_coverage-matrix.json` — update podcast surface truth
-  when overall/per-family outputs become real (60 lines)
+  when whole-book and per-family-story outputs become real (60 lines)
 - `docs/evals/registry.yaml` — record any baseline/pilot quality checks that
   become part of the workflow (6 lines)
 - `docs/RUNBOOK.md` — add recurring human workflow steps if this becomes a
-  maintained operational path (21 lines)
+  maintained operational path (117 lines)
 - Packet and output inventory docs/paths TBD once the storage shape is chosen
 
 ## Redundancy / Removal Targets
 
-- Ad hoc NotebookLM notebook naming that is not anchored to family/story
-  identities.
+- Ad hoc NotebookLM notebook naming that is not anchored to whole-book or
+  family-story identities.
 - Separate manual packet notes if canonical source slices can generate the same
   inputs.
 - One-off podcast link lists that are not tied back to source lineage.
 
 ## Notes
 
-- The overall podcast may be valuable before per-family slicing is complete, so
-  the baseline should test that path first.
-- Per-family podcasts should wait for authoritative family/story packet rules
-  instead of relying on improvised manual selection each time.
+- No new story was created for the user's 2026-04-11 request because this is
+  the same subsystem, validation boundary, and success surface as the existing
+  NotebookLM podcast story; the honest move is to broaden this story's scope.
+- The whole-book pilot should happen before per-family scaling unless the
+  baseline proves that the broader corpus fails badly.
+- The scoped output set is now explicit: one whole-book podcast and one podcast
+  per family story, not one per chapter.
 
 ## Plan
 
-1. Establish what the authoritative overall corpus and per-family packets are.
-2. Pilot the overall NotebookLM workflow with minimal tooling.
+1. Establish what the authoritative whole-book corpus and per-family-story
+   packets are.
+2. Pilot the whole-book NotebookLM workflow with minimal tooling.
 3. Lock naming, provenance, and storage rules.
 4. Scale to one podcast per family story and record the outputs for later site
    integration.
@@ -208,3 +220,11 @@ N/A
 captured the NotebookLM overall-plus-per-family podcast line as one workflow,
 evidence: `docs/inbox.md` and coverage rows for podcast surfaces, next step:
 measure the overall-corpus baseline before automating packet preparation.
+20260411-1105 — action: clarified scope instead of minting a duplicate story,
+result: broadened the story from a family-story aggregate podcast to a whole-
+book podcast plus one per family story, evidence: user request in this thread
+and existing Story 005 whole-book substrate, next step: keep the first pilot on
+the whole-book corpus.
+20260411-1119 — action: captured remaining scope decision, result: ruled out a
+per-chapter podcast rollout for this story line, evidence: user direction in
+this thread, next step: keep the packet model centered on the family-story run.

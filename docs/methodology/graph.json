@@ -367,7 +367,7 @@
       },
       {
         "path": "docs/stories/story-002-notebooklm-family-story-podcasts.md",
-        "title": "NotebookLM Family-Story Podcasts",
+        "title": "NotebookLM Whole-Book And Family-Story Podcasts",
         "status": "Draft"
       },
       {
@@ -389,11 +389,32 @@
         "path": "docs/stories/story-006-whole-book-landing-scannability-and-page-label-clarity.md",
         "title": "Whole-Book Landing Scannability And Page Label Clarity",
         "status": "Done"
+      },
+      {
+        "path": "docs/stories/story-007-rolland-alain-memoir-family-story.md",
+        "title": "Rolland Alain Memoir Family Story",
+        "status": "Pending"
+      },
+      {
+        "path": "docs/stories/story-008-audiobook-distribution-scout-and-elder-friendly-listening.md",
+        "title": "Audiobook Distribution Scout And Elder-Friendly Listening",
+        "status": "Pending"
+      },
+      {
+        "path": "docs/stories/story-009-podcast-distribution-scout-and-elder-friendly-listening.md",
+        "title": "Podcast Distribution Scout And Elder-Friendly Listening",
+        "status": "Pending"
+      },
+      {
+        "path": "docs/stories/story-010-notebooklm-video-companions.md",
+        "title": "NotebookLM Whole-Book And Chapter Video Companions",
+        "status": "Draft"
       }
     ],
     "counts_by_status": {
       "Done": 4,
-      "Draft": 2
+      "Draft": 3,
+      "Pending": 3
     }
   }
 }

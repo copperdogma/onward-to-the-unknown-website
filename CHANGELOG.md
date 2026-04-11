@@ -1,5 +1,22 @@
 # Changelog
 
+## [2026-04-11-02] - Added new planning stories for memoir and media lanes
+
+### Added
+- Added Story 007 for processing the Rolland Alain memoir through `doc-web`
+  and surfacing it as a normalized family-story page with a short provenance
+  preamble.
+- Added Story 008 and Story 009 for scouting family-first, no-charge audiobook
+  and podcast distribution options that stay easy for older listeners to use.
+- Added Story 010 as a low-priority experiment for possible NotebookLM video
+  companions.
+
+### Changed
+- Expanded Story 002 so it explicitly covers one whole-book NotebookLM podcast
+  plus one podcast per family story, rather than leaving the scope ambiguous.
+- Regenerated the story index and methodology graph to include the new planning
+  slices and updated story statuses.
+
 ## [2026-04-11-01] - Refined whole-book presentation and archive flow
 
 ### Changed
