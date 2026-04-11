@@ -1,5 +1,30 @@
 # Changelog
 
+## [2026-04-11-01] - Refined whole-book presentation and archive flow
+
+### Changed
+- Reworked the whole-book landing page into `Opening Pages`, `Family Stories`,
+  and `Closing Archive` so the surfaced site follows the book's reading flow
+  more closely.
+- Tightened the local builder's page presentation with mixed-case labels,
+  centered front-matter leaves, sticky genealogy headers, inline-capable
+  illustration treatment, and more restrained image sizing with full-image
+  links.
+- Updated the presentation decisions doc so it matches the current surfaced
+  behavior for absorbed title leaves, deferred empty pages, and split archive
+  photo material.
+
+### Fixed
+- Fixed the `page-001`/`page-002` opening-material merge so repeated title
+  leaves are absorbed honestly instead of only being hidden in the omission
+  audit.
+- Fixed `chapter-024` so the poem stands alone and trailing archive photos
+  render as separate closing-archive pages without missing-image placeholder
+  noise.
+- Fixed several page-level readability issues across the whole-book shell,
+  including centered ancestry closing rows, cleaned index leaves, and more
+  readable figure placement on narrative pages.
+
 ## [2026-04-10-04] - Refined the whole-book landing surface (Story 006)
 
 ### Added

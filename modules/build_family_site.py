@@ -4,6 +4,7 @@ import json
 import os
 import re
 import shutil
+import unicodedata
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from html import escape, unescape
@@ -23,13 +24,45 @@ H1_PATTERN = re.compile(r"<h1\b[^>]*>(.*?)</h1>", re.IGNORECASE | re.DOTALL)
 H2_PATTERN = re.compile(r"<h2\b[^>]*>(.*?)</h2>", re.IGNORECASE | re.DOTALL)
 FIGCAPTION_PATTERN = re.compile(r"<figcaption\b[^>]*>(.*?)</figcaption>", re.IGNORECASE | re.DOTALL)
 PARAGRAPH_PATTERN = re.compile(r"<p\b[^>]*>(.*?)</p>", re.IGNORECASE | re.DOTALL)
+TABLE_PATTERN = re.compile(r"<table\b[^>]*>.*?</table>", re.IGNORECASE | re.DOTALL)
+PRIMARY_HEADING_PATTERN = re.compile(r"(<h1\b[^>]*>)(.*?)(</h1>)", re.IGNORECASE | re.DOTALL)
+IMG_TAG_PATTERN = re.compile(r"<img\b([^>]*)>", re.IGNORECASE)
 IMG_ALT_PATTERN = re.compile(r"<img\b[^>]*\balt=(?:\"([^\"]+)\"|'([^']+)')", re.IGNORECASE)
+FIGURE_PATTERN = re.compile(r"<figure\b[^>]*>.*?</figure>", re.IGNORECASE | re.DOTALL)
+FIGCAPTION_BLOCK_PATTERN = re.compile(r"<figcaption\b[^>]*>.*?</figcaption>", re.IGNORECASE | re.DOTALL)
+ARTICLE_BLOCK_PATTERN = re.compile(
+    r"<(?:h1|h2|h3|p|figure|table)\b[^>]*>.*?</(?:h1|h2|h3|p|figure|table)>",
+    re.IGNORECASE | re.DOTALL,
+)
 PLACEHOLDER_PAGE_TITLE_PATTERN = re.compile(r"^(?:Image \d+|Page [ivxlcdm]+)$", re.IGNORECASE)
+ROMAN_NUMERAL_PATTERN = re.compile(r"^[ivxlcdm]+$", re.IGNORECASE)
+RECIPE_BLOCK_PATTERN = re.compile(
+    r'(<p id="blk-chapter-005-0031">.*?</p>\s*<h3 id="blk-chapter-005-0032".*?<p id="blk-chapter-005-0038">.*?</p>)',
+    re.DOTALL,
+)
+CROP_FILENAME_PATTERN = re.compile(r"page-(\d+)-\d+\.[A-Za-z0-9]+", re.IGNORECASE)
+ID_ATTR_PATTERN = re.compile(r'\bid=(?:"([^"]*)"|\'([^\']*)\')', re.IGNORECASE)
 LANDING_CARD_SUMMARY_LIMIT = 140
 SHORT_LABEL_MAX_LENGTH = 88
 TITLE_CASE_SMALL_WORDS = frozenset(
     {"a", "an", "and", "as", "at", "by", "for", "in", "of", "on", "or", "the", "to"}
 )
+GENEALOGY_TABLE_HEADERS = ("NAME", "BORN", "MARRIED", "SPOUSE", "BOY", "GIRL", "DIED")
+FIGURE_EMBLEM_KEYWORDS = frozenset({"logo", "seal"})
+FIGURE_SIGNATURE_KEYWORDS = frozenset({"signature"})
+FIGURE_ILLUSTRATION_KEYWORDS = frozenset({"illustration", "line drawing"})
+CHAPTER_024_PHOTO_TITLES = {
+    121: "Family Gathering and Ranch Stallion",
+    122: "1939 Reunion and Family Portraits",
+    123: "Sophie L'Heureux's Funeral and Church Move",
+    124: "Joe L'Heureux and the Hereford Bull",
+    125: "Covered Wagon Illustration",
+    126: "L'Heureux Veterans Plaques",
+    127: "Monument and Post Office Plaque",
+}
+MERGED_ENTRY_TARGETS = {
+    "page-002": "page-001",
+}
 
 SITE_STYLESHEET = dedent(
     """
@@ -181,6 +214,10 @@ SITE_STYLESHEET = dedent(
       transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
     }
 
+    .story-card.has-thumbnail {
+      padding: 0.9rem;
+    }
+
     .story-card:hover,
     .story-card:focus-visible {
       transform: translateY(-2px);
@@ -194,9 +231,29 @@ SITE_STYLESHEET = dedent(
       margin: 0.35rem 0 0.75rem;
     }
 
+    .story-card.has-thumbnail .story-title {
+      margin-top: 0;
+    }
+
     .story-card p {
       margin: 0.7rem 0 0;
       color: var(--ink);
+      overflow-wrap: anywhere;
+    }
+
+    .story-card-media {
+      margin: 0 0 0.9rem;
+      aspect-ratio: 5 / 4;
+      overflow: hidden;
+      border-radius: 0.9rem;
+      border: 1px solid rgba(111, 46, 29, 0.14);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(246, 237, 225, 0.92));
+    }
+
+    .story-card-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .page-nav {
@@ -246,8 +303,10 @@ SITE_STYLESHEET = dedent(
       padding: 1.4rem;
     }
 
-    .article-card {
-      overflow: hidden;
+    .article-card::after {
+      content: "";
+      display: block;
+      clear: both;
     }
 
     .article-card h1 {
@@ -270,17 +329,227 @@ SITE_STYLESHEET = dedent(
     }
 
     .article-card figure {
+      width: min(100%, 46rem);
       margin: 1.5rem 0;
       padding: 0.9rem;
       border-radius: 0.85rem;
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(246, 237, 225, 0.92));
       border: 1px solid rgba(111, 46, 29, 0.14);
+      display: grid;
+      gap: 0.85rem;
+      justify-items: center;
+      margin-inline: auto;
+    }
+
+    .article-card figure.figure-gallery {
+      width: min(100%, 58rem);
+    }
+
+    .article-card figure.figure-emblem {
+      width: min(100%, 16rem);
+      padding: 0.7rem;
+    }
+
+    .article-card figure.figure-signature {
+      width: min(100%, 24rem);
+      padding: 0.7rem;
+    }
+
+    .article-card figure.figure-illustration {
+      width: min(100%, 34rem);
+    }
+
+    .article-card .figure-image-link {
+      display: block;
+      width: fit-content;
+      max-width: 100%;
+      color: inherit;
+    }
+
+    .article-card .figure-image-link img {
+      max-width: 100%;
+      width: auto;
+      max-height: 34rem;
+      margin: 0 auto;
+      border-radius: 0.6rem;
+      box-shadow: 0 12px 28px rgba(71, 48, 26, 0.1);
+    }
+
+    .article-card figure.figure-emblem .figure-image-link img {
+      max-height: 13rem;
+    }
+
+    .article-card figure.figure-signature .figure-image-link img {
+      max-height: 7rem;
+      box-shadow: none;
+    }
+
+    .article-card .figure-image-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+      gap: 0.75rem;
+      align-items: start;
+    }
+
+    .article-card .figure-image-grid .figure-image-link {
+      width: 100%;
+    }
+
+    .article-card .figure-image-grid .figure-image-link img {
+      width: 100%;
+      height: 18rem;
+      object-fit: cover;
+    }
+
+    .article-card .figure-missing {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 0.7rem;
+      border: 1px dashed rgba(111, 46, 29, 0.28);
+      background: rgba(255, 255, 255, 0.72);
+      font-family: var(--ui-font);
+      font-size: 0.92rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .article-card .figure-orphaned-caption {
+      margin: 0.25rem auto 1rem;
+      max-width: 28rem;
+      font-family: var(--ui-font);
+      font-size: 0.95rem;
+      color: var(--muted);
+      text-align: center;
     }
 
     .article-card figcaption {
-      margin-top: 0.7rem;
+      width: 100%;
+      margin-top: 0;
       font-family: var(--ui-font);
       font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .article-card figcaption > :last-child {
+      margin-bottom: 0;
+    }
+
+    .article-card.entry-chapter-001 h1,
+    .article-card.entry-chapter-001 h2,
+    .article-card.entry-chapter-003 h1,
+    .article-card.entry-chapter-003 p {
+      text-align: center;
+    }
+
+    .article-card.entry-chapter-024 h1 {
+      text-align: center;
+    }
+
+    .article-card.entry-chapter-024 p {
+      max-width: 28rem;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left;
+    }
+
+    .article-card.entry-page-004,
+    .article-card.entry-page-006,
+    .article-card.entry-page-008 {
+      text-align: center;
+    }
+
+    .article-card.entry-page-004 p,
+    .article-card.entry-page-006 p {
+      max-width: 34rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .article-card.entry-page-008 .clean-index-list {
+      list-style: none;
+      padding: 0;
+      margin: 1.4rem auto;
+      max-width: 36rem;
+      display: grid;
+      gap: 0.55rem;
+    }
+
+    .article-card.entry-page-008 .clean-index-list li {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.85rem;
+      align-items: baseline;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid rgba(111, 46, 29, 0.12);
+      text-align: left;
+      font-family: var(--ui-font);
+    }
+
+    .article-card.entry-page-008 table.summary-index-table {
+      width: min(100%, 44rem);
+      margin-left: auto;
+      margin-right: auto;
+      display: table;
+      overflow: visible;
+      table-layout: fixed;
+    }
+
+    .article-card.entry-page-008 table.summary-index-table td,
+    .article-card.entry-page-008 table.summary-index-table th {
+      text-align: left;
+    }
+
+    @media (min-width: 62rem) {
+      .article-card figure.figure-inline {
+        float: right;
+        width: min(42%, 24rem);
+        margin: 0.35rem 0 1.25rem 1.25rem;
+      }
+    }
+
+    .article-card.entry-chapter-001 table.ancestry-table {
+      width: min(100%, 48rem);
+      margin: 1.4rem auto 0;
+      display: table;
+      overflow: visible;
+      background: transparent;
+      border-radius: 0;
+    }
+
+    .article-card.entry-chapter-001 tr:nth-child(even) td {
+      background: transparent;
+    }
+
+    .article-card.entry-chapter-001 td,
+    .article-card.entry-chapter-001 th {
+      border: none;
+      padding: 0.28rem 0.7rem;
+      text-align: center;
+      vertical-align: bottom;
+    }
+
+    .article-card.entry-chapter-001 tr.ancestry-final-row td {
+      text-align: center;
+    }
+
+    .article-card.entry-chapter-003 p {
+      max-width: 40rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .article-card.entry-chapter-003 figure.figure-emblem,
+    .article-card.entry-chapter-003 figure.figure-signature {
+      background: transparent;
+      border-color: rgba(111, 46, 29, 0.08);
+      box-shadow: none;
+    }
+
+    .article-card .appendix-note {
+      font-family: var(--ui-font);
+      font-size: 0.98rem;
+      line-height: 1.55;
       color: var(--muted);
     }
 
@@ -293,6 +562,17 @@ SITE_STYLESHEET = dedent(
       font-size: 1rem;
       background: rgba(255, 255, 255, 0.55);
       border-radius: 0.7rem;
+    }
+
+    .article-card table.genealogy-table {
+      display: table;
+      overflow: visible;
+      table-layout: fixed;
+    }
+
+    .article-card table.genealogy-table th,
+    .article-card table.genealogy-table td {
+      overflow-wrap: anywhere;
     }
 
     .article-card th,
@@ -308,8 +588,55 @@ SITE_STYLESHEET = dedent(
       font-family: var(--ui-font);
     }
 
+    .article-card table.genealogy-table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: rgba(255, 251, 245, 0.97);
+      box-shadow: inset 0 -1px 0 rgba(111, 46, 29, 0.18);
+    }
+
+    .article-card table.genealogy-table tr.genealogy-subgroup-heading th {
+      position: static;
+      background: rgba(111, 46, 29, 0.12);
+    }
+
     .article-card tr:nth-child(even) td {
       background: rgba(255, 255, 255, 0.35);
+    }
+
+    .recipe-callout {
+      margin: 2rem 0;
+      padding: 1.3rem 1.4rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(111, 46, 29, 0.18);
+      border-left: 0.4rem solid var(--accent);
+      background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.44), transparent 30%),
+        linear-gradient(180deg, rgba(253, 246, 236, 0.98), rgba(244, 228, 203, 0.92));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    }
+
+    .recipe-callout > p:first-child {
+      font-family: var(--ui-font);
+      font-size: 1rem;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+
+    .recipe-callout h3,
+    .recipe-callout p strong {
+      color: var(--ink);
+    }
+
+    .recipe-callout h3 {
+      font-size: clamp(1.3rem, 2.8vw, 1.8rem);
+      margin-top: 1rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .recipe-callout p:last-child {
+      margin-bottom: 0;
     }
 
     @media (max-width: 54rem) {
@@ -317,6 +644,24 @@ SITE_STYLESHEET = dedent(
 
       .site-shell {
         width: min(var(--max-width), calc(100% - 1rem));
+      }
+
+      .article-card table.genealogy-table th,
+      .article-card table.genealogy-table td {
+        padding: 0.65rem 0.55rem;
+        font-size: 0.92rem;
+      }
+
+      .article-card figure {
+        width: min(100%, 40rem);
+      }
+
+      .article-card .figure-image-link img {
+        max-height: 24rem;
+      }
+
+      .article-card figure.figure-signature {
+        width: min(100%, 20rem);
       }
     }
 
@@ -334,6 +679,21 @@ SITE_STYLESHEET = dedent(
       .nav-placeholder {
         flex-basis: 100%;
       }
+
+      .article-card figure,
+      .article-card figure.figure-gallery,
+      .article-card figure.figure-illustration {
+        width: 100%;
+      }
+
+      .article-card .figure-image-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .article-card .figure-image-grid .figure-image-link img {
+        height: auto;
+        max-height: 20rem;
+      }
     }
     """
 ).strip()
@@ -348,19 +708,19 @@ class EntryGroup:
 
 ENTRY_GROUPS = (
     EntryGroup(
-        id="book-chapters",
-        label="Book Chapters",
-        rendered_rationale="Rendered as a whole-book chapter page in the accessible local reading surface.",
+        id="opening-pages",
+        label="Opening Pages",
+        rendered_rationale="Rendered as part of the opening material and early context in the local reading surface.",
     ),
     EntryGroup(
         id="family-stories",
-        label="Family stories",
-        rendered_rationale="Rendered as a whole-page family story inside the whole-book local reading surface.",
+        label="Family Stories",
+        rendered_rationale="Rendered as a whole-page family story inside the local reading surface.",
     ),
     EntryGroup(
-        id="pages-and-images",
-        label="Pages & Images",
-        rendered_rationale="Rendered as a standalone page/image entry with light reshaping so the source page remains reachable.",
+        id="closing-archive",
+        label="Closing Archive",
+        rendered_rationale="Rendered as part of the closing material or archive appendix in the local reading surface.",
     ),
 )
 ENTRY_GROUPS_BY_ID = {group.id: group for group in ENTRY_GROUPS}
@@ -388,6 +748,18 @@ class RenderedEntry:
     article_html: str
     display_title: str
     summary_text: str
+    thumbnail_src: str | None
+    thumbnail_alt: str | None
+    source_entry_id: str
+    block_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class EntryFragment:
+    entry: BundleEntry
+    raw_article_html: str
+    source_entry_id: str
+    block_ids: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -475,6 +847,21 @@ def plain_text_excerpt(article_html: str, limit: int = LANDING_CARD_SUMMARY_LIMI
     return excerpt_text(plain_text_from_html(article_html), limit)
 
 
+def normalize_merge_text(text: str) -> str:
+    normalized = unicodedata.normalize("NFKD", text)
+    without_marks = "".join(character for character in normalized if not unicodedata.combining(character))
+    collapsed = WHITESPACE_PATTERN.sub(" ", without_marks).strip()
+    return collapsed.casefold()
+
+
+def attribute_value(attributes: str, attribute: str) -> str | None:
+    pattern = re.compile(rf'\b{re.escape(attribute)}=(?:"([^"]*)"|\'([^\']*)\')', re.IGNORECASE)
+    match = pattern.search(attributes)
+    if not match:
+        return None
+    return unescape(match.group(1) or match.group(2) or "").strip() or None
+
+
 def first_fragment_text(pattern: re.Pattern[str], article_html: str) -> str | None:
     match = pattern.search(article_html)
     if not match:
@@ -508,24 +895,43 @@ def is_mostly_uppercase(text: str) -> bool:
     return uppercase / len(letters) >= 0.8
 
 
+def title_case_word(word: str, *, is_first: bool, is_last: bool) -> str:
+    prefix_match = re.match(r"^\W*", word)
+    suffix_match = re.search(r"\W*$", word)
+    prefix = prefix_match.group(0) if prefix_match else ""
+    suffix = suffix_match.group(0) if suffix_match else ""
+    core_end = len(word) - len(suffix) if suffix else len(word)
+    core = word[len(prefix) : core_end]
+    if not core:
+        return word
+
+    core_lower = core.lower()
+    if ROMAN_NUMERAL_PATTERN.fullmatch(core):
+        transformed = core.upper()
+    elif not is_first and not is_last and core_lower in TITLE_CASE_SMALL_WORDS:
+        transformed = core_lower
+    else:
+        transformed = core_lower.title()
+    return prefix + transformed + suffix
+
+
 def soften_display_title(text: str) -> str:
     normalized = WHITESPACE_PATTERN.sub(" ", text).strip()
     if not normalized or not is_mostly_uppercase(normalized):
         return normalized
 
-    words = normalized.lower().split()
-    softened: list[str] = []
-    for index, word in enumerate(words):
-        if 0 < index < len(words) - 1 and word in TITLE_CASE_SMALL_WORDS:
-            softened.append(word)
-            continue
-        softened.append(word.title())
+    words = normalized.split()
+    softened = [
+        title_case_word(word, is_first=index == 0, is_last=index == len(words) - 1)
+        for index, word in enumerate(words)
+    ]
     return " ".join(softened)
 
 
 def derive_display_title(entry: BundleEntry, article_html: str) -> str:
+    normalized_title = soften_display_title(entry.title)
     if entry.kind != "page" or not PLACEHOLDER_PAGE_TITLE_PATTERN.fullmatch(entry.title.strip()):
-        return entry.title
+        return normalized_title
 
     candidates = (
         first_fragment_text(H1_PATTERN, article_html),
@@ -543,7 +949,390 @@ def derive_display_title(entry: BundleEntry, article_html: str) -> str:
         if source_page is not None:
             return f"Illustration page {source_page}"
         return "Illustration page"
-    return entry.title
+    return normalized_title
+
+
+def add_class_to_tag(opening_tag: str, class_name: str) -> str:
+    class_pattern = re.compile(r'\bclass=(?:"([^"]*)"|\'([^\']*)\')', re.IGNORECASE)
+    match = class_pattern.search(opening_tag)
+    if match:
+        existing = match.group(1) or match.group(2) or ""
+        classes = existing.split()
+        if class_name in classes:
+            return opening_tag
+        updated = " ".join([*classes, class_name]).strip()
+        quote = '"' if match.group(1) is not None else "'"
+        replacement = f'class={quote}{updated}{quote}'
+        return opening_tag[: match.start()] + replacement + opening_tag[match.end() :]
+    closing = "/>" if opening_tag.endswith("/>") else ">"
+    return opening_tag[: -len(closing)] + f' class="{class_name}"{closing}'
+
+
+def set_attribute_on_tag(opening_tag: str, attribute: str, value: str) -> str:
+    pattern = re.compile(rf'\b{re.escape(attribute)}=(?:"[^"]*"|\'[^\']*\')', re.IGNORECASE)
+    replacement = f'{attribute}="{escape(value, quote=True)}"'
+    match = pattern.search(opening_tag)
+    if match:
+        return opening_tag[: match.start()] + replacement + opening_tag[match.end() :]
+    closing = "/>" if opening_tag.endswith("/>") else ">"
+    return opening_tag[: -len(closing)] + f" {replacement}{closing}"
+
+
+def extract_block_ids(html_fragment: str) -> tuple[str, ...]:
+    block_ids: list[str] = []
+    for match in ID_ATTR_PATTERN.finditer(html_fragment):
+        block_id = match.group(1) or match.group(2) or ""
+        if block_id.startswith("blk-"):
+            block_ids.append(block_id)
+    return tuple(block_ids)
+
+
+def first_source_page_from_html(html_fragment: str) -> int | None:
+    match = CROP_FILENAME_PATTERN.search(html_fragment)
+    if not match:
+        return None
+    return int(match.group(1))
+
+
+def article_blocks(article_html: str) -> list[str]:
+    blocks = [match.group(0).strip() for match in ARTICLE_BLOCK_PATTERN.finditer(article_html)]
+    if blocks:
+        return blocks
+    stripped = article_html.strip()
+    return [stripped] if stripped else []
+
+
+def block_merge_signature(block_html: str) -> str | None:
+    image_sources = [
+        src
+        for image_match in IMG_TAG_PATTERN.finditer(block_html)
+        if (src := attribute_value(image_match.group(1), "src"))
+    ]
+    caption = plain_text_from_html(FIGCAPTION_BLOCK_PATTERN.search(block_html).group(0)) if FIGCAPTION_BLOCK_PATTERN.search(block_html) else ""
+    if image_sources:
+        signature_parts = ["image", *image_sources]
+        if caption:
+            signature_parts.append(normalize_merge_text(caption))
+        return "|".join(signature_parts)
+
+    text = normalize_merge_text(plain_text_from_html(block_html))
+    if not text:
+        return None
+    return f"text|{text}"
+
+
+def merge_absorbed_article_html(
+    primary_article_html: str,
+    absorbed_articles: list[tuple[BundleEntry, str]],
+) -> str:
+    if not absorbed_articles:
+        return primary_article_html
+
+    seen_signatures = {
+        signature
+        for block_html in article_blocks(primary_article_html)
+        if (signature := block_merge_signature(block_html))
+    }
+    merged_blocks = article_blocks(primary_article_html)
+    absorbed_ids: list[str] = []
+    for absorbed_entry, absorbed_html in absorbed_articles:
+        absorbed_ids.append(absorbed_entry.entry_id)
+        for block_html in article_blocks(absorbed_html):
+            signature = block_merge_signature(block_html)
+            if signature and signature in seen_signatures:
+                continue
+            if signature:
+                seen_signatures.add(signature)
+            merged_blocks.append(block_html)
+
+    merged_comment = f"<!-- merged-entry-ids: {', '.join(absorbed_ids)} -->"
+    return merged_comment + "\n" + "\n".join(merged_blocks)
+
+
+def source_page_title(entry: BundleEntry, source_page: int) -> str:
+    title = CHAPTER_024_PHOTO_TITLES.get(source_page)
+    if title:
+        return title
+    return f"Archive Photos {source_page}"
+
+
+def printed_page_for_source(entry: BundleEntry, source_page: int) -> int | None:
+    if entry.printed_page_start is None or not entry.source_pages:
+        return None
+    return entry.printed_page_start + (source_page - entry.source_pages[0])
+
+
+def split_chapter_024_fragments(entry: BundleEntry, article_html: str) -> list[EntryFragment]:
+    figure_matches = list(FIGURE_PATTERN.finditer(article_html))
+    if not figure_matches:
+        return [EntryFragment(entry=entry, raw_article_html=article_html, source_entry_id=entry.entry_id, block_ids=extract_block_ids(article_html))]
+
+    first_figure = figure_matches[0]
+    poem_html = article_html[: first_figure.start()].strip()
+    fragments = [
+        EntryFragment(
+            entry=entry,
+            raw_article_html=poem_html,
+            source_entry_id=entry.entry_id,
+            block_ids=extract_block_ids(poem_html),
+        )
+    ]
+
+    grouped_figures: list[tuple[int, list[str], list[str]]] = []
+    current_page: int | None = None
+    for match in figure_matches:
+        figure_html = match.group(0)
+        source_page = first_source_page_from_html(figure_html) or current_page
+        if source_page is None:
+            continue
+        current_page = source_page
+        if grouped_figures and grouped_figures[-1][0] == source_page:
+            grouped_figures[-1][1].append(figure_html)
+            grouped_figures[-1][2].extend(extract_block_ids(figure_html))
+        else:
+            grouped_figures.append((source_page, [figure_html], list(extract_block_ids(figure_html))))
+
+    for offset, (source_page, figure_htmls, block_ids) in enumerate(grouped_figures, start=1):
+        printed_page = printed_page_for_source(entry, source_page)
+        synthetic_entry = BundleEntry(
+            entry_id=f"page-photo-{source_page}",
+            kind="page",
+            title=source_page_title(entry, source_page),
+            path=f"page-photo-{source_page}.html",
+            order=entry.order * 100 + offset,
+            prev_entry_id=None,
+            next_entry_id=None,
+            source_pages=(source_page,),
+            printed_pages=(printed_page,) if printed_page is not None else (),
+            printed_page_start=printed_page,
+            printed_page_end=printed_page,
+        )
+        fragments.append(
+            EntryFragment(
+                entry=synthetic_entry,
+                raw_article_html=f'<h1>{escape(synthetic_entry.title)}</h1>' + "".join(figure_htmls),
+                source_entry_id=entry.entry_id,
+                block_ids=tuple(block_ids),
+            )
+        )
+    return fragments
+
+
+def expand_entry_fragments(entry: BundleEntry, article_html: str) -> list[EntryFragment]:
+    if entry.entry_id == "chapter-024":
+        return split_chapter_024_fragments(entry, article_html)
+    return [EntryFragment(entry=entry, raw_article_html=article_html, source_entry_id=entry.entry_id, block_ids=extract_block_ids(article_html))]
+
+
+def decorate_genealogy_tables(article_html: str) -> str:
+    def replace_table(match: re.Match[str]) -> str:
+        table_html = match.group(0)
+        table_probe = WHITESPACE_PATTERN.sub(" ", table_html.upper())
+        if not all(f"<TH>{header}</TH>" in table_probe for header in GENEALOGY_TABLE_HEADERS):
+            return table_html
+        opening_tag_match = re.match(r"<table\b[^>]*>", table_html, re.IGNORECASE)
+        if not opening_tag_match:
+            return table_html
+        opening_tag = opening_tag_match.group(0)
+        return add_class_to_tag(opening_tag, "genealogy-table") + table_html[len(opening_tag) :]
+
+    return TABLE_PATTERN.sub(replace_table, article_html)
+
+
+def decorate_ancestry_table(entry: BundleEntry, article_html: str) -> str:
+    if entry.entry_id != "chapter-001":
+        return article_html
+    match = TABLE_PATTERN.search(article_html)
+    if not match:
+        return article_html
+    table_html = match.group(0)
+    opening_tag_match = re.match(r"<table\b[^>]*>", table_html, re.IGNORECASE)
+    if not opening_tag_match:
+        return article_html
+    opening_tag = opening_tag_match.group(0)
+    replacement = add_class_to_tag(opening_tag, "ancestry-table") + table_html[len(opening_tag) :]
+    replacement = replacement.replace(
+        "<tr><td>\\</td><td>/</td></tr>",
+        '<tr class="ancestry-final-row ancestry-connector-row"><td>\\</td><td>/</td></tr>',
+    )
+    replacement = re.sub(
+        r'(<tr class="ancestry-final-row ancestry-connector-row"><td>\\</td><td>/</td></tr>)\s*'
+        r"<tr><td>(.*?)</td></tr>\s*"
+        r"<tr><td>(.*?)</td></tr>\s*"
+        r"<tr><td>(.*?)</td></tr>",
+        r'\1<tr class="ancestry-final-row"><td colspan="2">\2</td></tr>'
+        r'<tr class="ancestry-final-row"><td colspan="2">\3</td></tr>'
+        r'<tr class="ancestry-final-row"><td colspan="2">\4</td></tr>',
+        replacement,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    return article_html[: match.start()] + replacement + article_html[match.end() :]
+
+
+def decorate_recipe_callout(entry: BundleEntry, article_html: str) -> str:
+    if entry.entry_id != "chapter-005" or "recipe-callout" in article_html:
+        return article_html
+    return RECIPE_BLOCK_PATTERN.sub(r'<section class="recipe-callout">\1</section>', article_html, count=1)
+
+
+def clean_index_paragraphs(entry: BundleEntry, article_html: str) -> str:
+    if entry.entry_id != "page-008":
+        return article_html
+
+    items: list[tuple[str, str]] = []
+    for match in PARAGRAPH_PATTERN.finditer(article_html):
+        text = plain_text_from_html(match.group(1))
+        dotted = re.match(r"^(.*?)\s*\.+\s*(\d+)$", text)
+        if dotted:
+            items.append((dotted.group(1).strip(), dotted.group(2)))
+
+    if items:
+        list_html = '<ul class="clean-index-list">' + "".join(
+            f'<li><span>{escape(label)}</span><span>{escape(page)}</span></li>'
+            for label, page in items
+        ) + "</ul>"
+        article_html = PARAGRAPH_PATTERN.sub("", article_html, count=len(items) + 1)
+        insertion = article_html.find("</h1>")
+        if insertion != -1:
+            article_html = article_html[: insertion + len("</h1>")] + list_html + article_html[insertion + len("</h1>") :]
+
+    def clean_table(match: re.Match[str]) -> str:
+        table_html = match.group(0)
+        if "summary-index-table" in table_html:
+            return table_html
+        opening_tag_match = re.match(r"<table\b[^>]*>", table_html, re.IGNORECASE)
+        if not opening_tag_match:
+            return table_html
+        opening_tag = add_class_to_tag(opening_tag_match.group(0), "summary-index-table")
+        cleaned = re.sub(r"([A-Za-z0-9])\s*\.+\s*", r"\1 ", table_html[len(opening_tag_match.group(0)) :])
+        if "<th>Page</th>" not in cleaned:
+            cleaned = cleaned.replace("</tr>", "<th>Page</th></tr>", 1)
+        return opening_tag + cleaned
+
+    return TABLE_PATTERN.sub(clean_table, article_html, count=1)
+
+
+def should_inline_figure(entry: BundleEntry, article_html: str) -> bool:
+    if entry.entry_id in {"chapter-003", "chapter-024"} or entry.entry_id.startswith("page-photo-"):
+        return False
+    if len(list(FIGURE_PATTERN.finditer(article_html))) > 2:
+        return False
+    return len(list(PARAGRAPH_PATTERN.finditer(article_html))) >= 4
+
+
+def figure_variant(figure_html: str) -> str:
+    texts = []
+    for match in IMG_TAG_PATTERN.finditer(figure_html):
+        alt = attribute_value(match.group(1), "alt")
+        if alt:
+            texts.append(alt.lower())
+    caption_match = FIGCAPTION_BLOCK_PATTERN.search(figure_html)
+    if caption_match:
+        texts.append(plain_text_from_html(caption_match.group(0)).lower())
+    combined = " ".join(texts)
+    if any(keyword in combined for keyword in FIGURE_SIGNATURE_KEYWORDS):
+        return "figure-signature"
+    if any(keyword in combined for keyword in FIGURE_EMBLEM_KEYWORDS):
+        return "figure-emblem"
+    if any(keyword in combined for keyword in FIGURE_ILLUSTRATION_KEYWORDS):
+        return "figure-illustration"
+    if len(list(IMG_TAG_PATTERN.finditer(figure_html))) > 1:
+        return "figure-gallery"
+    return "figure-photo"
+
+
+def render_figure_image(attributes: str) -> str | None:
+    src = attribute_value(attributes, "src")
+    if not src:
+        return None
+
+    image_tag = f"<img{attributes}>"
+    image_tag = add_class_to_tag(image_tag, "figure-image")
+    image_tag = set_attribute_on_tag(image_tag, "decoding", "async")
+    return (
+        f'<a class="figure-image-link" href="{escape(src)}" target="_blank" rel="noopener">'
+        f"{image_tag}</a>"
+    )
+
+
+def decorate_figures(entry: BundleEntry, article_html: str) -> str:
+    inline_figure = should_inline_figure(entry, article_html)
+
+    def replace_figure(match: re.Match[str]) -> str:
+        figure_html = match.group(0)
+        opening_tag_match = re.match(r"<figure\b[^>]*>", figure_html, re.IGNORECASE)
+        if not opening_tag_match:
+            return figure_html
+        opening_tag = opening_tag_match.group(0)
+        variant = figure_variant(figure_html)
+        opening_tag = add_class_to_tag(opening_tag, variant)
+        if inline_figure and variant in {"figure-photo", "figure-illustration"}:
+            opening_tag = add_class_to_tag(opening_tag, "figure-inline")
+
+        image_htmls = [
+            image_html
+            for image_match in IMG_TAG_PATTERN.finditer(figure_html)
+            if (image_html := render_figure_image(image_match.group(1)))
+        ]
+        if not image_htmls:
+            return ""
+        caption_match = FIGCAPTION_BLOCK_PATTERN.search(figure_html)
+        media_html = image_htmls[0]
+        if len(image_htmls) > 1:
+            media_html = '<div class="figure-image-grid">' + "".join(image_htmls) + "</div>"
+        caption_html = caption_match.group(0) if caption_match else ""
+        return opening_tag + media_html + caption_html + "</figure>"
+
+    return FIGURE_PATTERN.sub(replace_figure, article_html)
+
+
+def should_skip_rendered_entry(entry: BundleEntry, article_html: str) -> bool:
+    if entry.kind != "page":
+        return False
+    if IMG_TAG_PATTERN.search(article_html):
+        return False
+    if TABLE_PATTERN.search(article_html):
+        return False
+    return not plain_text_from_html(article_html)
+
+
+def rewrite_primary_heading(article_html: str, display_title: str) -> str:
+    match = PRIMARY_HEADING_PATTERN.search(article_html)
+    if not match:
+        return article_html
+    current_heading = plain_text_from_html(match.group(2))
+    if not current_heading or not is_mostly_uppercase(current_heading):
+        return article_html
+    if soften_display_title(current_heading) != display_title:
+        return article_html
+    replacement = f"{match.group(1)}{escape(display_title)}{match.group(3)}"
+    return article_html[: match.start()] + replacement + article_html[match.end() :]
+
+
+def enhance_article_html(entry: BundleEntry, article_html: str, display_title: str) -> str:
+    enhanced = decorate_genealogy_tables(article_html)
+    enhanced = decorate_ancestry_table(entry, enhanced)
+    enhanced = clean_index_paragraphs(entry, enhanced)
+    enhanced = decorate_recipe_callout(entry, enhanced)
+    enhanced = decorate_figures(entry, enhanced)
+    return rewrite_primary_heading(enhanced, display_title)
+
+
+def first_image_details(article_html: str) -> tuple[str | None, str | None]:
+    match = IMG_TAG_PATTERN.search(article_html)
+    if not match:
+        return None, None
+    attributes = match.group(1)
+    return attribute_value(attributes, "src"), attribute_value(attributes, "alt")
+
+
+def card_thumbnail(entry: BundleEntry, group: EntryGroup, article_html: str) -> tuple[str | None, str | None]:
+    if entry.kind != "page":
+        return None, None
+    src, alt = first_image_details(article_html)
+    if not src:
+        return None, None
+    return src, alt
 
 
 def build_summary_text(article_html: str, display_title: str, limit: int = LANDING_CARD_SUMMARY_LIMIT) -> str:
@@ -585,11 +1374,11 @@ def format_list(label: str, values: tuple[int, ...]) -> str:
 
 
 def group_for_entry(entry: BundleEntry) -> EntryGroup:
-    if entry.kind == "page":
-        return ENTRY_GROUPS_BY_ID["pages-and-images"]
+    if entry.entry_id.startswith("page-photo-") or entry.entry_id == "chapter-024" or entry.order >= 33:
+        return ENTRY_GROUPS_BY_ID["closing-archive"]
     if entry.entry_id in DEFAULT_FAMILY_ENTRY_IDS:
         return ENTRY_GROUPS_BY_ID["family-stories"]
-    return ENTRY_GROUPS_BY_ID["book-chapters"]
+    return ENTRY_GROUPS_BY_ID["opening-pages"]
 
 
 def select_entries(all_entries: list[BundleEntry], entry_ids: list[str] | None) -> list[BundleEntry]:
@@ -607,35 +1396,111 @@ def select_entries(all_entries: list[BundleEntry], entry_ids: list[str] | None) 
     return [entry for entry in all_entries if entry.entry_id in requested_ids]
 
 
+def absorbed_output_paths(entries: list[BundleEntry]) -> dict[str, str]:
+    entries_by_id = {entry.entry_id: entry for entry in entries}
+    absorbed: dict[str, str] = {}
+    for absorbed_entry_id, target_entry_id in MERGED_ENTRY_TARGETS.items():
+        absorbed_entry = entries_by_id.get(absorbed_entry_id)
+        target_entry = entries_by_id.get(target_entry_id)
+        if absorbed_entry and target_entry:
+            absorbed[absorbed_entry_id] = target_entry.path
+    return absorbed
+
+
+def absorbed_entries_by_target(entries: list[BundleEntry]) -> dict[str, list[BundleEntry]]:
+    entries_by_id = {entry.entry_id: entry for entry in entries}
+    absorbed_by_target: dict[str, list[BundleEntry]] = defaultdict(list)
+    for absorbed_entry_id, target_entry_id in MERGED_ENTRY_TARGETS.items():
+        absorbed_entry = entries_by_id.get(absorbed_entry_id)
+        target_entry = entries_by_id.get(target_entry_id)
+        if absorbed_entry and target_entry:
+            absorbed_by_target[target_entry_id].append(absorbed_entry)
+    for absorbed_entries in absorbed_by_target.values():
+        absorbed_entries.sort(key=lambda entry: entry.order)
+    return dict(absorbed_by_target)
+
+
 def build_rendered_entries(
     source_dir: Path,
     entries: list[BundleEntry],
+    *,
+    absorbed_entry_ids: set[str] | None = None,
+    absorbed_entries_by_target_id: dict[str, list[BundleEntry]] | None = None,
 ) -> list[RenderedEntry]:
+    absorbed_entry_ids = absorbed_entry_ids or set()
+    absorbed_entries_by_target_id = absorbed_entries_by_target_id or {}
     rendered: list[RenderedEntry] = []
     for entry in entries:
-        document_text = (source_dir / entry.path).read_text(encoding="utf-8")
-        article_html = extract_article_html(document_text, source_dir / entry.path)
-        display_title = derive_display_title(entry, article_html)
-        rendered.append(
-            RenderedEntry(
-                entry=entry,
-                group=group_for_entry(entry),
-                article_html=article_html,
-                display_title=display_title,
-                summary_text=build_summary_text(article_html, display_title),
+        if entry.entry_id in absorbed_entry_ids:
+            continue
+        document_path = source_dir / entry.path
+        document_text = document_path.read_text(encoding="utf-8")
+        raw_article_html = extract_article_html(document_text, document_path)
+        absorbed_articles: list[tuple[BundleEntry, str]] = []
+        for absorbed_entry in absorbed_entries_by_target_id.get(entry.entry_id, []):
+            absorbed_path = source_dir / absorbed_entry.path
+            absorbed_text = absorbed_path.read_text(encoding="utf-8")
+            absorbed_articles.append((absorbed_entry, extract_article_html(absorbed_text, absorbed_path)))
+        raw_article_html = merge_absorbed_article_html(raw_article_html, absorbed_articles)
+        for fragment in expand_entry_fragments(entry, raw_article_html):
+            if should_skip_rendered_entry(fragment.entry, fragment.raw_article_html):
+                continue
+            group = group_for_entry(fragment.entry)
+            display_title = derive_display_title(fragment.entry, fragment.raw_article_html)
+            article_html = enhance_article_html(fragment.entry, fragment.raw_article_html, display_title)
+            thumbnail_src, thumbnail_alt = card_thumbnail(fragment.entry, group, fragment.raw_article_html)
+            rendered.append(
+                RenderedEntry(
+                    entry=fragment.entry,
+                    group=group,
+                    article_html=article_html,
+                    display_title=display_title,
+                    summary_text=build_summary_text(article_html, display_title),
+                    thumbnail_src=thumbnail_src,
+                    thumbnail_alt=thumbnail_alt,
+                    source_entry_id=fragment.source_entry_id,
+                    block_ids=fragment.block_ids,
+                )
             )
-        )
     return rendered
 
 
 def build_omission_audit(
     all_entries: list[BundleEntry],
     selected_entries: list[BundleEntry],
+    skipped_entry_ids: set[str] | None = None,
+    absorbed_entry_output_paths: dict[str, str] | None = None,
 ) -> list[AuditRow]:
+    skipped_entry_ids = skipped_entry_ids or set()
+    absorbed_entry_output_paths = absorbed_entry_output_paths or {}
     selected_ids = {entry.entry_id for entry in selected_entries}
     audit_rows: list[AuditRow] = []
     for entry in all_entries:
         group = group_for_entry(entry)
+        if entry.entry_id in absorbed_entry_output_paths:
+            audit_rows.append(
+                AuditRow(
+                    entry=entry,
+                    group=group,
+                    status="rendered",
+                    surface="merged-entry-page",
+                    output_path=absorbed_entry_output_paths[entry.entry_id],
+                    rationale="Absorbed into the first opening page so the repeated title leaf does not appear as a separate reader-facing page.",
+                )
+            )
+            continue
+        if entry.entry_id in skipped_entry_ids:
+            audit_rows.append(
+                AuditRow(
+                    entry=entry,
+                    group=group,
+                    status="intentionally_deferred",
+                    surface="audit-only",
+                    output_path=None,
+                    rationale="Skipped in the surfaced site because the source page has no text, no image, and no table content to show.",
+                )
+            )
+            continue
         if entry.entry_id in selected_ids:
             audit_rows.append(
                 AuditRow(
@@ -694,11 +1559,22 @@ def render_layout(title: str, body_html: str) -> str:
 
 def render_entry_card(rendered: RenderedEntry) -> str:
     entry = rendered.entry
+    card_classes = "story-card has-thumbnail" if rendered.thumbnail_src else "story-card"
+    media_html = ""
+    if rendered.thumbnail_src:
+        media_html = dedent(
+            f"""\
+              <div class="story-card-media">
+                <img src="{escape(rendered.thumbnail_src)}" alt="{escape(rendered.thumbnail_alt or rendered.display_title)}">
+              </div>
+            """
+        )
     summary_html = f"\n  <p>{escape(rendered.summary_text)}</p>" if rendered.summary_text else ""
+    title_html = f'<h3 class="story-title">{escape(rendered.display_title)}</h3>'
     return dedent(
         f"""\
-        <a class="story-card" href="{escape(entry.path)}">
-          <h3 class="story-title">{escape(rendered.display_title)}</h3>{summary_html}
+        <a class="{card_classes}" href="{escape(entry.path)}">
+          {media_html}{title_html}{summary_html}
         </a>
         """
     ).strip()
@@ -765,6 +1641,11 @@ def render_nav_link(label: str, href: str | None, *, primary: bool = False) -> s
     return f'<a class="{class_name}" href="{escape(href)}">{escape(label)}</a>'
 
 
+def entry_css_class(entry_id: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", entry_id.lower()).strip("-")
+    return f"entry-{slug}" if slug else "entry-page"
+
+
 def render_entry_page(
     site_title: str,
     rendered_entries: list[RenderedEntry],
@@ -787,7 +1668,7 @@ def render_entry_page(
             {render_nav_link(next_rendered.display_title if next_rendered else "Next", next_rendered.entry.path if next_rendered else None)}
           </nav>
 
-          <article class="article-card">
+          <article class="article-card {entry_css_class(rendered.entry.entry_id)}">
             {rendered.article_html}
           </article>
         </main>
@@ -875,14 +1756,32 @@ def build_family_site(
         write_text(internal_dir / "provenance" / "blocks.jsonl", provenance_source.read_text(encoding="utf-8"))
 
     provenance_rows = load_provenance_rows(source_dir)
-    rendered_entries = build_rendered_entries(source_dir, selected_entries)
-    audit_rows = build_omission_audit(all_entries, selected_entries)
+    absorbed_entry_output_map = absorbed_output_paths(selected_entries)
+    absorbed_entries_by_target_id = absorbed_entries_by_target(selected_entries)
+    rendered_entries = build_rendered_entries(
+        source_dir,
+        selected_entries,
+        absorbed_entry_ids=set(absorbed_entry_output_map),
+        absorbed_entries_by_target_id=absorbed_entries_by_target_id,
+    )
+    rendered_manifest_ids = {rendered.source_entry_id for rendered in rendered_entries if rendered.source_entry_id in {entry.entry_id for entry in selected_entries}}
+    skipped_entry_ids = {entry.entry_id for entry in selected_entries if entry.entry_id not in rendered_manifest_ids}
+    skipped_entry_ids -= set(absorbed_entry_output_map)
+    audit_rows = build_omission_audit(
+        all_entries,
+        selected_entries,
+        skipped_entry_ids=skipped_entry_ids,
+        absorbed_entry_output_paths=absorbed_entry_output_map,
+    )
     omission_audit_path = internal_dir / "omission-audit.json"
 
     write_text(omission_audit_path, serialize_omission_audit(manifest, site_title, audit_rows))
 
     for rendered in rendered_entries:
-        entry_rows = provenance_rows.get(rendered.entry.entry_id, [])
+        entry_rows = provenance_rows.get(rendered.source_entry_id, [])
+        if rendered.block_ids:
+            allowed_ids = set(rendered.block_ids)
+            entry_rows = [row for row in entry_rows if row.get("block_id") in allowed_ids]
         write_text(
             internal_dir / "provenance" / "entries" / f"{rendered.entry.entry_id}.json",
             json.dumps(entry_rows, indent=2, sort_keys=True) + "\n",

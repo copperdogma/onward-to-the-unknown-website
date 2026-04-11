@@ -15,13 +15,15 @@ Recorded presentation choices for the local reading surface built in Stories
 The current reshaped local slice covers every manifest entry, grouped into
 three explicit sections:
 
-- Book Chapters
-- Family stories
-- Pages & Images
+- Opening Pages
+- Family Stories
+- Closing Archive
 
 ## Decisions Locked For This Pass
 
-- Every manifest entry stays reachable as a whole-entry page.
+- Most manifest entries stay reachable as their own reader-facing page, but
+  duplicate title leaves may be absorbed into an adjacent surfaced page and
+  content-empty placeholders may be intentionally deferred.
 - Family stories stay grouped as a recognizable run inside the wider book
   surface.
 - Source order across the full manifest stays intact for previous/next entry
@@ -31,12 +33,35 @@ three explicit sections:
 - Landing-card summaries should start with actual entry content instead of
   repeating the visible card title, and they should stay short enough for
   first-pass scanning on desktop and mobile.
+- Opening-page and archive cards on the landing page may show a thumbnail when
+  the surfaced entry already contains a primary image, so those sections read
+  more like a browsable archive than a bare list.
 - Reader-facing pages stay focused on the book itself rather than provenance or
   audit commentary.
 - Public page and image labels may derive from visible in-page headings,
   captions, or other honest page cues when the raw manifest title is a
   placeholder, while internal provenance and omission-audit surfaces keep the
   source manifest title unchanged.
+- Reader-facing entry titles should use normal mixed case in surfaced labels
+  and page headings even when the source entry title is all caps.
+- Genealogy tables should keep their column headers sticky while scrolling so
+  readers can stay oriented inside the long family tables.
+- Inline images should render at a readable working size instead of always
+  filling the article width, and clicking them should open the full asset for
+  closer inspection.
+- OCR-heavy facsimile pages may get entry-specific presentation treatment when
+  the default article layout distorts the source page too far, such as the
+  ancestry chart and the farm award certificate pages.
+- Distinct archival inserts such as the home made beer recipe may be styled as
+  callouts when that improves scanability without obscuring the source text.
+- When a single source entry mixes a standalone text piece with a trailing
+  appendix of photos, the surfaced site may split that material into multiple
+  reader-facing pages while keeping the original source blocks and provenance
+  intact.
+- Repeated opening-material leaves may be absorbed into the first surfaced page
+  when they do not add distinct reader-facing content.
+- Content-empty facsimile leaves may be intentionally deferred when they have
+  no text, no image, and no table content to surface honestly.
 - Provenance and omission-audit artifacts remain internal maintenance surfaces,
   with the checked-in snapshot living at `docs/omission-audit.json`.
 - `docs/omission-audit.json` is the checked-in proof that every manifest entry
