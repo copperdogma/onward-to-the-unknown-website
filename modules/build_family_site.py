@@ -13,6 +13,7 @@ from textwrap import dedent
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SOURCE_DIR = REPO_ROOT / "input" / "doc-web-html" / "story206-onward-proof-r10"
+SUPPLEMENT_REGISTRY_PATH = REPO_ROOT / "input" / "doc-web-html" / "family-story-supplements.json"
 DEFAULT_FAMILY_ENTRY_IDS = frozenset(f"chapter-{number:03d}" for number in range(9, 24))
 DEFAULT_OUTPUT_DIR = Path("build/family-site")
 DEFAULT_SITE_TITLE = "Onward to the Unknown"
@@ -42,6 +43,10 @@ RECIPE_BLOCK_PATTERN = re.compile(
 )
 CROP_FILENAME_PATTERN = re.compile(r"page-(\d+)-\d+\.[A-Za-z0-9]+", re.IGNORECASE)
 ID_ATTR_PATTERN = re.compile(r'\bid=(?:"([^"]*)"|\'([^\']*)\')', re.IGNORECASE)
+URL_ATTR_PATTERN = re.compile(
+    r'(?P<attr>\b(?:src|href))=(?:"(?P<double>[^"]*)"|\'(?P<single>[^\']*)\')',
+    re.IGNORECASE,
+)
 LANDING_CARD_SUMMARY_LIMIT = 140
 SHORT_LABEL_MAX_LENGTH = 88
 TITLE_CASE_SMALL_WORDS = frozenset(
@@ -553,6 +558,45 @@ SITE_STYLESHEET = dedent(
       color: var(--muted);
     }
 
+    .article-card .supplement-intro {
+      margin-bottom: 1.8rem;
+      padding: 1.15rem 1.2rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(111, 46, 29, 0.16);
+      background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.42), transparent 30%),
+        linear-gradient(180deg, rgba(252, 246, 239, 0.98), rgba(243, 231, 214, 0.92));
+    }
+
+    .article-card .supplement-kicker,
+    .article-card .supplement-source-note {
+      font-family: var(--ui-font);
+      color: var(--muted);
+    }
+
+    .article-card .supplement-kicker {
+      margin-bottom: 0.45rem;
+      font-size: 0.92rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .article-card .supplement-preamble {
+      max-width: 40rem;
+      font-size: 1.02rem;
+    }
+
+    .article-card .supplement-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin: 1.1rem 0 0.6rem;
+    }
+
+    .article-card .supplement-source-title {
+      margin-top: 0;
+    }
+
     .article-card table {
       width: 100%;
       border-collapse: collapse;
@@ -750,16 +794,46 @@ class RenderedEntry:
     summary_text: str
     thumbnail_src: str | None
     thumbnail_alt: str | None
-    source_entry_id: str
+    source_entry_ids: tuple[str, ...]
     block_ids: tuple[str, ...]
+    provenance_rows: tuple[dict[str, object], ...]
 
 
 @dataclass(frozen=True)
 class EntryFragment:
     entry: BundleEntry
     raw_article_html: str
-    source_entry_id: str
+    source_entry_ids: tuple[str, ...]
     block_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class FamilyStorySupplement:
+    supplement_id: str
+    title: str
+    output_path: str
+    bundle_dir: Path
+    source_pdf: Path
+    group: EntryGroup
+    insert_after_entry_id: str | None
+    source_entry_ids: tuple[str, ...]
+    absorbed_entry_ids: tuple[str, ...]
+    preamble: str
+    source_note: str | None
+
+
+@dataclass(frozen=True)
+class SupplementAuditRow:
+    supplement_id: str
+    title: str
+    group: EntryGroup
+    status: str
+    output_path: str
+    bundle_root: str
+    source_pdf_path: str
+    source_entry_ids: tuple[str, ...]
+    absorbed_entry_ids: tuple[str, ...]
+    rationale: str
 
 
 @dataclass(frozen=True)
@@ -1062,10 +1136,22 @@ def printed_page_for_source(entry: BundleEntry, source_page: int) -> int | None:
     return entry.printed_page_start + (source_page - entry.source_pages[0])
 
 
-def split_chapter_024_fragments(entry: BundleEntry, article_html: str) -> list[EntryFragment]:
+def split_chapter_024_fragments(
+    entry: BundleEntry,
+    article_html: str,
+    *,
+    source_entry_ids: tuple[str, ...],
+) -> list[EntryFragment]:
     figure_matches = list(FIGURE_PATTERN.finditer(article_html))
     if not figure_matches:
-        return [EntryFragment(entry=entry, raw_article_html=article_html, source_entry_id=entry.entry_id, block_ids=extract_block_ids(article_html))]
+        return [
+            EntryFragment(
+                entry=entry,
+                raw_article_html=article_html,
+                source_entry_ids=source_entry_ids,
+                block_ids=extract_block_ids(article_html),
+            )
+        ]
 
     first_figure = figure_matches[0]
     poem_html = article_html[: first_figure.start()].strip()
@@ -1073,7 +1159,7 @@ def split_chapter_024_fragments(entry: BundleEntry, article_html: str) -> list[E
         EntryFragment(
             entry=entry,
             raw_article_html=poem_html,
-            source_entry_id=entry.entry_id,
+            source_entry_ids=source_entry_ids,
             block_ids=extract_block_ids(poem_html),
         )
     ]
@@ -1111,17 +1197,29 @@ def split_chapter_024_fragments(entry: BundleEntry, article_html: str) -> list[E
             EntryFragment(
                 entry=synthetic_entry,
                 raw_article_html=f'<h1>{escape(synthetic_entry.title)}</h1>' + "".join(figure_htmls),
-                source_entry_id=entry.entry_id,
+                source_entry_ids=source_entry_ids,
                 block_ids=tuple(block_ids),
             )
         )
     return fragments
 
 
-def expand_entry_fragments(entry: BundleEntry, article_html: str) -> list[EntryFragment]:
+def expand_entry_fragments(
+    entry: BundleEntry,
+    article_html: str,
+    *,
+    source_entry_ids: tuple[str, ...],
+) -> list[EntryFragment]:
     if entry.entry_id == "chapter-024":
-        return split_chapter_024_fragments(entry, article_html)
-    return [EntryFragment(entry=entry, raw_article_html=article_html, source_entry_id=entry.entry_id, block_ids=extract_block_ids(article_html))]
+        return split_chapter_024_fragments(entry, article_html, source_entry_ids=source_entry_ids)
+    return [
+        EntryFragment(
+            entry=entry,
+            raw_article_html=article_html,
+            source_entry_ids=source_entry_ids,
+            block_ids=extract_block_ids(article_html),
+        )
+    ]
 
 
 def decorate_genealogy_tables(article_html: str) -> str:
@@ -1359,6 +1457,293 @@ def load_provenance_rows(source_dir: Path) -> dict[str, list[dict]]:
     return rows_by_entry
 
 
+def select_provenance_rows(
+    provenance_rows_by_entry_id: dict[str, list[dict]],
+    source_entry_ids: tuple[str, ...],
+    block_ids: tuple[str, ...],
+) -> tuple[dict[str, object], ...]:
+    selected_rows: list[dict[str, object]] = []
+    for source_entry_id in source_entry_ids:
+        selected_rows.extend(provenance_rows_by_entry_id.get(source_entry_id, []))
+    if block_ids:
+        allowed_ids = set(block_ids)
+        selected_rows = [row for row in selected_rows if row.get("block_id") in allowed_ids]
+    return tuple(selected_rows)
+
+
+def repo_relative_or_abs(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return str(path.resolve())
+
+
+def load_family_story_supplements(source_dir: Path) -> list[FamilyStorySupplement]:
+    registry_path = source_dir.parent / SUPPLEMENT_REGISTRY_PATH.name
+    if not registry_path.exists():
+        return []
+
+    payload = json.loads(registry_path.read_text(encoding="utf-8"))
+    if payload.get("schema_version") != "onward_family_story_supplement_registry_v1":
+        raise SystemExit(
+            "Family story supplement registry must use schema_version "
+            "`onward_family_story_supplement_registry_v1`."
+        )
+    supplements_payload = payload.get("supplements")
+    if not isinstance(supplements_payload, list):
+        raise SystemExit("Family story supplement registry must provide a `supplements` array.")
+
+    supplements: list[FamilyStorySupplement] = []
+    for raw_row in supplements_payload:
+        if not isinstance(raw_row, dict):
+            raise SystemExit("Every family story supplement registry row must be an object.")
+        supplement_id = raw_row.get("supplement_id")
+        title = raw_row.get("title")
+        output_path = raw_row.get("output_path")
+        bundle_dir = raw_row.get("bundle_dir")
+        source_pdf = raw_row.get("source_pdf")
+        preamble = raw_row.get("preamble")
+        if not all(isinstance(value, str) and value.strip() for value in (
+            supplement_id,
+            title,
+            output_path,
+            bundle_dir,
+            source_pdf,
+            preamble,
+        )):
+            raise SystemExit(
+                "Family story supplements require non-empty string values for "
+                "`supplement_id`, `title`, `output_path`, `bundle_dir`, `source_pdf`, and `preamble`."
+            )
+        entry_ids = raw_row.get("entry_ids")
+        if not isinstance(entry_ids, list) or not entry_ids or not all(isinstance(value, str) for value in entry_ids):
+            raise SystemExit("Family story supplement `entry_ids` must be a non-empty string array.")
+        absorbed_entry_ids = raw_row.get("absorbed_entry_ids", [])
+        if not isinstance(absorbed_entry_ids, list) or not all(isinstance(value, str) for value in absorbed_entry_ids):
+            raise SystemExit("Family story supplement `absorbed_entry_ids` must be a string array when present.")
+        group_id = raw_row.get("group_id", "family-stories")
+        if group_id not in ENTRY_GROUPS_BY_ID:
+            raise SystemExit(f"Unknown family story supplement group_id: {group_id!r}")
+        insert_after_entry_id = raw_row.get("insert_after_entry_id")
+        if insert_after_entry_id is not None and not isinstance(insert_after_entry_id, str):
+            raise SystemExit("Family story supplement `insert_after_entry_id` must be a string when present.")
+        source_note = raw_row.get("source_note")
+        if source_note is not None and not isinstance(source_note, str):
+            raise SystemExit("Family story supplement `source_note` must be a string when present.")
+
+        resolved_bundle_dir = (registry_path.parent / bundle_dir).resolve()
+        resolved_source_pdf = (registry_path.parent / source_pdf).resolve()
+        if not (resolved_bundle_dir / "manifest.json").exists():
+            raise SystemExit(f"Family story supplement bundle is missing manifest.json: {resolved_bundle_dir}")
+        if not resolved_source_pdf.exists():
+            raise SystemExit(f"Family story supplement source PDF not found: {resolved_source_pdf}")
+
+        supplements.append(
+            FamilyStorySupplement(
+                supplement_id=supplement_id.strip(),
+                title=title.strip(),
+                output_path=output_path.strip(),
+                bundle_dir=resolved_bundle_dir,
+                source_pdf=resolved_source_pdf,
+                group=ENTRY_GROUPS_BY_ID[group_id],
+                insert_after_entry_id=insert_after_entry_id.strip() if isinstance(insert_after_entry_id, str) else None,
+                source_entry_ids=tuple(entry_ids),
+                absorbed_entry_ids=tuple(absorbed_entry_ids),
+                preamble=preamble.strip(),
+                source_note=source_note.strip() if isinstance(source_note, str) and source_note.strip() else None,
+            )
+        )
+    return supplements
+
+
+def is_relative_asset_reference(raw_value: str) -> bool:
+    return bool(raw_value) and not re.match(r"^(?:[a-z][a-z0-9+.-]*:|/|#)", raw_value, re.IGNORECASE)
+
+
+def rewrite_relative_asset_references(article_html: str, prefix: str) -> str:
+    normalized_prefix = prefix.strip("/")
+
+    def replace(match: re.Match[str]) -> str:
+        value = match.group("double") or match.group("single") or ""
+        if not is_relative_asset_reference(value):
+            return match.group(0)
+        stripped = value.lstrip("./")
+        if stripped.startswith(normalized_prefix + "/"):
+            return match.group(0)
+        quote = '"' if match.group("double") is not None else "'"
+        return f'{match.group("attr")}={quote}{normalized_prefix}/{stripped}{quote}'
+
+    return URL_ATTR_PATTERN.sub(replace, article_html)
+
+
+def demote_primary_heading(article_html: str) -> str:
+    match = PRIMARY_HEADING_PATTERN.search(article_html)
+    if not match:
+        return article_html
+    opening_tag = re.sub(r"<h1\b", "<h2", match.group(1), count=1, flags=re.IGNORECASE)
+    opening_tag = add_class_to_tag(opening_tag, "supplement-source-title")
+    closing_tag = re.sub(r"</h1>", "</h2>", match.group(3), count=1, flags=re.IGNORECASE)
+    replacement = f"{opening_tag}{match.group(2)}{closing_tag}"
+    return article_html[: match.start()] + replacement + article_html[match.end() :]
+
+
+def render_supplement_article_html(
+    supplement: FamilyStorySupplement,
+    *,
+    body_html: str,
+    public_root: str,
+) -> str:
+    actions = [
+        render_nav_link("Read Memoir", "#supplement-body", primary=True),
+        render_nav_link("Open Imported HTML", f"{public_root}/bundle/index.html"),
+        f'<a class="nav-button secondary" href="{escape(f"{public_root}/source.pdf")}" download>Download Original PDF</a>',
+    ]
+    source_note_html = ""
+    if supplement.source_note:
+        source_note_html = f'<p class="supplement-source-note">{escape(supplement.source_note)}</p>'
+    return dedent(
+        f"""\
+        <section class="supplement-intro">
+          <p class="supplement-kicker">Family archive supplement</p>
+          <h1>{escape(supplement.title)}</h1>
+          <p class="supplement-preamble">{escape(supplement.preamble)}</p>
+          <div class="supplement-actions">
+            {' '.join(actions)}
+          </div>
+          {source_note_html}
+        </section>
+        <section id="supplement-body" class="supplement-body">
+          {body_html}
+        </section>
+        """
+    ).strip()
+
+
+def build_supplement_rendered_entry(
+    supplement: FamilyStorySupplement,
+    *,
+    output_dir: Path,
+    internal_dir: Path,
+) -> tuple[RenderedEntry, SupplementAuditRow]:
+    bundle_manifest = load_manifest(supplement.bundle_dir)
+    bundle_entries = [bundle_entry_from_manifest(row) for row in bundle_manifest.get("entries", [])]
+    selected_entries = select_entries(bundle_entries, list(supplement.source_entry_ids))
+    primary_entry = selected_entries[0]
+    primary_text = (supplement.bundle_dir / primary_entry.path).read_text(encoding="utf-8")
+    primary_article_html = extract_article_html(primary_text, supplement.bundle_dir / primary_entry.path)
+    absorbed_articles: list[tuple[BundleEntry, str]] = []
+    for absorbed_entry in selected_entries[1:]:
+        absorbed_text = (supplement.bundle_dir / absorbed_entry.path).read_text(encoding="utf-8")
+        absorbed_articles.append(
+            (absorbed_entry, extract_article_html(absorbed_text, supplement.bundle_dir / absorbed_entry.path))
+        )
+    merged_article_html = merge_absorbed_article_html(primary_article_html, absorbed_articles)
+
+    public_root = f"supplements/{supplement.supplement_id}"
+    public_root_path = output_dir / "supplements" / supplement.supplement_id
+    shutil.copytree(supplement.bundle_dir, public_root_path / "bundle")
+    public_root_path.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(supplement.source_pdf, public_root_path / "source.pdf")
+
+    merged_article_html = rewrite_relative_asset_references(merged_article_html, f"{public_root}/bundle")
+    synthetic_entry = BundleEntry(
+        entry_id=f"supplement-{supplement.supplement_id}",
+        kind="chapter",
+        title=supplement.title,
+        path=supplement.output_path,
+        order=0,
+        prev_entry_id=None,
+        next_entry_id=None,
+        source_pages=tuple(page for entry in selected_entries for page in entry.source_pages),
+        printed_pages=tuple(page for entry in selected_entries for page in entry.printed_pages),
+        printed_page_start=None,
+        printed_page_end=None,
+    )
+    enhanced_body_html = enhance_article_html(synthetic_entry, merged_article_html, supplement.title)
+    enhanced_body_html = demote_primary_heading(enhanced_body_html)
+    article_html = render_supplement_article_html(
+        supplement,
+        body_html=enhanced_body_html,
+        public_root=public_root,
+    )
+
+    supplement_provenance_rows = load_provenance_rows(supplement.bundle_dir)
+    provenance_rows = select_provenance_rows(
+        supplement_provenance_rows,
+        supplement.source_entry_ids,
+        extract_block_ids(article_html),
+    )
+    write_text(
+        internal_dir / "supplements" / supplement.supplement_id / "metadata.json",
+        json.dumps(
+            {
+                "schema_version": "onward_family_story_supplement_v1",
+                "supplement_id": supplement.supplement_id,
+                "title": supplement.title,
+                "output_path": supplement.output_path,
+                "public_bundle_index": f"{public_root}/bundle/index.html",
+                "public_source_pdf": f"{public_root}/source.pdf",
+                "source_bundle_dir": repo_relative_or_abs(supplement.bundle_dir),
+                "source_pdf": repo_relative_or_abs(supplement.source_pdf),
+                "source_entry_ids": list(supplement.source_entry_ids),
+                "absorbed_entry_ids": list(supplement.absorbed_entry_ids),
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+    )
+
+    rendered_entry = RenderedEntry(
+        entry=synthetic_entry,
+        group=supplement.group,
+        article_html=article_html,
+        display_title=supplement.title,
+        summary_text=excerpt_text(supplement.preamble, LANDING_CARD_SUMMARY_LIMIT),
+        thumbnail_src=first_image_details(article_html)[0],
+        thumbnail_alt=first_image_details(article_html)[1],
+        source_entry_ids=supplement.source_entry_ids,
+        block_ids=extract_block_ids(article_html),
+        provenance_rows=provenance_rows,
+    )
+    audit_row = SupplementAuditRow(
+        supplement_id=supplement.supplement_id,
+        title=supplement.title,
+        group=supplement.group,
+        status="rendered",
+        output_path=supplement.output_path,
+        bundle_root=repo_relative_or_abs(supplement.bundle_dir),
+        source_pdf_path=repo_relative_or_abs(supplement.source_pdf),
+        source_entry_ids=supplement.source_entry_ids,
+        absorbed_entry_ids=supplement.absorbed_entry_ids,
+        rationale="Rendered as a repo-owned scanned supplement surfaced in the family-story area with the original PDF preserved.",
+    )
+    return rendered_entry, audit_row
+
+
+def insert_supplement_rendered_entries(
+    rendered_entries: list[RenderedEntry],
+    supplement_rows: list[tuple[FamilyStorySupplement, RenderedEntry]],
+) -> list[RenderedEntry]:
+    combined = list(rendered_entries)
+    for supplement, rendered_entry in supplement_rows:
+        insert_index = None
+        if supplement.insert_after_entry_id:
+            for index, existing in enumerate(combined):
+                if existing.entry.entry_id == supplement.insert_after_entry_id:
+                    insert_index = index + 1
+        if insert_index is None and supplement.group.id == "family-stories":
+            for index, existing in enumerate(combined):
+                if existing.group.id == "closing-archive":
+                    insert_index = index
+                    break
+        if insert_index is None:
+            combined.append(rendered_entry)
+        else:
+            combined.insert(insert_index, rendered_entry)
+    return combined
+
+
 def format_range(label: str, start: int | None, end: int | None) -> str:
     if start is None:
         return f"{label}: not recorded"
@@ -1424,6 +1809,7 @@ def build_rendered_entries(
     source_dir: Path,
     entries: list[BundleEntry],
     *,
+    provenance_rows_by_entry_id: dict[str, list[dict]],
     absorbed_entry_ids: set[str] | None = None,
     absorbed_entries_by_target_id: dict[str, list[BundleEntry]] | None = None,
 ) -> list[RenderedEntry]:
@@ -1442,7 +1828,8 @@ def build_rendered_entries(
             absorbed_text = absorbed_path.read_text(encoding="utf-8")
             absorbed_articles.append((absorbed_entry, extract_article_html(absorbed_text, absorbed_path)))
         raw_article_html = merge_absorbed_article_html(raw_article_html, absorbed_articles)
-        for fragment in expand_entry_fragments(entry, raw_article_html):
+        source_entry_ids = (entry.entry_id, *(absorbed_entry.entry_id for absorbed_entry, _html in absorbed_articles))
+        for fragment in expand_entry_fragments(entry, raw_article_html, source_entry_ids=source_entry_ids):
             if should_skip_rendered_entry(fragment.entry, fragment.raw_article_html):
                 continue
             group = group_for_entry(fragment.entry)
@@ -1458,8 +1845,13 @@ def build_rendered_entries(
                     summary_text=build_summary_text(article_html, display_title),
                     thumbnail_src=thumbnail_src,
                     thumbnail_alt=thumbnail_alt,
-                    source_entry_id=fragment.source_entry_id,
+                    source_entry_ids=fragment.source_entry_ids,
                     block_ids=fragment.block_ids,
+                    provenance_rows=select_provenance_rows(
+                        provenance_rows_by_entry_id,
+                        fragment.source_entry_ids,
+                        fragment.block_ids,
+                    ),
                 )
             )
     return rendered
@@ -1684,6 +2076,7 @@ def serialize_omission_audit(
     manifest: dict,
     site_title: str,
     audit_rows: list[AuditRow],
+    supplement_rows: list[SupplementAuditRow],
 ) -> str:
     status_counts = Counter(row.status for row in audit_rows)
     group_rows = []
@@ -1707,6 +2100,7 @@ def serialize_omission_audit(
         "title": manifest.get("title"),
         "site_title": site_title,
         "manifest_entry_count": len(audit_rows),
+        "supplement_count": len(supplement_rows),
         "status_counts": dict(sorted(status_counts.items())),
         "groups": group_rows,
         "entries": [
@@ -1726,6 +2120,22 @@ def serialize_omission_audit(
                 "printed_page_end": row.entry.printed_page_end,
             }
             for row in audit_rows
+        ],
+        "supplements": [
+            {
+                "supplement_id": row.supplement_id,
+                "title": row.title,
+                "group_id": row.group.id,
+                "group_label": row.group.label,
+                "status": row.status,
+                "output_path": row.output_path,
+                "bundle_root": row.bundle_root,
+                "source_pdf_path": row.source_pdf_path,
+                "source_entry_ids": list(row.source_entry_ids),
+                "absorbed_entry_ids": list(row.absorbed_entry_ids),
+                "rationale": row.rationale,
+            }
+            for row in supplement_rows
         ],
     }
     return json.dumps(payload, indent=2, sort_keys=True) + "\n"
@@ -1756,15 +2166,34 @@ def build_family_site(
         write_text(internal_dir / "provenance" / "blocks.jsonl", provenance_source.read_text(encoding="utf-8"))
 
     provenance_rows = load_provenance_rows(source_dir)
+    supplements = load_family_story_supplements(source_dir)
     absorbed_entry_output_map = absorbed_output_paths(selected_entries)
     absorbed_entries_by_target_id = absorbed_entries_by_target(selected_entries)
     rendered_entries = build_rendered_entries(
         source_dir,
         selected_entries,
+        provenance_rows_by_entry_id=provenance_rows,
         absorbed_entry_ids=set(absorbed_entry_output_map),
         absorbed_entries_by_target_id=absorbed_entries_by_target_id,
     )
-    rendered_manifest_ids = {rendered.source_entry_id for rendered in rendered_entries if rendered.source_entry_id in {entry.entry_id for entry in selected_entries}}
+    supplement_rendered_rows: list[tuple[FamilyStorySupplement, RenderedEntry, SupplementAuditRow]] = []
+    for supplement in supplements:
+        rendered_entry, audit_row = build_supplement_rendered_entry(
+            supplement,
+            output_dir=output_dir,
+            internal_dir=internal_dir,
+        )
+        supplement_rendered_rows.append((supplement, rendered_entry, audit_row))
+    rendered_entries = insert_supplement_rendered_entries(
+        rendered_entries,
+        [(supplement, rendered_entry) for supplement, rendered_entry, _audit_row in supplement_rendered_rows],
+    )
+    rendered_manifest_ids = {
+        source_entry_id
+        for rendered in rendered_entries
+        for source_entry_id in rendered.source_entry_ids
+        if source_entry_id in {entry.entry_id for entry in selected_entries}
+    }
     skipped_entry_ids = {entry.entry_id for entry in selected_entries if entry.entry_id not in rendered_manifest_ids}
     skipped_entry_ids -= set(absorbed_entry_output_map)
     audit_rows = build_omission_audit(
@@ -1773,18 +2202,15 @@ def build_family_site(
         skipped_entry_ids=skipped_entry_ids,
         absorbed_entry_output_paths=absorbed_entry_output_map,
     )
+    supplement_audit_rows = [audit_row for _supplement, _rendered_entry, audit_row in supplement_rendered_rows]
     omission_audit_path = internal_dir / "omission-audit.json"
 
-    write_text(omission_audit_path, serialize_omission_audit(manifest, site_title, audit_rows))
+    write_text(omission_audit_path, serialize_omission_audit(manifest, site_title, audit_rows, supplement_audit_rows))
 
     for rendered in rendered_entries:
-        entry_rows = provenance_rows.get(rendered.source_entry_id, [])
-        if rendered.block_ids:
-            allowed_ids = set(rendered.block_ids)
-            entry_rows = [row for row in entry_rows if row.get("block_id") in allowed_ids]
         write_text(
             internal_dir / "provenance" / "entries" / f"{rendered.entry.entry_id}.json",
-            json.dumps(entry_rows, indent=2, sort_keys=True) + "\n",
+            json.dumps(list(rendered.provenance_rows), indent=2, sort_keys=True) + "\n",
         )
 
     for index, rendered in enumerate(rendered_entries):

@@ -1,0 +1,22 @@
+{
+  "schema_version": "onward_family_story_supplement_registry_v1",
+  "supplements": [
+    {
+      "supplement_id": "rolland-alain-memoir",
+      "title": "Rolland Alain Memoir Family Story",
+      "output_path": "rolland-alain-memoir-family-story.html",
+      "bundle_dir": "rolland-alain-memoir-r01",
+      "source_pdf": "../Memoires of Rolland Alaln fron blrth 1913 to 71st year 1985.pdf",
+      "group_id": "family-stories",
+      "insert_after_entry_id": "chapter-023",
+      "entry_ids": [
+        "chapter-001"
+      ],
+      "absorbed_entry_ids": [
+        "page-001"
+      ],
+      "preamble": "Note that this was not a story originally included in the Onward to the Unknown book. It was found in one copy of the book as a set of photocopied pages.",
+      "source_note": "Processed through the repo's bounded non-TOC scanned supplement lane and linked back to the original PDF."
+    }
+  ]
+}

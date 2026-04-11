@@ -106,7 +106,7 @@ refresh them from the HTML source:
 make build-audiobook-script FORCE=1
 ```
 
-The manual preamble lives at `audiobook-script/01-preamble.md` and is not
+The manual preamble lives at `audiobook/script/01-preamble.md` and is not
 touched by the generator. See `docs/runbooks/elevenlabs-audiobook.md` for the
 source-fidelity review and ElevenLabs handoff flow.
 
@@ -122,6 +122,9 @@ a real reader:
 
 This lane is for manual website refinement on the real whole-book shell, not
 for external research.
+
+A current-pass UI proof now requires both desktop and mobile evidence through
+that lane. Mobile is not a spot-check.
 
 ## `doc-web` Commands
 

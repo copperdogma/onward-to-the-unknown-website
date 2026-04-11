@@ -1,14 +1,20 @@
 # Input Contract
 
-This repo currently consumes a locally staged HTML bundle rather than a richer
-canonical content export. The current whole-book local builder reads that
-bundle directly and depends on the following shape.
+This repo currently consumes locally staged `doc-web` HTML bundles rather than
+a richer canonical content export. The current whole-book local builder reads
+the accepted main-book bundle directly and may also attach repo-owned family
+story supplements through a sibling registry in the same `input/doc-web-html/`
+area.
 
 ## Canonical Bundle Path
 
 - Default observed bundle on 2026-04-10:
   `input/doc-web-html/story206-onward-proof-r10`
 - Default builder fallback: the same committed bundle path above
+- Optional supplement registry on 2026-04-11:
+  `input/doc-web-html/family-story-supplements.json`
+- First accepted supplement bundle on 2026-04-11:
+  `input/doc-web-html/rolland-alain-memoir-r01`
 - The local builder can also read:
   - `ONWARD_INPUT_SOURCE_DIR`
   - `DREAMHOST_DEPLOY_SOURCE_DIR` as a compatibility fallback
@@ -31,6 +37,22 @@ bundle directly and depends on the following shape.
 - `index.html`
   - useful as a human baseline, but the builder treats `manifest.json` as the
     source of truth for ordering and metadata
+- optional `family-story-supplements.json` beside the main bundle
+  - schema observed: `onward_family_story_supplement_registry_v1`
+  - attaches repo-owned supplement bundles and source PDFs to the family-story
+    section without changing the main-book manifest
+  - each row currently needs:
+    - `supplement_id`
+    - `title`
+    - `output_path`
+    - `bundle_dir`
+    - `source_pdf`
+    - `group_id`
+    - `insert_after_entry_id`
+    - `entry_ids`
+    - `absorbed_entry_ids`
+    - `preamble`
+    - optional `source_note`
 
 ## Observed Shape On 2026-04-10
 
@@ -42,6 +64,19 @@ bundle directly and depends on the following shape.
   - `9` standalone page entries
 - Provenance rows: `525`
 - Images directory present and populated
+
+## Observed Supplement Shape On 2026-04-11
+
+- Supplement bundle path: `input/doc-web-html/rolland-alain-memoir-r01`
+- Document id: `rolland-alain-memoir-family-story`
+- Title: `Rolland Alain Memoir Family Story`
+- Entry count: `2`
+  - `1` absorbed title leaf (`page-001`)
+  - `1` main memoir chapter (`chapter-001`)
+- Provenance rows: `101`
+- Asset roots: none
+- Original source PDF remains at
+  `input/Memoires of Rolland Alaln fron blrth 1913 to 71st year 1985.pdf`
 
 ## Manifest Fields The Builder Uses
 
@@ -65,6 +100,14 @@ The current builder uses these fields directly to:
 - group entries into non-family chapters, family stories, and standalone
   page/image entries
 - emit a whole-book omission audit without inventing a second metadata file
+
+For supplement bundles, the builder currently preserves the same `doc_web`
+bundle contract and uses the registry file for only the extra wrapper metadata:
+
+- where the supplement card appears in the family-story run
+- which bundle entry ids are reader-facing versus absorbed
+- the short provenance preamble and source-note copy
+- the original PDF attachment path
 
 ## HTML Contract Assumptions
 
@@ -94,11 +137,12 @@ inspection rather than reader-facing page chrome.
 ## What This Contract Does Not Promise Yet
 
 - A stable canonical chapter/section JSON model
-- Machine-readable family/story grouping metadata beyond the current manifest
-  kind plus the explicit family-chapter run
+- A fully generalized supplement system beyond the current bounded
+  family-story registry plus the checked-in Rolland Alain memoir bundle
 - Normalized companion-media wiring
-- A one-command import refresh from upstream tools
+- A fully generic one-command import refresh for every future archive format
 
 Those remain follow-on steps. For now, the contract is “this specific staged
-bundle shape exists locally, can be rendered repeatably as a whole-book reading
-surface, and can be audited entry-by-entry for omissions.”
+bundle shape plus the bounded memoir supplement seam exist locally, can be
+rendered repeatably as a whole-book reading surface, and can be audited without
+losing track of the shipped supplement.”

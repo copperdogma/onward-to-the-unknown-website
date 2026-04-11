@@ -7,12 +7,13 @@ from modules.build_audiobook_script import (
     load_entries_by_id,
     managed_chapter_specs,
     render_source_markdown,
+    script_source_dir,
 )
 from modules.build_family_site import resolve_source_dir
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-SCRIPT_DIR = REPO_ROOT / "audiobook-script"
+SCRIPT_DIR = REPO_ROOT / "audiobook/script"
 RAW_HTML_MARKERS = ("<table", "<article", "<nav", "<figure", "<img")
 
 
@@ -66,8 +67,21 @@ def test_family_story_sample_stops_before_genealogy_tables():
     assert "TOTAL DESCENDANTS" not in text
 
 
+def test_memoir_script_uses_reader_facing_title_and_omits_title_page():
+    text = read_script("20-rolland-alain-memoir-family-story.md")
+
+    assert text.startswith("# Rolland Alain Memoir Family Story")
+    assert (
+        "\n\nMarch 7th 1985\n\n> Note that this was not a story originally included in the Onward to the Unknown book. "
+        "It was found in one copy of the book as a set of photocopied pages.\n\n"
+        "## Memoires of Rolland Alain from birth 1913 to 71st year 1985\n\n"
+    ) in text
+    assert "Two of my best friends were Jean-Paul Schiller and Alfred Duvall and they were at our place a lot" in text
+    assert "Memoires de Rolland Alain" not in text
+
+
 def test_epilogue_stops_before_visual_appendix_material():
-    text = read_script("20-i-wish.md")
+    text = read_script("21-i-wish.md")
 
     assert "I wish that every child could know" in text
     assert "Author Unknown" in text
@@ -80,7 +94,8 @@ def test_epilogue_stops_before_visual_appendix_material():
 
 def test_source_derived_scripts_match_the_current_deterministic_renderer():
     source_dir = resolve_source_dir(None)
-    entries_by_id = load_entries_by_id(source_dir)
 
     for spec in managed_chapter_specs():
-        assert read_script(spec.filename) == render_source_markdown(spec, source_dir, entries_by_id)
+        spec_source_dir = script_source_dir(spec, source_dir)
+        entries_by_id = load_entries_by_id(spec_source_dir)
+        assert read_script(spec.filename) == render_source_markdown(spec, spec_source_dir, entries_by_id)

@@ -161,11 +161,14 @@ an audience that will skew 80+ years old across desktop and mobile use.
 - Ideal: accessibility, performance, and media integrity have repeatable checks,
   including verification that critical controls stay large, readable, and easy
   to operate across desktop and mobile
-- Constraint: establish the content and site substrate first, then add measured
-  proof instead of inventing fake completeness
-- Limitation: there is no runtime yet to evaluate
+- Constraint: use the current whole-book shell as the first real quality-proof
+  surface, then strengthen its checks instead of inventing fake completeness
+- Limitation: the repo now has a thin runtime and UI-scout lane, but its
+  desktop/mobile proof is still mostly manual and narrower than the final
+  public-readiness bar
 - Limitation type: execution
-- Evolution signal: the first real rendered slice exists and can be checked
+- Evolution signal: the first real rendered slice keeps gaining repeatable
+  desktop/mobile quality checks without hiding the current manual proof
 - Residual form: keep only the checks that protect the reading floor
 
 ## spec:8 AI Harnesses & Content Ops

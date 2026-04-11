@@ -19,6 +19,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 RUNTIME_MANIFEST_PATH = REPO_ROOT / "doc-web-runtime.json"
 MANIFEST_SCHEMA_VERSION = "doc_web_bundle_manifest_v1"
 PROVENANCE_SCHEMA_VERSION = "doc_web_provenance_block_v1"
+SCANNED_SUPPLEMENT_DEFAULT_RECIPE = "configs/recipes/recipe-pdf-ocr-html-mvp.yaml"
 
 
 class DocWebImportError(RuntimeError):
@@ -119,7 +120,7 @@ def load_runtime_manifest(path: Path = RUNTIME_MANIFEST_PATH) -> RuntimeManifest
 
 
 def build_runtime_paths(manifest: RuntimeManifest, repo_root: Path = REPO_ROOT) -> RuntimePaths:
-    source_root = _resolve_config_path(repo_root, manifest.source_path)
+    source_root = resolve_repo_owned_path(repo_root, manifest.source_path)
     source_runs_root = _resolve_config_path(source_root, manifest.source_runs_root)
     snapshot_root = _resolve_config_path(repo_root, manifest.snapshot_root)
     active_import_path = snapshot_root / "active-import.json"
@@ -127,7 +128,7 @@ def build_runtime_paths(manifest: RuntimeManifest, repo_root: Path = REPO_ROOT) 
         source_root=source_root,
         python_executable=manifest.python_executable,
         default_recipe_path=_resolve_config_path(source_root, manifest.default_recipe),
-        default_input_pdf_path=_resolve_config_path(repo_root, manifest.default_input_pdf),
+        default_input_pdf_path=resolve_repo_owned_path(repo_root, manifest.default_input_pdf),
         source_runs_root=source_runs_root,
         snapshot_root=snapshot_root,
         active_import_path=active_import_path,
@@ -139,6 +140,50 @@ def _resolve_config_path(base: Path, raw_path: str) -> Path:
     if not path.is_absolute():
         path = base / path
     return path.resolve()
+
+
+def git_common_dir(repo_root: Path) -> Path | None:
+    proc = subprocess.run(
+        ["git", "rev-parse", "--git-common-dir"],
+        cwd=str(repo_root),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if proc.returncode != 0:
+        return None
+    raw_path = proc.stdout.strip()
+    if not raw_path:
+        return None
+    path = Path(raw_path)
+    if not path.is_absolute():
+        path = repo_root / path
+    return path.resolve()
+
+
+def primary_git_checkout_root(repo_root: Path) -> Path | None:
+    common_dir = git_common_dir(repo_root)
+    if common_dir is None or common_dir.name != ".git":
+        return None
+    primary_root = common_dir.parent.resolve()
+    if primary_root == repo_root.resolve():
+        return None
+    return primary_root
+
+
+def resolve_repo_owned_path(repo_root: Path, raw_path: str) -> Path:
+    direct_path = _resolve_config_path(repo_root, raw_path)
+    if direct_path.exists():
+        return direct_path
+
+    primary_root = primary_git_checkout_root(repo_root)
+    if primary_root is None:
+        return direct_path
+
+    fallback_path = _resolve_config_path(primary_root, raw_path)
+    if fallback_path.exists():
+        return fallback_path
+    return direct_path
 
 
 def run_command(args: list[str], *, cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
@@ -215,6 +260,146 @@ def run_onward_recipe(
 
     run_command(args, cwd=paths.source_root)
     return paths.source_runs_root / run_id / "output" / "html"
+
+
+def _find_run_artifact(
+    run_root: Path,
+    filename: str,
+    *,
+    parent_name_contains: str | None = None,
+    required: bool = True,
+) -> Path | None:
+    matches = [
+        path
+        for path in sorted(run_root.glob(f"*/{filename}"))
+        if parent_name_contains is None or parent_name_contains in path.parent.name
+    ]
+    if not matches:
+        if required:
+            raise DocWebImportError(
+                f"Could not find required run artifact '{filename}' under {run_root}"
+            )
+        return None
+    if len(matches) > 1:
+        joined = ", ".join(path.parent.name for path in matches)
+        raise DocWebImportError(
+            f"Expected one '{filename}' artifact under {run_root}, found multiple stage matches: {joined}"
+        )
+    return matches[0]
+
+
+def run_scanned_supplement_recipe(
+    paths: RuntimePaths,
+    *,
+    run_id: str,
+    bundle_title: str,
+    recipe_path: Path | None = None,
+    input_pdf_path: Path,
+    python_executable: str | None = None,
+    force: bool = False,
+    allow_run_id_reuse: bool = False,
+    extra_args: list[str] | None = None,
+) -> Path:
+    recipe = (recipe_path or _resolve_config_path(paths.source_root, SCANNED_SUPPLEMENT_DEFAULT_RECIPE)).resolve()
+    input_pdf = input_pdf_path.resolve()
+    python_bin = python_executable or paths.python_executable
+
+    if not recipe.exists():
+        raise DocWebImportError(f"Recipe not found: {recipe}")
+    if not input_pdf.exists():
+        raise DocWebImportError(f"Input PDF not found: {input_pdf}")
+
+    driver_args = [
+        python_bin,
+        "driver.py",
+        "--recipe",
+        str(recipe),
+        "--input-pdf",
+        str(input_pdf),
+        "--run-id",
+        run_id,
+        "--end-at",
+        "extract_page_numbers",
+    ]
+    if allow_run_id_reuse:
+        driver_args.append("--allow-run-id-reuse")
+    if force:
+        driver_args.append("--force")
+    if extra_args:
+        driver_args.extend(extra_args)
+
+    run_command(driver_args, cwd=paths.source_root)
+
+    run_root = paths.source_runs_root / run_id
+    if not run_root.exists():
+        raise DocWebImportError(f"Run output not found: {run_root}")
+
+    pages_path = _find_run_artifact(
+        run_root,
+        "pages_html_with_page_numbers.jsonl",
+        parent_name_contains="extract_page_numbers_html_v1",
+    )
+    illustration_manifest = _find_run_artifact(
+        run_root,
+        "illustration_manifest.jsonl",
+        parent_name_contains="crop_illustrations",
+        required=False,
+    )
+
+    portionize_dir = run_root / "07_portionize_headings_html_v1"
+    build_dir = run_root / "08_build_chapters_non_toc_v1"
+    output_dir = run_root / "output" / "html"
+    for generated_dir in (portionize_dir, build_dir, output_dir):
+        if generated_dir.exists():
+            shutil.rmtree(generated_dir)
+
+    portionize_args = [
+        python_bin,
+        "-m",
+        "modules.portionize.portionize_headings_html_v1.main",
+        "--pages",
+        str(pages_path),
+        "--out",
+        str(portionize_dir / "portions_non_toc.jsonl"),
+        "--heading-tags",
+        "h1,h2,h3",
+        "--allow-unnumbered",
+        "--fallback-mode",
+        "single-document",
+        "--fallback-title",
+        bundle_title,
+        "--run-id",
+        run_id,
+    ]
+    run_command(portionize_args, cwd=paths.source_root)
+
+    build_args = [
+        python_bin,
+        "-m",
+        "modules.build.build_chapter_html_v1.main",
+        "--pages",
+        str(pages_path),
+        "--portions",
+        str(portionize_dir / "portions_non_toc.jsonl"),
+        "--out",
+        str(build_dir / "chapters_manifest.jsonl"),
+        "--output-dir",
+        str(output_dir),
+        "--book-title",
+        bundle_title,
+        "--run-id",
+        run_id,
+    ]
+    if illustration_manifest is not None:
+        build_args.extend(["--illustration-manifest", str(illustration_manifest)])
+    run_command(build_args, cwd=paths.source_root)
+
+    manifest_path = output_dir / "manifest.json"
+    if not manifest_path.exists():
+        raise DocWebImportError(
+            f"Scanned supplement workflow did not produce output/html/manifest.json for run '{run_id}'"
+        )
+    return output_dir
 
 
 def import_run_bundle(
@@ -559,6 +744,27 @@ def build_parser() -> argparse.ArgumentParser:
         help="Additional args to pass to doc-web driver.py after '--'.",
     )
 
+    supplement_parser = subparsers.add_parser(
+        "run-scanned-supplement",
+        help="Run the bounded non-TOC scanned supplement workflow in the sibling doc-web checkout.",
+    )
+    supplement_parser.add_argument("--run-id", required=True, help="Run id to use in the sibling doc-web checkout.")
+    supplement_parser.add_argument("--bundle-title", required=True, help="Bundle title for the generated supplement HTML.")
+    supplement_parser.add_argument("--input-pdf", required=True, help="PDF path from this repo to process as a scanned supplement.")
+    supplement_parser.add_argument("--recipe", help="Override the doc-web recipe path. Defaults to the generic PDF OCR recipe.")
+    supplement_parser.add_argument("--python", help="Override the Python executable used for doc-web commands.")
+    supplement_parser.add_argument("--force", action="store_true", help="Pass --force to doc-web driver.py and replace generated stage outputs.")
+    supplement_parser.add_argument(
+        "--allow-run-id-reuse",
+        action="store_true",
+        help="Pass --allow-run-id-reuse to doc-web driver.py.",
+    )
+    supplement_parser.add_argument(
+        "extra_args",
+        nargs=argparse.REMAINDER,
+        help="Additional args to pass to doc-web driver.py after '--'.",
+    )
+
     import_run_parser = subparsers.add_parser("import-run", help="Import the output/html bundle from a doc-web run id.")
     import_run_parser.add_argument("--run-id", required=True, help="Source doc-web run id.")
     import_run_parser.add_argument("--snapshot-id", help="Snapshot id inside .runtime/doc-web-imports/; defaults to the run id.")
@@ -609,6 +815,31 @@ def main(argv: list[str] | None = None) -> int:
                 "runId": args.run_id,
                 "bundleRoot": _rel_or_abs(bundle_root),
                 "dryRun": args.dry_run,
+            }
+        )
+        return 0
+
+    if args.command == "run-scanned-supplement":
+        extra_args = list(args.extra_args or [])
+        if extra_args and extra_args[0] == "--":
+            extra_args = extra_args[1:]
+        bundle_root = run_scanned_supplement_recipe(
+            paths,
+            run_id=args.run_id,
+            bundle_title=args.bundle_title,
+            recipe_path=_resolve_config_path(paths.source_root, args.recipe) if args.recipe else None,
+            input_pdf_path=_resolve_config_path(REPO_ROOT, args.input_pdf),
+            python_executable=args.python,
+            force=args.force,
+            allow_run_id_reuse=args.allow_run_id_reuse,
+            extra_args=extra_args,
+        )
+        _print_json(
+            {
+                "schemaVersion": "onward_doc_web_run_v1",
+                "runId": args.run_id,
+                "workflow": "scanned-supplement-non-toc",
+                "bundleRoot": _rel_or_abs(bundle_root),
             }
         )
         return 0

@@ -6,6 +6,11 @@ library dependency.
 The maintained local configuration lives in
 [`doc-web-runtime.json`](/Users/cam/Documents/Projects/onward-to-the-unknown-website/doc-web-runtime.json).
 
+When this repo is opened from a git worktree, repo-relative paths in that
+manifest resolve from the worktree first and then fall back to the primary git
+checkout if the sibling `doc-web` checkout or local-only input PDF only exists
+there.
+
 ## Commands
 
 Inspect the upstream contract:
@@ -22,6 +27,17 @@ python scripts/doc_web_import.py run-onward \
   --force
 ```
 
+Run the bounded non-TOC scanned supplement workflow that produced the accepted
+Rolland Alain memoir bundle:
+
+```bash
+python scripts/doc_web_import.py run-scanned-supplement \
+  --run-id rolland-alain-memoir-r01 \
+  --input-pdf "input/Memoires of Rolland Alaln fron blrth 1913 to 71st year 1985.pdf" \
+  --bundle-title "Rolland Alain Memoir Family Story" \
+  --force
+```
+
 Snapshot an accepted bundle from that run into this repo:
 
 ```bash
@@ -35,6 +51,12 @@ Import an already-existing bundle directly:
 python scripts/doc_web_import.py import-bundle \
   --bundle-path /path/to/output/html \
   --snapshot-id onward-book-r1
+```
+
+The first checked-in supplement bundle built this way now lives at:
+
+```text
+input/doc-web-html/rolland-alain-memoir-r01/
 ```
 
 ## Local Storage
@@ -76,6 +98,7 @@ The importer rejects bundles when any of the following drift:
 
 ## Current Scope
 
-This runbook only covers the import seam. It does not yet define the final site
-content model or render pipeline.
-
+This runbook covers the import seam plus one bounded non-TOC scanned supplement
+workflow that still emits the standard `doc_web_bundle` contract. It does not
+yet define a fully generalized supplement pipeline or the final site content
+model.

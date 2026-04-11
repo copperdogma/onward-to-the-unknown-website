@@ -13,7 +13,8 @@ from modules.build_family_site import (
     resolve_source_dir,
 )
 
-DEFAULT_OUTPUT_DIR = Path("audiobook-script")
+REPO_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_OUTPUT_DIR = Path("audiobook/script")
 BLOCK_TAG_PATTERN = re.compile(r"^<([a-z0-9]+)\b", re.IGNORECASE)
 TAG_PATTERN = re.compile(r"<[^>]+>")
 LINEBREAK_TAG_PATTERN = re.compile(r"<br\s*/?>", re.IGNORECASE)
@@ -28,6 +29,8 @@ class ScriptChapterSpec:
     title: str
     source_entry_id: str | None
     mode: str
+    source_dir: Path | None = None
+    inline_note: str | None = None
 
 
 @dataclass(frozen=True)
@@ -102,7 +105,15 @@ SCRIPT_CHAPTER_SPECS = (
     ScriptChapterSpec("17-wilfrid-lheureux.md", "Wilfrid L'Heureux", "chapter-021", "before_first_table"),
     ScriptChapterSpec("18-pierre-lheureux.md", "Pierre L'Heureux", "chapter-022", "before_first_table"),
     ScriptChapterSpec("19-antoine-lheureux.md", "Antoine L'Heureux", "chapter-023", "before_first_table"),
-    ScriptChapterSpec("20-i-wish.md", "I Wish", "chapter-024", "before_first_figure"),
+    ScriptChapterSpec(
+        "20-rolland-alain-memoir-family-story.md",
+        "Rolland Alain Memoir Family Story",
+        "chapter-001",
+        "full",
+        Path("input/doc-web-html/rolland-alain-memoir-r01"),
+        "Note that this was not a story originally included in the Onward to the Unknown book. It was found in one copy of the book as a set of photocopied pages.",
+    ),
+    ScriptChapterSpec("21-i-wish.md", "I Wish", "chapter-024", "before_first_figure"),
 )
 
 
@@ -118,6 +129,15 @@ def load_entries_by_id(source_dir: Path) -> dict[str, object]:
     manifest = load_manifest(source_dir)
     entries = [bundle_entry_from_manifest(row) for row in manifest.get("entries", [])]
     return {entry.entry_id: entry for entry in entries}
+
+
+def script_source_dir(spec: ScriptChapterSpec, default_source_dir: Path) -> Path:
+    if spec.source_dir is None:
+        return default_source_dir
+    source_dir = spec.source_dir
+    if not source_dir.is_absolute():
+        source_dir = (REPO_ROOT / source_dir).resolve()
+    return source_dir
 
 
 def block_tag(block_html: str) -> str | None:
@@ -216,7 +236,15 @@ def render_source_markdown(spec: ScriptChapterSpec, source_dir: Path, entries_by
     if markdown_blocks[0].startswith("# "):
         markdown_blocks[0] = f"# {spec.title}"
     else:
+        for index, block in enumerate(markdown_blocks):
+            if not block.startswith("# "):
+                continue
+            markdown_blocks[index] = "## " + block[2:]
+            break
         markdown_blocks.insert(0, f"# {spec.title}")
+    if spec.inline_note:
+        insertion_index = 2 if len(markdown_blocks) > 1 else len(markdown_blocks)
+        markdown_blocks.insert(insertion_index, f"> {spec.inline_note}")
     return "\n\n".join(markdown_blocks).rstrip() + "\n"
 
 
@@ -229,7 +257,7 @@ def build_audiobook_script(
     resolved_source_dir = resolve_source_dir(source_dir)
     target_dir = Path(output_dir)
     target_dir.mkdir(parents=True, exist_ok=True)
-    entries_by_id = load_entries_by_id(resolved_source_dir)
+    entries_cache: dict[Path, dict[str, object]] = {}
 
     written_files: list[str] = []
     for spec in managed_chapter_specs():
@@ -238,8 +266,10 @@ def build_audiobook_script(
             raise SystemExit(
                 f"Refusing to overwrite existing audiobook script file without --force: {target_path}"
             )
+        spec_source_dir = script_source_dir(spec, resolved_source_dir)
+        entries_by_id = entries_cache.setdefault(spec_source_dir, load_entries_by_id(spec_source_dir))
         target_path.write_text(
-            render_source_markdown(spec, resolved_source_dir, entries_by_id),
+            render_source_markdown(spec, spec_source_dir, entries_by_id),
             encoding="utf-8",
         )
         written_files.append(spec.filename)

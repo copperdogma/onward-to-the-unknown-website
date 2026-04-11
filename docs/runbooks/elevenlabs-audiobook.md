@@ -6,20 +6,22 @@ user-run.
 
 ## Current Script Surface
 
-- Canonical script directory: `audiobook-script/`
+- Canonical script directory: `audiobook/script/`
 - Manual chapter:
   - `01-preamble.md`
 - Source-derived chapters:
-  - `02-the-first-lheureuxs-in-canada.md` through `20-i-wish.md`
+  - `02-the-first-lheureuxs-in-canada.md` through `21-i-wish.md`
 
-The source-derived chapters are produced from the staged bundle in
-`input/doc-web-html/story206-onward-proof-r10/` by deterministic HTML-to-
-Markdown conversion inside the repo's documented audiobook boundary. The
-committed source-derived corpus preserves source wording for retained spoken
-text while omitting navigation chrome, figures, image captions, HTML tables,
-and headings that only introduce omitted tables. `20-i-wish.md` intentionally
-stops after the poem and attribution, before the visual appendix that follows
-in `chapter-024`.
+The source-derived chapters are produced from the staged main bundle in
+`input/doc-web-html/story206-onward-proof-r10/` plus the accepted memoir
+supplement bundle in `input/doc-web-html/rolland-alain-memoir-r01/` by
+deterministic HTML-to-Markdown conversion inside the repo's documented
+audiobook boundary. The committed source-derived corpus preserves source
+wording for retained spoken text while omitting navigation chrome, figures,
+image captions, HTML tables, and headings that only introduce omitted tables.
+`20-rolland-alain-memoir-family-story.md` is the memoir supplement chapter, and
+`21-i-wish.md` intentionally stops after the poem and attribution, before the
+visual appendix that follows in `chapter-024`.
 
 ## Build The Source-Derived Chapters
 
@@ -45,7 +47,7 @@ the canonical reviewed corpus.
 
 After deterministic generation:
 
-1. Review the Markdown files in `audiobook-script/`.
+1. Review the Markdown files in `audiobook/script/`.
 2. Verify that the source-derived chapters still preserve source wording inside
    the intended spoken boundary.
 3. Keep the listening boundary intact:
@@ -64,7 +66,7 @@ After deterministic generation:
 
 This repo does not store ElevenLabs credentials and does not automate upload.
 
-Use the reviewed Markdown files in `audiobook-script/` as the upload-ready
+Use the reviewed Markdown files in `audiobook/script/` as the upload-ready
 chapter set. The intended listening order is the filename order.
 
 Before or during upload, note any recurring pronunciation choices for names

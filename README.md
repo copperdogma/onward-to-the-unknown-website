@@ -12,9 +12,17 @@ into a real published site. This repo owns the website-specific layer:
 - connect book chapters to companion media and scans
 - present the material as a durable, navigable family archive site
 
-The first accepted `doc-web` HTML export and a curated set of companion archive
-assets are now committed under `input/`. The large source PDF and local runtime
-snapshots stay uncommitted.
+The first accepted `doc-web` HTML export, the first accepted memoir supplement
+bundle, and a curated set of companion archive assets are now committed under
+`input/`. Local runtime snapshots stay uncommitted.
+
+The current checked-in supplement seam is:
+
+- main bundle: `input/doc-web-html/story206-onward-proof-r10/`
+- supplement registry: `input/doc-web-html/family-story-supplements.json`
+- first accepted supplement bundle: `input/doc-web-html/rolland-alain-memoir-r01/`
+- preserved memoir source PDF:
+  `input/Memoires of Rolland Alaln fron blrth 1913 to 71st year 1985.pdf`
 
 ## Bootstrap Surface
 
@@ -71,7 +79,7 @@ Current local build surface:
 
 - Input contract: `docs/input-contract.md`
 - Omission audit snapshot: `docs/omission-audit.json`
-- Audiobook script corpus: `audiobook-script/`
+- Audiobook script corpus: `audiobook/script/`
 - Presentation decisions: `docs/presentation-decisions.md`
 - Local whole-book reading-surface build: `python scripts/build_family_site.py`
   (or `make build-family-site`)
@@ -84,11 +92,19 @@ Current local build surface:
 - Audiobook handoff runbook:
   `docs/runbooks/elevenlabs-audiobook.md`
 
+Current UI proof requires a fresh WB1 walkthrough on both desktop and mobile.
+Mobile is no longer treated as a spot-check surface.
+
 ## `doc-web` Integration
 
 This repo now carries an explicit local integration manifest at
 `doc-web-runtime.json` plus an upstream import wrapper at
 `scripts/doc_web_import.py`.
+
+When repo-relative paths in `doc-web-runtime.json` are missing from a git
+worktree checkout, the wrapper now falls back to the primary checkout before
+failing. That keeps the maintained sibling-`doc-web` contract usable from
+Codex worktrees without hard-coding machine-specific absolute paths.
 
 The intended flow is:
 
@@ -101,11 +117,19 @@ python scripts/doc_web_import.py run-onward --run-id onward-book-r1 --force
 
 # Snapshot the accepted bundle into this repo's local import root
 python scripts/doc_web_import.py import-run --run-id onward-book-r1
+
+# Build a bounded non-TOC scanned supplement bundle
+python scripts/doc_web_import.py run-scanned-supplement \
+  --run-id rolland-alain-memoir-r01 \
+  --input-pdf "input/Memoires of Rolland Alaln fron blrth 1913 to 71st year 1985.pdf" \
+  --bundle-title "Rolland Alain Memoir Family Story" \
+  --force
 ```
 
 Accepted bundle snapshots are stored under `.runtime/doc-web-imports/` and are
 local-only by default. Each snapshot records the source run id, bundle summary,
 and the `doc-web` contract fingerprint that produced it.
 
-The first committed accepted bundle lives at
-`input/doc-web-html/story206-onward-proof-r10/`.
+The first committed accepted bundles live at
+`input/doc-web-html/story206-onward-proof-r10/` and
+`input/doc-web-html/rolland-alain-memoir-r01/`.

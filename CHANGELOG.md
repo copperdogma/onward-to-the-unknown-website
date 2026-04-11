@@ -1,5 +1,59 @@
 # Changelog
 
+## [2026-04-11-07] - Shipped the Rolland Alain memoir family-story supplement (Story 007)
+
+### Added
+- Added the first repo-owned family-story supplement registry and accepted
+  memoir bundle under `input/doc-web-html/`.
+- Added a bounded `run-scanned-supplement` workflow to
+  `scripts/doc_web_import.py` plus regression coverage for the non-TOC scanned
+  supplement path.
+
+### Changed
+- Extended the local family-site builder so a checked-in supplement bundle can
+  surface as a first-class family story with a short provenance preamble,
+  imported-HTML link, and original-PDF download.
+- Updated the memoir note copy on both the surfaced web page and generated
+  audiobook chapter so they now use the same explicit photocopy-found wording
+  supplied during close-out.
+- Updated the input contract, presentation decisions, `doc-web` import runbook,
+  README, omission-audit surface, and coverage matrix so the memoir supplement
+  is documented as maintained project truth.
+
+### Fixed
+- Fixed the builder's absorbed-entry provenance handling so merged reader-facing
+  pages keep the underlying absorbed provenance rows instead of silently
+  dropping them from internal inspection output.
+
+## [2026-04-11-06] - Promoted mobile to a first-class UI validation surface
+
+### Added
+- Added a fresh 2026-04-11 WB1 UI-scout rerun that records desktop and mobile
+  evidence as co-equal pass/fail surfaces.
+
+### Changed
+- Rewrote the WB1 walkthrough runbook, UI-scout template, and central docs so
+  mobile validation is required proof rather than a spot-check.
+- Recorded explicit desktop/mobile viewport defaults in `state.ui_scout` and
+  refreshed the latest UI-scout report pointer accordingly.
+- Corrected `spec:7` so it reflects the real thin runtime plus manual
+  desktop/mobile proof surface instead of claiming there is no runtime yet to
+  evaluate.
+
+## [2026-04-11-05] - Fixed `doc-web` runtime resolution for worktrees
+
+### Changed
+- Updated `scripts/doc_web_import.py` so repo-relative runtime paths can fall
+  back to the primary git checkout when a Codex worktree does not have its own
+  sibling `doc-web` checkout or local-only input PDF.
+- Documented the worktree fallback behavior in the README and maintained
+  `doc-web` import runbook so the repo truth matches the actual command path.
+
+### Fixed
+- Fixed `python scripts/doc_web_import.py contract` failing from this worktree
+  even though the maintained sibling `doc-web` checkout exists beside the
+  primary project checkout.
+
 ## [2026-04-11-04] - Noted ElevenReader distribution lanes in Story 008
 
 ### Changed

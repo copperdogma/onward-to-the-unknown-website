@@ -38,6 +38,10 @@ make methodology-compile
 make methodology-check
 ```
 
+Then run the WB1 UI validation walkthrough in
+`docs/runbooks/whole-book-ui-manual-walkthrough.md`. A real validation pass now
+requires both desktop and mobile evidence; mobile is not a spot-check.
+
 ## Manual Inspection Points
 
 Use the generated site under `build/family-site/` and inspect:
@@ -58,9 +62,13 @@ Use the generated site under `build/family-site/` and inspect:
 - `_internal/omission-audit.json`
   - contains `33` manifest entries for the accepted bundle
   - shows every entry with a coverage status and rationale
-- desktop width
+- desktop `1280x900`
   - grouped landing sections and page navigation remain easy to scan
-- mobile width
+  - representative chapter, family story, and page/image entry stay calm and
+    legible
+- mobile `390x844`
+  - the same landing, chapter, family-story, and page/image path remains easy
+    to navigate
   - navigation buttons stack cleanly and stay easy to tap
   - typography remains legible without dense chrome
   - section jumps and contents links stay easy to operate

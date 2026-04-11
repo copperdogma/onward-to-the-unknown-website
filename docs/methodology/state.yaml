@@ -14,7 +14,7 @@
     "spec:4": { "substrate": "partial", "last_reviewed": "2026-04-09" },
     "spec:5": { "substrate": "partial", "last_reviewed": "2026-04-10" },
     "spec:6": { "substrate": "partial", "last_reviewed": "2026-04-09" },
-    "spec:7": { "substrate": "partial", "last_reviewed": "2026-04-10" },
+    "spec:7": { "substrate": "partial", "last_reviewed": "2026-04-11" },
     "spec:8": { "substrate": "partial", "last_reviewed": "2026-04-09" },
     "spec:9": { "substrate": "exists", "last_reviewed": "2026-04-09" }
   },
@@ -25,14 +25,14 @@
     "C4": { "phase": "climb", "last_reviewed": "2026-04-09" },
     "C5": { "phase": "climb", "last_reviewed": "2026-04-09" },
     "C6": { "phase": "climb", "last_reviewed": "2026-04-09" },
-    "C7": { "phase": "climb", "last_reviewed": "2026-04-09" },
+    "C7": { "phase": "climb", "last_reviewed": "2026-04-11" },
     "B1": { "phase": "hold", "last_reviewed": "2026-04-09" },
     "B2": { "phase": "hold", "last_reviewed": "2026-04-09" },
     "B3": { "phase": "climb", "last_reviewed": "2026-04-09" }
   },
   "coverage_matrix": {
     "path": "tests/fixtures/formats/_coverage-matrix.json",
-    "last_reviewed": "2026-04-09",
+    "last_reviewed": "2026-04-11",
     "notes": "Canonical machine-readable inventory of upstream content surfaces and companion archive inputs."
   },
   "roadmap": {
@@ -68,13 +68,18 @@
     "cadence": {
       "max_days_without_run": 14
     },
-    "last_run_at": "2026-04-10",
-    "last_run_story_id": "story-006",
+    "required_viewports": {
+      "desktop": { "width": 1280, "height": 900 },
+      "mobile": { "width": 390, "height": 844 }
+    },
+    "pass_rule": "A WB1 pass requires explicit desktop and mobile proof; mobile is not a spot-check.",
+    "last_run_at": "2026-04-11",
+    "last_run_story_id": null,
     "scenarios": {
       "WB1": {
         "label": "Whole-Book Reading Surface",
-        "last_checked": "2026-04-10",
-        "latest_report": "2026-04-10-whole-book-local-story-006-rerun",
+        "last_checked": "2026-04-11",
+        "latest_report": "2026-04-11-whole-book-local-mobile-first-class",
         "status": "pass",
         "follow_up_story_refs": []
       }

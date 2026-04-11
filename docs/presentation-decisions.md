@@ -12,8 +12,9 @@ Recorded presentation choices for the local reading surface built in Stories
 
 ## Whole-Book Surface Boundary
 
-The current reshaped local slice covers every manifest entry, grouped into
-three explicit sections:
+The current reshaped local slice covers every surfaced main-book manifest entry,
+grouped into three explicit sections, and may insert repo-owned family-story
+supplements into the `Family Stories` run:
 
 - Opening Pages
 - Family Stories
@@ -26,6 +27,9 @@ three explicit sections:
   content-empty placeholders may be intentionally deferred.
 - Family stories stay grouped as a recognizable run inside the wider book
   surface.
+- Repo-owned family-story supplements may appear in that same family-story run
+  when they are backed by an accepted `doc_web_bundle`, a preserved source PDF,
+  and a short provenance preamble.
 - Source order across the full manifest stays intact for previous/next entry
   navigation.
 - The landing page uses explicit grouped sections rather than the raw mixed
@@ -60,12 +64,19 @@ three explicit sections:
   intact.
 - Repeated opening-material leaves may be absorbed into the first surfaced page
   when they do not add distinct reader-facing content.
+- Supplement title leaves may be absorbed into a single surfaced supplement
+  page when the accepted supplement bundle still preserves that raw title page
+  separately for inspection.
 - Content-empty facsimile leaves may be intentionally deferred when they have
   no text, no image, and no table content to surface honestly.
+- A supplement wrapper page may expose `Read memoir`, `Open imported HTML`, and
+  `Download original PDF` actions so older readers get one clear public entry
+  point while maintainers keep the accepted bundle and provenance reachable.
 - Provenance and omission-audit artifacts remain internal maintenance surfaces,
   with the checked-in snapshot living at `docs/omission-audit.json`.
 - `docs/omission-audit.json` is the checked-in proof that every manifest entry
-  is either rendered or intentionally deferred in a filtered build.
+  is either rendered or intentionally deferred in a filtered build, and it may
+  also list shipped supplement wrappers that sit beside the main manifest.
 - Any source material omitted from a reshaped surface must be omitted
   intentionally and documented, not dropped accidentally during the rebuild.
 - Accessibility is a first-order concern:
@@ -80,6 +91,7 @@ three explicit sections:
 - Rich standalone image-page redesign beyond whole-entry reachability
 - Final full-book information-architecture polish
 - Audio, podcasts, and companion-media embeds
+- A generalized public supplement gallery beyond the bounded memoir wrapper
 - Breaking family pages into smaller fragments
 - Any claim that this is the final visual language for the entire site
 
@@ -89,8 +101,10 @@ The raw source export already preserves the content faithfully, but it mixes
 front matter, chapter pages, and standalone image pages in a way that is harder
 to browse for older readers. Story 004 intentionally started with the family
 run; Story 005 expands that into a whole-book surface so the rest of the book
-no longer disappears during reshaping. The current surface still stays thin and
-whole-entry-first so the project can learn from a real full-book render before
+no longer disappears during reshaping. Story 007 adds the first bounded
+supplement case: a memoir found as a photocopy inside the user's copy of the
+book. The current surface still stays thin and whole-entry-first so the project
+can learn from a real full-book render plus one real supplement wrapper before
 committing to a heavier runtime or deeper editorial restructuring. The audit
 and provenance proof surfaces still exist for maintainers, but they should not
 compete with the reading experience on the public pages themselves.

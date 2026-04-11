@@ -10,6 +10,8 @@
 **Environment:** {local preview URL or public URL}
 **Git:** {branch or detached HEAD}
 **Overall result:** {Pass | Fail | Blocked}
+**Desktop result:** {Pass | Fail | Blocked}
+**Mobile result:** {Pass | Fail | Blocked}
 **Functional reach:** {Pass | Fail | Blocked}
 **UX / trust:** {Pass | Fail | Blocked}
 **Accessibility / readability:** {Pass | Fail | Blocked}
@@ -17,18 +19,23 @@
 ## Environment Checks
 
 - Build command:
+- Desktop viewport: `1280x900`
+- Mobile viewport: `390x844`
 - Preview / public URL:
 - Bundle / revision checked:
 
 ## Exact Path Walked
 
-| Surface | Route / action | Result |
-|---|---|---|
-| Landing | `index.html` | |
-| Book chapter | `chapter-001.html` | |
-| Family story | `chapter-009.html` | |
-| Page / image entry | `page-001.html` | |
-| Mobile spot-check | `index.html` and one representative reading page | |
+| Viewport | Surface | Route / action | Result |
+|---|---|---|---|
+| Desktop | Landing | `index.html` | |
+| Desktop | Book chapter | `chapter-001.html` | |
+| Desktop | Family story | `chapter-009.html` | |
+| Desktop | Page / image entry | `page-001.html` | |
+| Mobile | Landing | `index.html` | |
+| Mobile | Book chapter | `chapter-001.html` | |
+| Mobile | Family story | `chapter-009.html` | |
+| Mobile | Page / image entry | `page-001.html` | |
 
 ## Honest Current Boundary
 
@@ -47,6 +54,7 @@ real family reader today?}
 ## Evidence Summary
 
 - Screenshots:
+- Metrics:
 - Notes:
 - Exact pages checked:
 

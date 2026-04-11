@@ -34,31 +34,42 @@ external-source research.
 - Use the surfaced reading site only
 - Do not use `_internal/` maintenance artifacts unless they are needed to
   explain a defect
-- Run the full walkthrough on desktop
-- Reuse the same build for a mobile spot-check of the landing page plus one
-  representative reading page
+- Desktop and mobile are co-equal proof surfaces; do not mark a run `Pass`
+  unless both pass
+- Use `1280x900` as the default desktop viewport for recorded evidence
+- Use `390x844` as the default mobile viewport for recorded evidence
 - Every run must produce a dated report in `docs/ui-scout/` and update
   `docs/ui-scout.md`
 - Every run must also update `docs/methodology/state.yaml` `ui_scout` so triage
   can see freshness truth
+- If scripted screenshots are part of the evidence, wait for large page/image
+  assets to finish painting before capture
 
 ## Exact Surfaced Path To Walk Today
 
 1. Build the current site with `make build-family-site`
-2. Start at `index.html`
+2. At desktop `1280x900`, start at `index.html`
    Pass if the grouped landing sections make it obvious where to go next
-3. Open one representative non-family chapter such as `chapter-001.html`
+3. At desktop `1280x900`, open one representative non-family chapter such as
+   `chapter-001.html`
    Pass if the reading page feels stable, legible, and easy to navigate
-4. Open one representative family story such as `chapter-009.html`
+4. At desktop `1280x900`, open one representative family story such as
+   `chapter-009.html`
    Pass if the family run still feels coherent inside the broader site
-5. Open one standalone page or image entry such as `page-001.html`
+5. At desktop `1280x900`, open one standalone page or image entry such as
+   `page-001.html`
    Pass if the entry is reachable and honestly presented
-6. Use previous / contents / next navigation on at least one representative
-   page
+6. At desktop `1280x900`, use previous / contents / next navigation on at
+   least one representative page
    Pass if the controls stay obvious, forgiving, and free of broken flow
-7. Spot-check the same build on mobile at minimum on `index.html` plus one
-   representative chapter or family page
-8. Record the run in `docs/ui-scout/<date>-<surface>-<env>.md`, update
+7. Repeat the same surfaced path on mobile `390x844`:
+   `index.html`, `chapter-001.html`, `chapter-009.html`, and `page-001.html`
+8. On mobile `390x844`, use previous / contents / next navigation on at least
+   one representative page
+   Pass if the controls remain large, stacked cleanly, and stay easy to tap
+9. Confirm both desktop and mobile remain free of horizontal overflow or hidden
+   route-hunting traps across the checked path
+10. Record the run in `docs/ui-scout/<date>-<surface>-<env>.md`, update
    `docs/ui-scout.md`, update `docs/methodology/state.yaml` `ui_scout`, and
    rerun `make methodology-compile`
 
@@ -68,12 +79,13 @@ external-source research.
 - Did any page feel cluttered, visually noisy, or hard to read?
 - Did any navigation control feel too small, ambiguous, or easy to miss?
 - Did any page imply that omitted or deferred material had vanished?
-- Did desktop and mobile both stay calm and usable?
+- Did desktop and mobile both independently pass the same core path?
 
 ## Record The Result
 
-- Save screenshots or equivalent evidence for the landing page, one chapter,
-  and one mobile view
+- Save screenshots or equivalent evidence for desktop landing, desktop
+  representative reading pages, mobile landing, and mobile representative
+  reading pages
 - Write down the exact blocker or quality failure, including whether it is
   primarily functional, trust, polish, accessibility, or content
 - Record the result in `docs/ui-scout/` and update `docs/ui-scout.md`

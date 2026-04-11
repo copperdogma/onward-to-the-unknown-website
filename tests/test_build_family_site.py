@@ -351,6 +351,377 @@ def test_build_family_site_absorbs_page_002_content_into_page_001(tmp_path):
     assert page_002_audit_row["output_path"] == "page-001.html"
 
 
+def test_build_family_site_keeps_absorbed_page_provenance_rows(tmp_path):
+    source_dir = tmp_path / "input" / "story206-onward-proof-r10"
+    provenance_dir = source_dir / "provenance"
+    source_dir.mkdir(parents=True)
+    provenance_dir.mkdir(parents=True)
+    output_dir = tmp_path / "build" / "family-site"
+
+    manifest = {
+        "run_id": "fixture-run",
+        "document_id": "fixture-doc",
+        "title": "Onward to the Unknown",
+        "entries": [
+            {
+                "entry_id": "page-001",
+                "kind": "page",
+                "title": "Image 1",
+                "path": "page-001.html",
+                "order": 1,
+                "prev_entry_id": None,
+                "next_entry_id": "page-002",
+                "source_pages": [1],
+            },
+            {
+                "entry_id": "page-002",
+                "kind": "page",
+                "title": "Page i",
+                "path": "page-002.html",
+                "order": 2,
+                "prev_entry_id": "page-001",
+                "next_entry_id": None,
+                "source_pages": [2],
+            },
+        ],
+    }
+    (source_dir / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    (source_dir / "page-001.html").write_text(
+        """<!DOCTYPE html><html><body><article>
+        <h1 id="blk-page-001-0001">ONWARD TO THE UNKNOWN</h1>
+        <p id="blk-page-001-0002">1887 - 1987</p>
+        </article></body></html>""",
+        encoding="utf-8",
+    )
+    (source_dir / "page-002.html").write_text(
+        """<!DOCTYPE html><html><body><article>
+        <h1 id="blk-page-002-0001">ONWARD TO THE UNKNOWN</h1>
+        <p id="blk-page-002-0002">Presented by the L'Heureux family.</p>
+        </article></body></html>""",
+        encoding="utf-8",
+    )
+    (provenance_dir / "blocks.jsonl").write_text(
+        "\n".join(
+            json.dumps(row)
+            for row in [
+                {
+                    "entry_id": "page-001",
+                    "block_id": "blk-page-001-0001",
+                    "block_kind": "heading",
+                    "source_element_ids": ["src-1"],
+                },
+                {
+                    "entry_id": "page-001",
+                    "block_id": "blk-page-001-0002",
+                    "block_kind": "paragraph",
+                    "source_element_ids": ["src-2"],
+                },
+                {
+                    "entry_id": "page-002",
+                    "block_id": "blk-page-002-0001",
+                    "block_kind": "heading",
+                    "source_element_ids": ["src-3"],
+                },
+                {
+                    "entry_id": "page-002",
+                    "block_id": "blk-page-002-0002",
+                    "block_kind": "paragraph",
+                    "source_element_ids": ["src-4"],
+                },
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    build_family_site(source_dir=source_dir, output_dir=output_dir)
+
+    provenance_rows = json.loads(
+        (output_dir / "_internal" / "provenance" / "entries" / "page-001.json").read_text(encoding="utf-8")
+    )
+    assert [row["block_id"] for row in provenance_rows] == [
+        "blk-page-001-0001",
+        "blk-page-001-0002",
+        "blk-page-002-0002",
+    ]
+
+
+def test_build_family_site_surfaces_family_story_supplement(tmp_path):
+    input_root = tmp_path / "input"
+    doc_web_root = input_root / "doc-web-html"
+    source_dir = doc_web_root / "story206-onward-proof-r10"
+    supplement_bundle_dir = doc_web_root / "rolland-alain-memoir-r01"
+    output_dir = tmp_path / "build" / "family-site"
+    source_pdf = input_root / "Memoires of Rolland Alaln fron blrth 1913 to 71st year 1985.pdf"
+
+    source_dir.mkdir(parents=True)
+    (source_dir / "provenance").mkdir(parents=True)
+    supplement_bundle_dir.mkdir(parents=True)
+    (supplement_bundle_dir / "provenance").mkdir(parents=True)
+    source_pdf.write_text("fixture memoir pdf", encoding="utf-8")
+
+    main_manifest = {
+        "run_id": "fixture-run",
+        "document_id": "onward-to-the-unknown",
+        "title": "Onward to the Unknown",
+        "entries": [
+            {
+                "entry_id": "page-001",
+                "kind": "page",
+                "title": "Image 1",
+                "path": "page-001.html",
+                "order": 1,
+                "prev_entry_id": None,
+                "next_entry_id": "chapter-009",
+                "source_pages": [1],
+            },
+            {
+                "entry_id": "chapter-009",
+                "kind": "chapter",
+                "title": "ALMA MARIE (L'HEUREUX) ALAIN",
+                "path": "chapter-009.html",
+                "order": 2,
+                "prev_entry_id": "page-001",
+                "next_entry_id": "chapter-024",
+                "source_pages": [9],
+                "printed_pages": [9],
+                "printed_page_start": 9,
+                "printed_page_end": 9,
+            },
+            {
+                "entry_id": "chapter-024",
+                "kind": "chapter",
+                "title": "ARCHIVE PHOTOS",
+                "path": "chapter-024.html",
+                "order": 3,
+                "prev_entry_id": "chapter-009",
+                "next_entry_id": None,
+                "source_pages": [24],
+                "printed_pages": [24],
+                "printed_page_start": 24,
+                "printed_page_end": 24,
+            },
+        ],
+    }
+    (source_dir / "manifest.json").write_text(json.dumps(main_manifest), encoding="utf-8")
+    (source_dir / "page-001.html").write_text(
+        """<!DOCTYPE html><html><body><article>
+        <h1 id="blk-page-001-0001">Onward to the Unknown</h1>
+        </article></body></html>""",
+        encoding="utf-8",
+    )
+    (source_dir / "chapter-009.html").write_text(
+        """<!DOCTYPE html><html><body><article>
+        <h1 id="blk-chapter-009-0001">ALMA MARIE (L'HEUREUX) ALAIN</h1>
+        <p id="blk-chapter-009-0002">Family story text.</p>
+        </article></body></html>""",
+        encoding="utf-8",
+    )
+    (source_dir / "chapter-024.html").write_text(
+        """<!DOCTYPE html><html><body><article>
+        <h1 id="blk-chapter-024-0001">ARCHIVE PHOTOS</h1>
+        <p id="blk-chapter-024-0002">Closing archive text.</p>
+        </article></body></html>""",
+        encoding="utf-8",
+    )
+    (source_dir / "provenance" / "blocks.jsonl").write_text(
+        "\n".join(
+            json.dumps(row)
+            for row in [
+                {
+                    "entry_id": "page-001",
+                    "block_id": "blk-page-001-0001",
+                    "block_kind": "heading",
+                    "source_element_ids": ["main-1"],
+                },
+                {
+                    "entry_id": "chapter-009",
+                    "block_id": "blk-chapter-009-0001",
+                    "block_kind": "heading",
+                    "source_element_ids": ["main-2"],
+                },
+                {
+                    "entry_id": "chapter-009",
+                    "block_id": "blk-chapter-009-0002",
+                    "block_kind": "paragraph",
+                    "source_element_ids": ["main-3"],
+                },
+                {
+                    "entry_id": "chapter-024",
+                    "block_id": "blk-chapter-024-0001",
+                    "block_kind": "heading",
+                    "source_element_ids": ["main-4"],
+                },
+                {
+                    "entry_id": "chapter-024",
+                    "block_id": "blk-chapter-024-0002",
+                    "block_kind": "paragraph",
+                    "source_element_ids": ["main-5"],
+                },
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    supplement_manifest = {
+        "run_id": "memoir-run",
+        "document_id": "rolland-alain-memoir-family-story",
+        "title": "Rolland Alain Memoir Family Story",
+        "index_path": "index.html",
+        "provenance_path": "provenance/blocks.jsonl",
+        "entries": [
+            {
+                "entry_id": "page-001",
+                "kind": "page",
+                "title": "Image 1",
+                "path": "page-001.html",
+                "order": 1,
+                "prev_entry_id": None,
+                "next_entry_id": "chapter-001",
+                "source_pages": [1],
+            },
+            {
+                "entry_id": "chapter-001",
+                "kind": "chapter",
+                "title": "Memoires of Rolland Alain from birth 1913 to 71st year 1985",
+                "path": "chapter-001.html",
+                "order": 2,
+                "prev_entry_id": "page-001",
+                "next_entry_id": "page-002",
+                "source_pages": [2, 3],
+                "printed_pages": [1, 2],
+                "printed_page_start": 1,
+                "printed_page_end": 2,
+            },
+            {
+                "entry_id": "page-002",
+                "kind": "page",
+                "title": "Image 11",
+                "path": "page-002.html",
+                "order": 3,
+                "prev_entry_id": "chapter-001",
+                "next_entry_id": None,
+                "source_pages": [11],
+            },
+        ],
+        "reading_order": ["page-001", "chapter-001", "page-002"],
+        "source_artifact": "05_extract_page_numbers_html_v1/pages_html_with_page_numbers.jsonl",
+    }
+    (supplement_bundle_dir / "manifest.json").write_text(json.dumps(supplement_manifest), encoding="utf-8")
+    (supplement_bundle_dir / "index.html").write_text("<html><body>bundle index</body></html>", encoding="utf-8")
+    (supplement_bundle_dir / "page-001.html").write_text(
+        """<!DOCTYPE html><html><body><article>
+        <h1 id="blk-page-001-0001">Memoires</h1>
+        <p id="blk-page-001-0002">de Rolland Alain</p>
+        </article></body></html>""",
+        encoding="utf-8",
+    )
+    (supplement_bundle_dir / "chapter-001.html").write_text(
+        """<!DOCTYPE html><html><body><article>
+        <h1 id="blk-chapter-001-0001">Memoires of Rolland Alain from birth 1913 to 71st year 1985</h1>
+        <p id="blk-chapter-001-0002">Primary memoir text.</p>
+        </article></body></html>""",
+        encoding="utf-8",
+    )
+    (supplement_bundle_dir / "page-002.html").write_text(
+        """<!DOCTYPE html><html><body><article>
+        <p id="blk-page-002-0001">A missing middle leaf continues here.</p>
+        </article></body></html>""",
+        encoding="utf-8",
+    )
+    (supplement_bundle_dir / "provenance" / "blocks.jsonl").write_text(
+        "\n".join(
+            json.dumps(row)
+            for row in [
+                {
+                    "entry_id": "chapter-001",
+                    "block_id": "blk-chapter-001-0001",
+                    "block_kind": "heading",
+                    "source_element_ids": ["memoir-1"],
+                },
+                {
+                    "entry_id": "chapter-001",
+                    "block_id": "blk-chapter-001-0002",
+                    "block_kind": "paragraph",
+                    "source_element_ids": ["memoir-2"],
+                },
+                {
+                    "entry_id": "page-002",
+                    "block_id": "blk-page-002-0001",
+                    "block_kind": "paragraph",
+                    "source_element_ids": ["memoir-3"],
+                },
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (doc_web_root / "family-story-supplements.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "onward_family_story_supplement_registry_v1",
+                "supplements": [
+                    {
+                        "supplement_id": "rolland-alain-memoir",
+                        "title": "Rolland Alain Memoir Family Story",
+                        "output_path": "rolland-alain-memoir-family-story.html",
+                        "bundle_dir": "rolland-alain-memoir-r01",
+                        "source_pdf": "../Memoires of Rolland Alaln fron blrth 1913 to 71st year 1985.pdf",
+                        "group_id": "family-stories",
+                        "insert_after_entry_id": "chapter-009",
+                        "entry_ids": ["chapter-001", "page-002"],
+                        "absorbed_entry_ids": ["page-001"],
+                        "preamble": "Note that this was not a story originally included in the Onward to the Unknown book. It was found in one copy of the book as a set of photocopied pages.",
+                        "source_note": "Processed through the repo's bounded non-TOC scanned supplement lane.",
+                    }
+                ],
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    result = build_family_site(source_dir=source_dir, output_dir=output_dir)
+
+    assert result.rendered_entry_ids == (
+        "page-001",
+        "chapter-009",
+        "supplement-rolland-alain-memoir",
+        "chapter-024",
+    )
+    landing_html = (output_dir / "index.html").read_text(encoding="utf-8")
+    supplement_html = (output_dir / "rolland-alain-memoir-family-story.html").read_text(encoding="utf-8")
+    omission_audit = json.loads(result.omission_audit_path.read_text(encoding="utf-8"))
+    supplement_provenance = json.loads(
+        (output_dir / "_internal" / "provenance" / "entries" / "supplement-rolland-alain-memoir.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    assert "Rolland Alain Memoir Family Story" in landing_html
+    assert 'href="rolland-alain-memoir-family-story.html"' in landing_html
+    assert "Note that this was not a story originally included in the Onward to the Unknown book." in supplement_html
+    assert 'href="supplements/rolland-alain-memoir/bundle/index.html"' in supplement_html
+    assert 'href="supplements/rolland-alain-memoir/source.pdf"' in supplement_html
+    assert "A missing middle leaf continues here." in supplement_html
+    assert "<h2" in supplement_html
+    assert "supplement-source-title" in supplement_html
+    assert "de Rolland Alain" not in supplement_html
+    assert (output_dir / "supplements" / "rolland-alain-memoir" / "bundle" / "index.html").exists()
+    assert (output_dir / "supplements" / "rolland-alain-memoir" / "source.pdf").exists()
+    assert (output_dir / "_internal" / "supplements" / "rolland-alain-memoir" / "metadata.json").exists()
+    assert omission_audit["supplement_count"] == 1
+    assert omission_audit["supplements"][0]["supplement_id"] == "rolland-alain-memoir"
+    assert omission_audit["supplements"][0]["absorbed_entry_ids"] == ["page-001"]
+    assert [row["block_id"] for row in supplement_provenance] == [
+        "blk-chapter-001-0001",
+        "blk-chapter-001-0002",
+        "blk-page-002-0001",
+    ]
+
+
 def test_enhance_article_html_marks_genealogy_tables_and_rewrites_all_caps_heading():
     entry = BundleEntry(
         entry_id="chapter-010",
@@ -534,7 +905,7 @@ def test_expand_entry_fragments_splits_chapter_024_into_poem_and_photo_pages():
     <figure id="blk-chapter-024-0012"><img alt="Woman seated"/></figure>
     """
 
-    fragments = expand_entry_fragments(entry, article_html)
+    fragments = expand_entry_fragments(entry, article_html, source_entry_ids=(entry.entry_id,))
 
     assert [fragment.entry.entry_id for fragment in fragments] == [
         "chapter-024",

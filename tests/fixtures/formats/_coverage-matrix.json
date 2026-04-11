@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-04-10",
+  "updated_at": "2026-04-11",
   "surfaces": [
     {
       "id": "book-core-html",
@@ -52,9 +52,9 @@
       "label": "Scanned companion materials",
       "kind": "archive-material",
       "upstream": "family archive files",
-      "status": "planned",
+      "status": "partial",
       "target_surface": "supplement galleries and source attachments",
-      "notes": "Scans that shipped with or relate directly to the book."
+      "notes": "The first repo-owned scanned supplement now ships as the Rolland Alain memoir bundle plus preserved PDF source, but broader supplement galleries and additional family-archive scans still remain future work."
     }
   ]
 }

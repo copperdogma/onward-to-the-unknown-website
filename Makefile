@@ -1,7 +1,7 @@
 PYTHON ?= $(shell command -v python 2>/dev/null || command -v python3 2>/dev/null)
 FAMILY_SITE_OUTPUT ?= build/family-site
 FAMILY_SITE_PORT ?= 4173
-AUDIOBOOK_SCRIPT_OUTPUT ?= audiobook-script
+AUDIOBOOK_SCRIPT_OUTPUT ?= audiobook/script
 
 .PHONY: skills-sync skills-check methodology-compile methodology-check deploy-static test lint build-family-site build-audiobook-script preview-family-site refresh-omission-audit doc-web-contract doc-web-run-onward doc-web-import-run doc-web-import-bundle
 
