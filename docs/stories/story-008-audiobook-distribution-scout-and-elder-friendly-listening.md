@@ -218,6 +218,11 @@ N/A
 - The decision boundary is now narrower: optimize for family access, no charge,
   and the simplest browser/download flow before considering audiobook-market
   norms.
+- User-provided ElevenReader publish UI evidence in this thread shows these
+  built-in lanes to validate during the scout: ElevenReader, Spotify, InAudio,
+  ElevenLabs Video, and Audio Native. Treat that list as candidate distribution
+  surfaces, not as confirmed current policy or final recommendations until
+  primary-source research is recorded.
 
 ## Plan
 

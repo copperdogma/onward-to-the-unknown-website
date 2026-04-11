@@ -1,5 +1,12 @@
 # Changelog
 
+## [2026-04-11-04] - Noted ElevenReader distribution lanes in Story 008
+
+### Changed
+- Updated Story 008 to record the user-provided ElevenReader publish menu as
+  scout input, listing the built-in candidate lanes to validate with
+  primary-source research.
+
 ## [2026-04-11-02] - Added new planning stories for memoir and media lanes
 
 ### Added
