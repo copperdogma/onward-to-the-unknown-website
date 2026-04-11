@@ -325,10 +325,11 @@ N/A
   provenance block kinds instead of inventing a second hidden source-selection
   layer. The chapter list and filename contract in this story are the current
   operational truth for audiobook-script preparation.
-- **Status rationale**: `Done` is honest because the deterministic builder,
-  reviewed chapter corpus, validation surface, and manual handoff docs now
-  exist as repo truth. Any later audiobook asset inventory remains a separate
-  downstream follow-up once real audio files become maintained repo surfaces.
+- **Status rationale**: `Done` is honest because the reopened ElevenLabs paste
+  bug was narrowed to the manual preamble, fixed in the committed script set,
+  and covered by a regression test plus runbook guidance. Any further
+  narration-shaping changes remain downstream editorial follow-up rather than a
+  repo-owned workflow gap.
 - **Decision context**: Reviewed `docs/ideal.md`, `docs/spec.md`,
   `docs/input-contract.md`, `docs/runbooks/golden-build.md`,
   `docs/methodology/state.yaml`, `docs/methodology/graph.json`,
@@ -552,4 +553,24 @@ creation are explicitly downstream user-run follow-up, evidence: edits in
 pytest tests/`, `python -m ruff check modules/ tests/`, `make
 build-audiobook-script AUDIOBOOK_SCRIPT_OUTPUT=build/audiobook-script-closeout
 FORCE=1`, `make methodology-compile`, and `make methodology-check`, next step:
+`/check-in-diff`.
+
+20260411-1328 — action: reopened the story after a real ElevenLabs paste test,
+result: identified that the manual preamble still used artificial column-style
+hard wrapping even though the source-derived prose chapters were already
+single-line paragraphs; flattened the preamble prose, added a regression test,
+and updated the runbook to forbid hard-wrapped upload text, evidence:
+`audiobook-script/01-preamble.md`, `tests/test_audiobook_script.py`, and
+`docs/runbooks/elevenlabs-audiobook.md`, next step: rerun validation and have
+the user verify the updated upload behavior.
+
+20260411-1345 — action: revalidated and reclosed the story after the ElevenLabs
+upload-format fix, result: Story 003 is back to `Done` with the preamble now
+using single-line prose paragraphs and the reopened formatting bug captured in
+tests and runbook guidance, evidence: `audiobook-script/01-preamble.md`,
+`tests/test_audiobook_script.py`, `docs/runbooks/elevenlabs-audiobook.md`,
+fresh command runs for `make build-audiobook-script
+AUDIOBOOK_SCRIPT_OUTPUT=build/audiobook-script-check FORCE=1`, `python -m
+pytest tests/`, `python -m ruff check modules/ tests/`, `make
+methodology-compile`, and `make methodology-check`, next step:
 `/check-in-diff`.

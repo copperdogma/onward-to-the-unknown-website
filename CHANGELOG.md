@@ -36,6 +36,9 @@
 - Fixed the story/runbook contract drift around `20-i-wish.md` so it remains a
   poem-only epilogue instead of implying that the visual appendix should be
   spoken.
+- Fixed the manual preamble formatting so prose paragraphs are no longer
+  hard-wrapped in a way that causes ElevenLabs to insert sentence-ending pauses
+  during paste/upload.
 
 ## [2026-04-11-01] - Refined whole-book presentation and archive flow
 

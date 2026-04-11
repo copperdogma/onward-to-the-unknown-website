@@ -46,6 +46,17 @@ def test_preamble_explains_the_listening_boundary():
     assert "narrative chapters" in normalized
 
 
+def test_preamble_prose_is_not_hard_wrapped_for_tts_upload():
+    paragraphs = [
+        block.splitlines()
+        for block in read_script("01-preamble.md").strip().split("\n\n")
+        if block and not block.startswith("# ")
+    ]
+
+    assert paragraphs
+    assert all(len(lines) == 1 for lines in paragraphs)
+
+
 def test_family_story_sample_stops_before_genealogy_tables():
     text = read_script("05-alma-marie-lheureux-alain.md")
 

@@ -52,6 +52,9 @@ After deterministic generation:
    - do not reintroduce genealogy tables
    - do not reintroduce figure captions, visual appendix text, or headings that
      only exist to introduce omitted tables
+   - keep prose paragraphs as single lines in Markdown; do not hard-wrap manual
+     copy to a fixed column width because ElevenLabs treats those line breaks as
+     pauses
    - do not silently normalize wording, casing, or punctuation in the canonical
      committed corpus
    - treat any narration-specific cleanup as a downstream working copy, not as
