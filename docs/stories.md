@@ -4,7 +4,7 @@
 
 ## Recommended Order
 
-Current priority: lock the `input/` intake contract, define the canonical site content model, and prove one chapter-plus-media slice before spreading effort across extra archive surfaces, audio derivatives, or design polish.
+Current priority: refine the existing whole-book reading surface into a site that feels ready to ship, using UI scouting and manual editorial cleanup on real pages. Add deterministic tooling or deeper structure only when it removes repeated grunt work, protects against content loss, or makes the visible site better.
 
 ## Current Stories
 
@@ -13,3 +13,4 @@ Current priority: lock the `input/` intake contract, define the canonical site c
 - **Draft** — `docs/stories/story-003-elevenlabs-full-audiobook.md` — ElevenLabs Full Audiobook
 - **Done** — `docs/stories/story-004-first-local-accessible-family-pages-slice.md` — First Local Accessible Family-Pages Slice
 - **Done** — `docs/stories/story-005-whole-book-accessible-reading-surface-and-omission-audit.md` — Whole-Book Accessible Reading Surface And Omission Audit
+- **Done** — `docs/stories/story-006-whole-book-landing-scannability-and-page-label-clarity.md` — Whole-Book Landing Scannability And Page Label Clarity

@@ -1,5 +1,28 @@
 # Changelog
 
+## [2026-04-10-04] - Refined the whole-book landing surface (Story 006)
+
+### Added
+- Added a dedicated internal UI-scout lane with a whole-book walkthrough
+  runbook, report history, and methodology freshness tracking for the current
+  website surface.
+- Added Story 006 and its passing WB1 rerun report for the landing-page and
+  page-label refinement slice.
+
+### Changed
+- Reoriented triage and methodology guidance toward manual refinement of the
+  real whole-book website before adding deeper deterministic tooling.
+- Shortened landing-card summaries and switched page/image cards and navigation
+  to reader-facing display labels when the raw manifest title is only a
+  placeholder.
+
+### Fixed
+- Fixed the public shell so `Pages & Images` no longer exposes placeholder-like
+  titles such as `Image 1` or `Page i` when the page already contains a better
+  label.
+- Fixed duplicate browser titles on cover-like pages whose display label
+  matches the site title.
+
 ## [2026-04-10-03] - Expanded the local builder to the full book (Story 005)
 
 ### Added

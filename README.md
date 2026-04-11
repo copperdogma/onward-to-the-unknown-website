@@ -45,13 +45,15 @@ The methodology package is installed. The repo now has a thin local builder
 that renders the full staged book into an accessible whole-book reading
 surface, keeps family stories grouped as a recognizable run, and emits an
 inspectable omission audit at `docs/omission-audit.json`. The broader site
-runtime is still partial. The next substantive work should define:
+runtime is still partial, but the working mode is now hands-on website
+refinement rather than abstract model-building. The next substantive work
+should:
 
-1. the broader canonical content/data model for the website
-2. chapter/media linkage beyond the current reading slice
-3. whether the historically named local `build-family-site` approach should
-   become the foundation for the
-   wider site shell
+1. manually refine navigation, copy, layout, and accessibility on the real
+   whole-book shell
+2. use UI scouting to find the highest-friction pages and follow-up fixes
+3. add deterministic tooling or deeper structure only where it removes repeated
+   grunt work or protects against regressions and content loss
 
 Currently confirmed infrastructure:
 
@@ -72,6 +74,9 @@ Current local build surface:
 - Local whole-book reading-surface build: `python scripts/build_family_site.py`
   (or `make build-family-site`)
 - Default local output: `build/family-site/`
+- UI scout lane: `docs/ui-scout.md` and `docs/ui-scout/`
+- Manual walkthrough runbook:
+  `docs/runbooks/whole-book-ui-manual-walkthrough.md`
 
 ## `doc-web` Integration
 

@@ -44,6 +44,9 @@ This skill is read-only.
    next action. Otherwise treat it as a health flag, not as a ranked next move.
 
    Draft/Pending existence alone does not make a story high priority.
+   A story can still be high priority when it is mostly manual site refinement
+   or editorial grunt work on the current surfaced website. Do not downrank
+   that line just because it creates little new code or schema.
 
 2. **Read the Ideal**
    Load `docs/ideal.md` and score against what the system should become, not
@@ -69,9 +72,14 @@ This skill is read-only.
      is highest leverage
    - **Coverage matrix** state when the story touches inputs, filetypes,
      artifacts, or channels
+   - **UI-scout freshness** when the candidate is about the current website
+     experience and `state.ui_scout` exists
    If a candidate depends on upstream architecture, schema, runtime, or
    artifact substrate, inspect the repo to verify that substrate exists in code
    and is not just asserted in story text.
+   If a candidate is manual refinement of the current site, verify that the
+   surfaced website really exists in repo code/docs and is not just implied by
+   old story prose.
 
 4. **Score and rank**
    Evaluate each candidate on:
@@ -93,6 +101,12 @@ This skill is read-only.
    - **blocked-state honesty** — a blocked line with an unmet unblock condition
      should lose to an actionable line even if continuity and problem pressure
      are high
+   - **surfaced-product quality / ship-readiness leverage** — when the repo
+     already has a real website surface, stories that make it materially more
+     readable, trustworthy, and shippable are legitimate high-value work
+   - **manual-refinement legitimacy** — do not penalize a story just because
+     the work is mostly hand cleanup or editorial shaping rather than new
+     deterministic tooling
    - momentum
    - continuity for active unresolved work lines
    - convergence value
@@ -156,6 +170,8 @@ doing a full backlog scan. Report:
   consolidating the current problem line is the more honest move
 - Do not recommend architecture-dependent stories as build-ready on story text
   alone when the critical substrate has not been verified in the repo
+- Do not assume schema-first or tooling-first stories beat manual website
+  refinement once a real surfaced site exists
 - Treat `Blocked` stories as candidates only when the unblock path is itself the
   highest-leverage next move
 - Do not recommend reopening a blocked story when the current pass only repeats

@@ -19,6 +19,17 @@ SOURCE_ENV_KEYS = ("ONWARD_INPUT_SOURCE_DIR", "DREAMHOST_DEPLOY_SOURCE_DIR")
 ARTICLE_PATTERN = re.compile(r"<article>(.*?)</article>", re.DOTALL)
 TAG_PATTERN = re.compile(r"<[^>]+>")
 WHITESPACE_PATTERN = re.compile(r"\s+")
+H1_PATTERN = re.compile(r"<h1\b[^>]*>(.*?)</h1>", re.IGNORECASE | re.DOTALL)
+H2_PATTERN = re.compile(r"<h2\b[^>]*>(.*?)</h2>", re.IGNORECASE | re.DOTALL)
+FIGCAPTION_PATTERN = re.compile(r"<figcaption\b[^>]*>(.*?)</figcaption>", re.IGNORECASE | re.DOTALL)
+PARAGRAPH_PATTERN = re.compile(r"<p\b[^>]*>(.*?)</p>", re.IGNORECASE | re.DOTALL)
+IMG_ALT_PATTERN = re.compile(r"<img\b[^>]*\balt=(?:\"([^\"]+)\"|'([^']+)')", re.IGNORECASE)
+PLACEHOLDER_PAGE_TITLE_PATTERN = re.compile(r"^(?:Image \d+|Page [ivxlcdm]+)$", re.IGNORECASE)
+LANDING_CARD_SUMMARY_LIMIT = 140
+SHORT_LABEL_MAX_LENGTH = 88
+TITLE_CASE_SMALL_WORDS = frozenset(
+    {"a", "an", "and", "as", "at", "by", "for", "in", "of", "on", "or", "the", "to"}
+)
 
 SITE_STYLESHEET = dedent(
     """
@@ -375,6 +386,7 @@ class RenderedEntry:
     entry: BundleEntry
     group: EntryGroup
     article_html: str
+    display_title: str
     summary_text: str
 
 
@@ -448,12 +460,100 @@ def extract_article_html(document_text: str, source_path: Path) -> str:
     return match.group(1).strip()
 
 
-def plain_text_excerpt(article_html: str, limit: int = 220) -> str:
-    text = unescape(TAG_PATTERN.sub(" ", article_html))
-    text = WHITESPACE_PATTERN.sub(" ", text).strip()
+def plain_text_from_html(html_fragment: str) -> str:
+    text = unescape(TAG_PATTERN.sub(" ", html_fragment))
+    return WHITESPACE_PATTERN.sub(" ", text).strip()
+
+
+def excerpt_text(text: str, limit: int) -> str:
     if len(text) <= limit:
         return text
     return text[: limit - 1].rstrip() + "…"
+
+
+def plain_text_excerpt(article_html: str, limit: int = LANDING_CARD_SUMMARY_LIMIT) -> str:
+    return excerpt_text(plain_text_from_html(article_html), limit)
+
+
+def first_fragment_text(pattern: re.Pattern[str], article_html: str) -> str | None:
+    match = pattern.search(article_html)
+    if not match:
+        return None
+    text = plain_text_from_html(match.group(1))
+    return text or None
+
+
+def first_image_alt(article_html: str) -> str | None:
+    match = IMG_ALT_PATTERN.search(article_html)
+    if not match:
+        return None
+    text = unescape(match.group(1) or match.group(2) or "")
+    text = WHITESPACE_PATTERN.sub(" ", text).strip()
+    return text or None
+
+
+def short_paragraph_label(article_html: str, max_length: int = SHORT_LABEL_MAX_LENGTH) -> str | None:
+    for match in PARAGRAPH_PATTERN.finditer(article_html):
+        text = plain_text_from_html(match.group(1))
+        if text and len(text) <= max_length:
+            return text
+    return None
+
+
+def is_mostly_uppercase(text: str) -> bool:
+    letters = [character for character in text if character.isalpha()]
+    if len(letters) < 4:
+        return False
+    uppercase = sum(1 for character in letters if character.isupper())
+    return uppercase / len(letters) >= 0.8
+
+
+def soften_display_title(text: str) -> str:
+    normalized = WHITESPACE_PATTERN.sub(" ", text).strip()
+    if not normalized or not is_mostly_uppercase(normalized):
+        return normalized
+
+    words = normalized.lower().split()
+    softened: list[str] = []
+    for index, word in enumerate(words):
+        if 0 < index < len(words) - 1 and word in TITLE_CASE_SMALL_WORDS:
+            softened.append(word)
+            continue
+        softened.append(word.title())
+    return " ".join(softened)
+
+
+def derive_display_title(entry: BundleEntry, article_html: str) -> str:
+    if entry.kind != "page" or not PLACEHOLDER_PAGE_TITLE_PATTERN.fullmatch(entry.title.strip()):
+        return entry.title
+
+    candidates = (
+        first_fragment_text(H1_PATTERN, article_html),
+        first_fragment_text(H2_PATTERN, article_html),
+        first_fragment_text(FIGCAPTION_PATTERN, article_html),
+        short_paragraph_label(article_html),
+        first_image_alt(article_html),
+    )
+    for candidate in candidates:
+        if candidate:
+            return soften_display_title(candidate)
+
+    if entry.title.lower().startswith("image "):
+        source_page = entry.source_pages[0] if entry.source_pages else None
+        if source_page is not None:
+            return f"Illustration page {source_page}"
+        return "Illustration page"
+    return entry.title
+
+
+def build_summary_text(article_html: str, display_title: str, limit: int = LANDING_CARD_SUMMARY_LIMIT) -> str:
+    text = plain_text_from_html(article_html)
+    title_prefix = WHITESPACE_PATTERN.sub(" ", display_title).strip()
+    if title_prefix and text.casefold().startswith(title_prefix.casefold()):
+        text = text[len(title_prefix) :].lstrip(" :;,.!-")
+    if not text:
+        return ""
+    return excerpt_text(text, limit)
 
 
 def load_provenance_rows(source_dir: Path) -> dict[str, list[dict]]:
@@ -515,12 +615,14 @@ def build_rendered_entries(
     for entry in entries:
         document_text = (source_dir / entry.path).read_text(encoding="utf-8")
         article_html = extract_article_html(document_text, source_dir / entry.path)
+        display_title = derive_display_title(entry, article_html)
         rendered.append(
             RenderedEntry(
                 entry=entry,
                 group=group_for_entry(entry),
                 article_html=article_html,
-                summary_text=plain_text_excerpt(article_html),
+                display_title=display_title,
+                summary_text=build_summary_text(article_html, display_title),
             )
         )
     return rendered
@@ -592,11 +694,11 @@ def render_layout(title: str, body_html: str) -> str:
 
 def render_entry_card(rendered: RenderedEntry) -> str:
     entry = rendered.entry
+    summary_html = f"\n  <p>{escape(rendered.summary_text)}</p>" if rendered.summary_text else ""
     return dedent(
         f"""\
         <a class="story-card" href="{escape(entry.path)}">
-          <h3 class="story-title">{escape(entry.title)}</h3>
-          <p>{escape(rendered.summary_text)}</p>
+          <h3 class="story-title">{escape(rendered.display_title)}</h3>{summary_html}
         </a>
         """
     ).strip()
@@ -669,9 +771,8 @@ def render_entry_page(
     index: int,
 ) -> str:
     rendered = rendered_entries[index]
-    entry = rendered.entry
-    previous_entry = rendered_entries[index - 1].entry if index > 0 else None
-    next_entry = rendered_entries[index + 1].entry if index + 1 < len(rendered_entries) else None
+    previous_rendered = rendered_entries[index - 1] if index > 0 else None
+    next_rendered = rendered_entries[index + 1] if index + 1 < len(rendered_entries) else None
 
     body = dedent(
         f"""\
@@ -681,9 +782,9 @@ def render_entry_page(
           </header>
 
           <nav class="page-nav" aria-label="Book entry navigation">
-            {render_nav_link(previous_entry.title if previous_entry else "Previous", previous_entry.path if previous_entry else None)}
+            {render_nav_link(previous_rendered.display_title if previous_rendered else "Previous", previous_rendered.entry.path if previous_rendered else None)}
             {render_nav_link("Contents", "index.html", primary=True)}
-            {render_nav_link(next_entry.title if next_entry else "Next", next_entry.path if next_entry else None)}
+            {render_nav_link(next_rendered.display_title if next_rendered else "Next", next_rendered.entry.path if next_rendered else None)}
           </nav>
 
           <article class="article-card">
@@ -692,7 +793,10 @@ def render_entry_page(
         </main>
         """
     )
-    return render_layout(title=f"{entry.title} — {site_title}", body_html=body)
+    page_title = site_title
+    if rendered.display_title != site_title:
+        page_title = f"{rendered.display_title} — {site_title}"
+    return render_layout(title=page_title, body_html=body)
 
 
 def serialize_omission_audit(

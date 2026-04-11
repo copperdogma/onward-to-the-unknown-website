@@ -12,6 +12,12 @@ user-invocable: true
 itself. It routes to the leaf skills and, in full-sweep mode, synthesizes one
 recommended next action.
 
+When this repo already has a real surfaced website, manual editorial
+refinement, accessibility cleanup, navigation fixes, and other site-shaping
+grunt work are first-class progress. Do not default to inventing a deeper
+deterministic layer unless it clearly removes repeated grunt work, prevents
+content loss, or unblocks shipping the real site.
+
 ## Routing
 
 | Invocation | Behavior |
@@ -64,8 +70,8 @@ When invoked with no scope:
 
 4. **Synthesize one cross-domain recommendation**
    Rank the problem first, then choose the vehicle that best advances it
-   (continue an active story, expand/reopen a story, create a story, run an
-   eval, do architecture work, or no-op).
+   (continue an active story, expand/reopen a story, create a story, run a UI
+   scout, run an eval, do architecture work, or no-op).
 
    Choose the next action with the strongest combined signal across:
    - movement toward the Ideal
@@ -77,12 +83,24 @@ When invoked with no scope:
    - continuity from active or recently advanced unresolved work lines
    - urgency / staleness
    - operator cost
+   - surfaced-product quality / ship-readiness pressure on the current website
+   - UI product-truth freshness when `state.ui_scout` exists
    - existing story shells only as packaging / tie-break context, not as value by themselves
+
+   If `docs/methodology/state.yaml` includes `ui_scout` and the lane is
+   `never`, stale, `issues_found`, or `recheck_due`, inspect `docs/ui-scout.md`
+   and the latest relevant report under `docs/ui-scout/` before outranking that
+   line with unrelated abstraction or architecture work.
 
    If the strongest problem line is explicitly `Blocked`, verify whether its
    unblock condition is actually met in the current pass. If not, surface that
    line as a health flag and recommend a different actionable move or an honest
    `no-op`; do not turn blocked continuity into a reopen recommendation.
+
+   If the repo already has a real reading surface and the strongest live gap is
+   that the site still does not feel ready to ship, prefer UI scouting,
+   follow-up manual refinement, or a focused site-quality story over
+   schema-first work that does not directly improve the actual website.
 
    The recommended action must be phrased so it can be executed directly on the
    next turn. A bare `yes` from the user should be enough to authorize that one
@@ -107,6 +125,7 @@ When invoked with no scope:
 - Stories: {summary}
 - Inbox: {summary}
 - Evals: {summary}
+- UI Scout: {freshness / latest report summary or "not configured"}
 
 ### Health Flags
 - {blocked story / stale inbox / stale eval / pending ADR}
@@ -128,5 +147,7 @@ When invoked with no scope:
   packaging, not priority signals.
 - Preserve continuity for active unresolved work lines when leverage is
   otherwise comparable.
+- Do not assume deeper deterministic abstraction is automatically higher value
+  than manual refinement once a real surfaced website exists.
 - Do not recommend reopening a blocked line unless the current pass can point
   to fresh evidence that satisfies the story's unblock condition.

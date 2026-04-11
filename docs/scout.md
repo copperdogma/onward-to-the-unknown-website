@@ -5,5 +5,4 @@ keeping as reusable evidence.
 
 | ID | Date | Topic | Status | Notes |
 |---|---|---|---|---|
-| _(none yet)_ | 2026-04-09 | Bootstrap | seeded | Create the first real scout entry when the repo starts comparing site-stack or import-contract patterns. |
-
+| [001](scout/scout-001-cine-forge-ui-scout-framework.md) | 2026-04-10 | CineForge UI scout framework | Done | Ported a dedicated internal UI-scout lane, `state.ui_scout` freshness, and triage hooks adapted to the whole-book reading surface. |

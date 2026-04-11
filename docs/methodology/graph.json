@@ -211,7 +211,7 @@
       "sequencing_bias": [
         {
           "target": "campaign:bootstrap-canon-and-shell",
-          "reason": "Define the intake seam from the staged `input/` snapshot, prove a canonical content model, then build the first real website slice before choosing extra tooling or polish in the abstract."
+          "reason": "Use the current whole-book reading surface as the working website, refine it manually toward ship-readiness, and add deterministic tooling only when it removes repeated grunt work, protects against content loss, or clearly unlocks the next visible site improvement."
         }
       ],
       "campaigns": [
@@ -219,7 +219,7 @@
           "id": "bootstrap-canon-and-shell",
           "status": "active",
           "story_refs": [],
-          "notes": "Early work should establish the local intake contract, the site data model, and one end-to-end chapter rendering path with linked media."
+          "notes": "The intake seam and first real whole-book shell now exist. The current campaign should refine that real site toward shipping quality, using manual website shaping and UI scouting first, then adding thin helpers where repetition justifies them."
         }
       ]
     },
@@ -228,10 +228,26 @@
         {
           "id": "recommended-order",
           "title": "Recommended Order",
-          "markdown": "Current priority: lock the `input/` intake contract, define the canonical site content model, and prove one chapter-plus-media slice before spreading effort across extra archive surfaces, audio derivatives, or design polish."
+          "markdown": "Current priority: refine the existing whole-book reading surface into a site that feels ready to ship, using UI scouting and manual editorial cleanup on real pages. Add deterministic tooling or deeper structure only when it removes repeated grunt work, protects against content loss, or makes the visible site better."
         }
       ],
       "uncategorized_label": "Legacy / Uncategorized Stories"
+    },
+    "ui_scout": {
+      "cadence": {
+        "max_days_without_run": 14
+      },
+      "last_run_at": "2026-04-10",
+      "last_run_story_id": "story-006",
+      "scenarios": {
+        "WB1": {
+          "label": "Whole-Book Reading Surface",
+          "last_checked": "2026-04-10",
+          "latest_report": "2026-04-10-whole-book-local-story-006-rerun",
+          "status": "pass",
+          "follow_up_story_refs": []
+        }
+      }
     },
     "architecture_audits": {
       "cadence": {
@@ -258,12 +274,12 @@
         },
         "site_experience": {
           "label": "Site Experience",
-          "manual_priority": "medium",
+          "manual_priority": "high",
           "last_audited_at": "2026-04-09",
           "stories_since_audit": 0,
           "recent_story_refs": [],
           "open_findings": [],
-          "notes": "A thin local whole-book reading surface now exists with grouped navigation and explicit omission accounting; revisit after evaluating whether that shell should expand or be replaced."
+          "notes": "A thin local whole-book reading surface now exists with grouped navigation and explicit omission accounting. This is the working website for the current phase, so manual refinement and repeated UI scouting should shape it before another runtime or data layer is invented."
         },
         "methodology_tooling": {
           "label": "Methodology Tooling",
@@ -368,10 +384,15 @@
         "path": "docs/stories/story-005-whole-book-accessible-reading-surface-and-omission-audit.md",
         "title": "Whole-Book Accessible Reading Surface And Omission Audit",
         "status": "Done"
+      },
+      {
+        "path": "docs/stories/story-006-whole-book-landing-scannability-and-page-label-clarity.md",
+        "title": "Whole-Book Landing Scannability And Page Label Clarity",
+        "status": "Done"
       }
     ],
     "counts_by_status": {
-      "Done": 3,
+      "Done": 4,
       "Draft": 2
     }
   }

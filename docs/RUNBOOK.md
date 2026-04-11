@@ -30,6 +30,8 @@ make doc-web-contract
   `docs/omission-audit.json`
 - the active presentation choices are documented in
   `docs/presentation-decisions.md`
+- UI product-truth scouting now lives in `docs/ui-scout.md` and
+  `docs/ui-scout/`
 - there is still no fully generalized long-term site runtime yet
 - the first committed accepted source bundle lives under
   `input/doc-web-html/story206-onward-proof-r10/`
@@ -45,6 +47,10 @@ make doc-web-contract
 Current default deploy payload: the staged `doc-web` export bundle at
 `input/doc-web-html/story206-onward-proof-r10` via
 `DREAMHOST_DEPLOY_SOURCE_DIR` in the local `.env`.
+
+The current operating mode is manual refinement of the whole-book website until
+it is ready to ship. Add deterministic tooling only where it removes repeated
+grunt work or protects the reading surface from regressions.
 
 ## Local Whole-Book Slice
 
@@ -83,6 +89,19 @@ make lint
 make methodology-compile
 make methodology-check
 ```
+
+## UI Scout Lane
+
+Use the dedicated internal UI-scout lane when walking the current website like
+a real reader:
+
+- index and freshness: `docs/ui-scout.md`
+- dated reports: `docs/ui-scout/`
+- walkthrough instructions:
+  `docs/runbooks/whole-book-ui-manual-walkthrough.md`
+
+This lane is for manual website refinement on the real whole-book shell, not
+for external research.
 
 ## `doc-web` Commands
 

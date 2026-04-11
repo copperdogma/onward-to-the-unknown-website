@@ -28,8 +28,15 @@ three explicit sections:
   navigation.
 - The landing page uses explicit grouped sections rather than the raw mixed
   source index.
+- Landing-card summaries should start with actual entry content instead of
+  repeating the visible card title, and they should stay short enough for
+  first-pass scanning on desktop and mobile.
 - Reader-facing pages stay focused on the book itself rather than provenance or
   audit commentary.
+- Public page and image labels may derive from visible in-page headings,
+  captions, or other honest page cues when the raw manifest title is a
+  placeholder, while internal provenance and omission-audit surfaces keep the
+  source manifest title unchanged.
 - Provenance and omission-audit artifacts remain internal maintenance surfaces,
   with the checked-in snapshot living at `docs/omission-audit.json`.
 - `docs/omission-audit.json` is the checked-in proof that every manifest entry
