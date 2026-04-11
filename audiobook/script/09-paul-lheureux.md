@@ -13,3 +13,19 @@ By 1933, and 1934, Paul began to do his travelling by using small single engine 
 There were many mercy flights to Indians in the far north in the winter months to drop supplies and medical supplies, because they were starving. Sometimes, they managed to land in small clearings and get out by the skin of their teeth. That was what made these pilots so great.
 
 Paul retired from the Indian Affairs Department in the fall of 1945 after fifteen years with the Lesser Slave Lake Agency. He moved to his mink ranch at Joussard, Alberta, which also is on the shores of Lesser Slave Lake. Here he raised mink and operated a small general store and bus stop. In 1955, he sold his property and bought a home in Edmonton for he and Beatrice to live out their retirement years. Mother was killed in a freak car and tanker collision, June 18th, 1960 at Conner's Ferry in Idaho, U.S.A. She was buried in Edmonton in the Holy Cross Cemetary, St. Albert Trail. Paul passed away 4 years years later on April 5th 1964 at the age of 77 years. He was laid to rest next to his wife, Beatrice.
+
+Paul and Beatrice had a family of six children.
+
+Emilien, the eldest, died shortly after birth.
+
+Yvonnette married to Lucien Comeau. They have six children.
+
+Roger married to Mary Turner. They have no children.
+
+Ephrem married to Yvette Gagnon. They have two children.
+
+Robert married to Jeanne St. Pierre. They have six children.
+
+Frances married to Frank Beach. They have two children.
+
+Paul and Beatrice have 15 Great Grandchildren and 2 Great-Great Grandchildren.

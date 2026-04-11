@@ -18,6 +18,8 @@ def test_collect_source_state_ignores_manifest_and_tracks_dirs(tmp_path):
     deploy = load_deploy_module()
     (tmp_path / "index.html").write_text("index", encoding="utf-8")
     (tmp_path / ".deploy-manifest.json").write_text("{}", encoding="utf-8")
+    (tmp_path / "_internal").mkdir()
+    (tmp_path / "_internal" / "omission-audit.json").write_text("{}", encoding="utf-8")
     (tmp_path / "nested").mkdir()
     (tmp_path / "nested" / "chapter-001.html").write_text("chapter", encoding="utf-8")
 

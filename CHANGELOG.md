@@ -1,5 +1,24 @@
 # Changelog
 
+## [2026-04-11-08] - Kept supplement wrappers reader-facing
+
+### Changed
+- Removed the Rolland memoir wrapper's public process note plus the raw
+  imported-HTML and original-PDF actions so the surfaced page stays focused on
+  reading rather than repository/process detail.
+- Updated the presentation, input-contract, infrastructure, runbook, and deploy
+  skill docs so they match the new public supplement policy and the deploy
+  boundary for local maintenance artifacts.
+
+### Fixed
+- Fixed repeated local whole-book rebuilds leaving stale supplement directories
+  behind after the public supplement bundle/PDF paths were removed.
+- Fixed the static deploy helper so `_internal/` maintenance artifacts are
+  excluded when publishing the generated whole-book shell.
+- Regenerated three stale audiobook script chapters so the checked-in corpus
+  again matches the current deterministic renderer and `make test` returns to
+  green.
+
 ## [2026-04-11-07] - Shipped the Rolland Alain memoir family-story supplement (Story 007)
 
 ### Added

@@ -44,6 +44,8 @@ make doc-web-contract
   `python -m pip install -r requirements-deploy.txt`
 - the deploy helper maintains a remote `.deploy-manifest.json` so repeat
   deploys can remove files that were deleted locally
+- when the deploy source is `build/family-site/`, `_internal/` stays a local
+  maintenance surface and is excluded from the published payload
 
 Current default deploy payload: the staged `doc-web` export bundle at
 `input/doc-web-html/story206-onward-proof-r10` via

@@ -75,6 +75,9 @@ the real environment changes.
   - local `.env` stores DreamHost credentials and the default source bundle path
   - `scripts/deploy_static_site.py` uploads the contents of that bundle over
     SFTP to `/home/onward_user/onward.copper-dog.com`
+  - when the source is the generated whole-book shell at `build/family-site/`,
+    the deploy helper excludes `_internal/` maintenance artifacts from the
+    published payload
   - the script keeps a remote `.deploy-manifest.json` so later deploys can
     remove paths that disappeared from the source bundle
   - the repo-local `/deploy` skill wraps that command and requires public

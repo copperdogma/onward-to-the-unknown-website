@@ -31,7 +31,7 @@ REQUIRED_ENV_KEYS = [
     "DREAMHOST_SFTP_PASSWORD",
     "DREAMHOST_SITE_PATH",
 ]
-IGNORED_NAMES = {".DS_Store", ".deploy-manifest.json"}
+IGNORED_NAMES = {".DS_Store", ".deploy-manifest.json", "_internal"}
 MANIFEST_NAME = ".deploy-manifest.json"
 
 

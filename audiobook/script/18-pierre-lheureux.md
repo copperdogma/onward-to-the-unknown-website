@@ -49,3 +49,5 @@ Dad turned his hobby, furniture refinishing, into a money making venture with a 
 Lena died of a heart attack in 1980 and Dad was left alone again. He now travelled with his married children or flew to his destinations.
 
 After another severe heart attack, he came to live with us in Aquadeo. He kept active but required oxygen occasionally. He lost his last fight with death at the age of 82 in 1983. He is buried in the Jackfish cemetary.
+
+ROBERT L'HEUREUX

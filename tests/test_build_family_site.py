@@ -673,7 +673,6 @@ def test_build_family_site_surfaces_family_story_supplement(tmp_path):
                         "entry_ids": ["chapter-001", "page-002"],
                         "absorbed_entry_ids": ["page-001"],
                         "preamble": "Note that this was not a story originally included in the Onward to the Unknown book. It was found in one copy of the book as a set of photocopied pages.",
-                        "source_note": "Processed through the repo's bounded non-TOC scanned supplement lane.",
                     }
                 ],
             },
@@ -682,6 +681,9 @@ def test_build_family_site_surfaces_family_story_supplement(tmp_path):
         + "\n",
         encoding="utf-8",
     )
+    stale_public_dir = output_dir / "supplements" / "rolland-alain-memoir"
+    stale_public_dir.mkdir(parents=True)
+    (stale_public_dir / "stale.txt").write_text("stale", encoding="utf-8")
 
     result = build_family_site(source_dir=source_dir, output_dir=output_dir)
 
@@ -699,19 +701,29 @@ def test_build_family_site_surfaces_family_story_supplement(tmp_path):
             encoding="utf-8"
         )
     )
+    supplement_metadata = json.loads(
+        (output_dir / "_internal" / "supplements" / "rolland-alain-memoir" / "metadata.json").read_text(
+            encoding="utf-8"
+        )
+    )
 
     assert "Rolland Alain Memoir Family Story" in landing_html
     assert 'href="rolland-alain-memoir-family-story.html"' in landing_html
     assert "Note that this was not a story originally included in the Onward to the Unknown book." in supplement_html
-    assert 'href="supplements/rolland-alain-memoir/bundle/index.html"' in supplement_html
-    assert 'href="supplements/rolland-alain-memoir/source.pdf"' in supplement_html
+    assert "Processed through the repo's bounded non-TOC scanned supplement lane." not in supplement_html
+    assert "Open Imported HTML" not in supplement_html
+    assert "Download Original PDF" not in supplement_html
     assert "A missing middle leaf continues here." in supplement_html
     assert "<h2" in supplement_html
     assert "supplement-source-title" in supplement_html
     assert "de Rolland Alain" not in supplement_html
-    assert (output_dir / "supplements" / "rolland-alain-memoir" / "bundle" / "index.html").exists()
-    assert (output_dir / "supplements" / "rolland-alain-memoir" / "source.pdf").exists()
-    assert (output_dir / "_internal" / "supplements" / "rolland-alain-memoir" / "metadata.json").exists()
+    assert not (output_dir / "supplements" / "rolland-alain-memoir").exists()
+    assert not (output_dir / "supplements" / "rolland-alain-memoir" / "bundle").exists()
+    assert not (output_dir / "supplements" / "rolland-alain-memoir" / "source.pdf").exists()
+    assert not (output_dir / "supplements" / "rolland-alain-memoir" / "assets").exists()
+    assert supplement_metadata["source_bundle_dir"].endswith("rolland-alain-memoir-r01")
+    assert "public_bundle_index" not in supplement_metadata
+    assert "public_source_pdf" not in supplement_metadata
     assert omission_audit["supplement_count"] == 1
     assert omission_audit["supplements"][0]["supplement_id"] == "rolland-alain-memoir"
     assert omission_audit["supplements"][0]["absorbed_entry_ids"] == ["page-001"]

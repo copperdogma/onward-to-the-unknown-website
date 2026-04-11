@@ -69,9 +69,10 @@ supplements into the `Family Stories` run:
   separately for inspection.
 - Content-empty facsimile leaves may be intentionally deferred when they have
   no text, no image, and no table content to surface honestly.
-- A supplement wrapper page may expose `Read memoir`, `Open imported HTML`, and
-  `Download original PDF` actions so older readers get one clear public entry
-  point while maintainers keep the accepted bundle and provenance reachable.
+- A supplement wrapper page should stay reader-facing: keep the contextual
+  preamble and the main reading action, and defer raw imported HTML, original
+  PDF links, and similar provenance/process affordances until a dedicated
+  archive-copy surface or explicitly relevant page-level attachment exists.
 - Provenance and omission-audit artifacts remain internal maintenance surfaces,
   with the checked-in snapshot living at `docs/omission-audit.json`.
 - `docs/omission-audit.json` is the checked-in proof that every manifest entry

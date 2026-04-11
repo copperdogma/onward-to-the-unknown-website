@@ -73,7 +73,8 @@ Currently confirmed infrastructure:
   `make deploy-static`)
 - Deploy helper dependency: `python -m pip install -r requirements-deploy.txt`
 - Deploy behavior: manifest-backed SFTP sync that can remove stale previously
-  deployed files
+  deployed files; when the source is `build/family-site/`, `_internal/`
+  maintenance artifacts are not published
 
 Current local build surface:
 

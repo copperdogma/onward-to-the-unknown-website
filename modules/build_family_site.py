@@ -568,8 +568,7 @@ SITE_STYLESHEET = dedent(
         linear-gradient(180deg, rgba(252, 246, 239, 0.98), rgba(243, 231, 214, 0.92));
     }
 
-    .article-card .supplement-kicker,
-    .article-card .supplement-source-note {
+    .article-card .supplement-kicker {
       font-family: var(--ui-font);
       color: var(--muted);
     }
@@ -819,7 +818,6 @@ class FamilyStorySupplement:
     source_entry_ids: tuple[str, ...]
     absorbed_entry_ids: tuple[str, ...]
     preamble: str
-    source_note: str | None
 
 
 @dataclass(frozen=True)
@@ -1527,9 +1525,6 @@ def load_family_story_supplements(source_dir: Path) -> list[FamilyStorySupplemen
         insert_after_entry_id = raw_row.get("insert_after_entry_id")
         if insert_after_entry_id is not None and not isinstance(insert_after_entry_id, str):
             raise SystemExit("Family story supplement `insert_after_entry_id` must be a string when present.")
-        source_note = raw_row.get("source_note")
-        if source_note is not None and not isinstance(source_note, str):
-            raise SystemExit("Family story supplement `source_note` must be a string when present.")
 
         resolved_bundle_dir = (registry_path.parent / bundle_dir).resolve()
         resolved_source_pdf = (registry_path.parent / source_pdf).resolve()
@@ -1550,7 +1545,6 @@ def load_family_story_supplements(source_dir: Path) -> list[FamilyStorySupplemen
                 source_entry_ids=tuple(entry_ids),
                 absorbed_entry_ids=tuple(absorbed_entry_ids),
                 preamble=preamble.strip(),
-                source_note=source_note.strip() if isinstance(source_note, str) and source_note.strip() else None,
             )
         )
     return supplements
@@ -1576,6 +1570,26 @@ def rewrite_relative_asset_references(article_html: str, prefix: str) -> str:
     return URL_ATTR_PATTERN.sub(replace, article_html)
 
 
+def copy_supplement_public_assets(bundle_dir: Path, assets_dir: Path) -> None:
+    copied_any = False
+    for source_path in sorted(bundle_dir.rglob("*")):
+        if not source_path.is_file():
+            continue
+        relative_path = source_path.relative_to(bundle_dir)
+        if relative_path.parts and relative_path.parts[0] == "provenance":
+            continue
+        if relative_path.name == "manifest.json":
+            continue
+        if source_path.suffix.lower() == ".html":
+            continue
+        destination_path = assets_dir / relative_path
+        destination_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source_path, destination_path)
+        copied_any = True
+    if not copied_any and assets_dir.exists():
+        shutil.rmtree(assets_dir)
+
+
 def demote_primary_heading(article_html: str) -> str:
     match = PRIMARY_HEADING_PATTERN.search(article_html)
     if not match:
@@ -1591,16 +1605,7 @@ def render_supplement_article_html(
     supplement: FamilyStorySupplement,
     *,
     body_html: str,
-    public_root: str,
 ) -> str:
-    actions = [
-        render_nav_link("Read Memoir", "#supplement-body", primary=True),
-        render_nav_link("Open Imported HTML", f"{public_root}/bundle/index.html"),
-        f'<a class="nav-button secondary" href="{escape(f"{public_root}/source.pdf")}" download>Download Original PDF</a>',
-    ]
-    source_note_html = ""
-    if supplement.source_note:
-        source_note_html = f'<p class="supplement-source-note">{escape(supplement.source_note)}</p>'
     return dedent(
         f"""\
         <section class="supplement-intro">
@@ -1608,9 +1613,8 @@ def render_supplement_article_html(
           <h1>{escape(supplement.title)}</h1>
           <p class="supplement-preamble">{escape(supplement.preamble)}</p>
           <div class="supplement-actions">
-            {' '.join(actions)}
+            {render_nav_link("Read Memoir", "#supplement-body", primary=True)}
           </div>
-          {source_note_html}
         </section>
         <section id="supplement-body" class="supplement-body">
           {body_html}
@@ -1641,11 +1645,11 @@ def build_supplement_rendered_entry(
 
     public_root = f"supplements/{supplement.supplement_id}"
     public_root_path = output_dir / "supplements" / supplement.supplement_id
-    shutil.copytree(supplement.bundle_dir, public_root_path / "bundle")
-    public_root_path.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(supplement.source_pdf, public_root_path / "source.pdf")
+    if public_root_path.exists():
+        shutil.rmtree(public_root_path)
+    copy_supplement_public_assets(supplement.bundle_dir, public_root_path / "assets")
 
-    merged_article_html = rewrite_relative_asset_references(merged_article_html, f"{public_root}/bundle")
+    merged_article_html = rewrite_relative_asset_references(merged_article_html, f"{public_root}/assets")
     synthetic_entry = BundleEntry(
         entry_id=f"supplement-{supplement.supplement_id}",
         kind="chapter",
@@ -1664,7 +1668,6 @@ def build_supplement_rendered_entry(
     article_html = render_supplement_article_html(
         supplement,
         body_html=enhanced_body_html,
-        public_root=public_root,
     )
 
     supplement_provenance_rows = load_provenance_rows(supplement.bundle_dir)
@@ -1681,8 +1684,6 @@ def build_supplement_rendered_entry(
                 "supplement_id": supplement.supplement_id,
                 "title": supplement.title,
                 "output_path": supplement.output_path,
-                "public_bundle_index": f"{public_root}/bundle/index.html",
-                "public_source_pdf": f"{public_root}/source.pdf",
                 "source_bundle_dir": repo_relative_or_abs(supplement.bundle_dir),
                 "source_pdf": repo_relative_or_abs(supplement.source_pdf),
                 "source_entry_ids": list(supplement.source_entry_ids),
@@ -1716,7 +1717,7 @@ def build_supplement_rendered_entry(
         source_pdf_path=repo_relative_or_abs(supplement.source_pdf),
         source_entry_ids=supplement.source_entry_ids,
         absorbed_entry_ids=supplement.absorbed_entry_ids,
-        rationale="Rendered as a repo-owned scanned supplement surfaced in the family-story area with the original PDF preserved.",
+        rationale="Rendered as a family-story supplement.",
     )
     return rendered_entry, audit_row
 

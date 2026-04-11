@@ -52,7 +52,6 @@ area.
     - `entry_ids`
     - `absorbed_entry_ids`
     - `preamble`
-    - optional `source_note`
 
 ## Observed Shape On 2026-04-10
 
@@ -106,7 +105,7 @@ bundle contract and uses the registry file for only the extra wrapper metadata:
 
 - where the supplement card appears in the family-story run
 - which bundle entry ids are reader-facing versus absorbed
-- the short provenance preamble and source-note copy
+- the short contextual preamble shown above the supplement body
 - the original PDF attachment path
 
 ## HTML Contract Assumptions

@@ -36,6 +36,9 @@ responsiveness.
      - `DREAMHOST_SITE_PATH`
      - optionally `DREAMHOST_DEPLOY_SOURCE_DIR`
    - Confirm the deploy source directory exists and contains `index.html`.
+   - If the deploy source is `build/family-site/`, remember that `_internal/`
+     is treated as a local maintenance surface and is intentionally excluded
+     from the published payload.
 
 2. **Upload**
    - Run:

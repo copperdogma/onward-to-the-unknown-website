@@ -23,3 +23,5 @@ Dad sold the farm to Lionel in 1976 and moved into Delmas where they retired and
 Dad was a good, kind hearted man, and even though he had a simple life, he enjoyed it to the fullest. He never complained, even during this last few days on earth.
 
 Now that he is no longer with us, he was and is sadly missed by his wife, children, as well as his numerous friends. He was a tough man and he fought every battle using tooth and nail.
+
+ANTOINETTE BEAUDOIN
