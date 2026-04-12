@@ -1,4 +1,4 @@
-# Runbook: ElevenLabs Audiobook Script Handoff
+# Runbook: ElevenLabs Audiobook Script And Asset Handoff
 
 This repo prepares the Markdown script corpus for the *Onward to the Unknown*
 audiobook. The actual ElevenLabs upload and generation step is manual and
@@ -22,6 +22,38 @@ image captions, HTML tables, and headings that only introduce omitted tables.
 `20-rolland-alain-memoir-family-story.md` is the memoir supplement chapter, and
 `21-i-wish.md` intentionally stops after the poem and attribution, before the
 visual appendix that follows in `chapter-024`.
+
+## Current Asset Surface
+
+- Canonical audiobook manifest: `audiobook/manifest.json`
+- Current MP3 directory: `audiobook/ElevenLabs_Onward_to_the_Unknown/`
+- Current track count in repo truth: `21`
+- Current merged full-audiobook output path:
+  `audiobook/ElevenLabs_Onward_to_the_Unknown/full-audiobook.mp3`
+  as a local generated artifact
+- Current site build entry point: `build/family-site/audiobook.html` after
+  `make build-family-site`
+
+## Build The Merged Full Audiobook
+
+```bash
+make build-full-audiobook
+```
+
+This requires `ffmpeg` on `PATH`.
+
+This reads `audiobook/manifest.json`, concatenates the ordered chapter track
+set, and inserts the manifest-configured silence gap between tracks.
+
+The merged `full-audiobook.mp3` is intentionally treated as generated local
+output, not tracked repo source. Rebuild it before a local site build or deploy
+prep when you want the published bundle to include the full-book audio file.
+
+If you intentionally want to rebuild and overwrite the merged file:
+
+```bash
+make build-full-audiobook FORCE=1
+```
 
 ## Build The Source-Derived Chapters
 
@@ -78,12 +110,13 @@ such as:
 - `Pichette`
 - `LaClare`
 
-If audiobook assets later become repo truth, record:
+The audio files are now repo truth under
+`audiobook/ElevenLabs_Onward_to_the_Unknown/`, and the site build reads
+`audiobook/manifest.json` to publish the current on-site listening surface.
+
+Still record when known:
 
 - the chosen voice/model/settings
 - any pronunciation dictionary decisions worth preserving
-- where the audio files or URLs live
-
-At that point, update the related truth surfaces, including
-`tests/fixtures/formats/_coverage-matrix.json`, if the audio has become a real
-published companion surface rather than a local-only experiment.
+- any external URLs or distribution lanes if the audiobook is later published
+  off-site

@@ -73,6 +73,10 @@ supplements into the `Family Stories` run:
   preamble and the main reading action, and defer raw imported HTML, original
   PDF links, and similar provenance/process affordances until a dedicated
   archive-copy surface or explicitly relevant page-level attachment exists.
+- When the repo owns reviewed audiobook MP3 files, the first listening surface
+  should stay simple: add a dedicated audiobook page plus a page-level
+  listening panel on matching chapters or supplements, using native browser
+  audio controls and an explicit download link instead of a custom player.
 - Provenance and omission-audit artifacts remain internal maintenance surfaces,
   with the checked-in snapshot living at `docs/omission-audit.json`.
 - `docs/omission-audit.json` is the checked-in proof that every manifest entry
@@ -91,7 +95,8 @@ supplements into the `Family Stories` run:
 - Rich front matter redesign beyond whole-entry reachability
 - Rich standalone image-page redesign beyond whole-entry reachability
 - Final full-book information-architecture polish
-- Audio, podcasts, and companion-media embeds
+- Podcast, video, and richer companion-media embeds beyond the first on-site
+  audiobook surface
 - A generalized public supplement gallery beyond the bounded memoir wrapper
 - Breaking family pages into smaller fragments
 - Any claim that this is the final visual language for the entire site

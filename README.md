@@ -40,6 +40,7 @@ make test
 make lint
 make build-family-site
 make build-audiobook-script
+make build-full-audiobook
 make refresh-omission-audit
 make preview-family-site
 make deploy-static
@@ -80,10 +81,19 @@ Current local build surface:
 
 - Input contract: `docs/input-contract.md`
 - Omission audit snapshot: `docs/omission-audit.json`
+- Audiobook asset manifest: `audiobook/manifest.json`
+- ElevenLabs audiobook MP3 set: `audiobook/ElevenLabs_Onward_to_the_Unknown/`
+- Full merged audiobook build: `python scripts/build_full_audiobook.py`
+  (or `make build-full-audiobook`); requires `ffmpeg` on `PATH`
 - Audiobook script corpus: `audiobook/script/`
 - Presentation decisions: `docs/presentation-decisions.md`
 - Local whole-book reading-surface build: `python scripts/build_family_site.py`
   (or `make build-family-site`)
+- Whole-book audiobook page output: `build/family-site/audiobook.html`
+  when `audiobook/manifest.json` is present
+- Full merged audiobook output:
+  `audiobook/ElevenLabs_Onward_to_the_Unknown/full-audiobook.mp3`
+  as a local generated artifact (not tracked in git)
 - Audiobook script build: `python scripts/build_audiobook_script.py`
   (or `make build-audiobook-script`)
 - Default local output: `build/family-site/`

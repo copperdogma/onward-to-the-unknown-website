@@ -17,6 +17,9 @@ SUPPLEMENT_REGISTRY_PATH = REPO_ROOT / "input" / "doc-web-html" / "family-story-
 DEFAULT_FAMILY_ENTRY_IDS = frozenset(f"chapter-{number:03d}" for number in range(9, 24))
 DEFAULT_OUTPUT_DIR = Path("build/family-site")
 DEFAULT_SITE_TITLE = "Onward to the Unknown"
+DEFAULT_AUDIOBOOK_MANIFEST_PATH = REPO_ROOT / "audiobook" / "manifest.json"
+DEFAULT_AUDIOBOOK_PAGE_PATH = "audiobook.html"
+AUDIOBOOK_PUBLIC_ROOT = "audiobook"
 SOURCE_ENV_KEYS = ("ONWARD_INPUT_SOURCE_DIR", "DREAMHOST_DEPLOY_SOURCE_DIR")
 ARTICLE_PATTERN = re.compile(r"<article>(.*?)</article>", re.DOTALL)
 TAG_PATTERN = re.compile(r"<[^>]+>")
@@ -68,6 +71,22 @@ CHAPTER_024_PHOTO_TITLES = {
 MERGED_ENTRY_TARGETS = {
     "page-002": "page-001",
 }
+HOME_ICON_SVG = (
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
+    '<path d="M3.75 10.5 12 3.75l8.25 6.75v9a.75.75 0 0 1-.75.75H14.25V15a.75.75 0 0 0-.75-.75h-3A.75.75 0 0 0 9.75 15v5.25H4.5a.75.75 0 0 1-.75-.75v-9Z" fill="currentColor"/>'
+    "</svg>"
+)
+BOOK_ICON_SVG = (
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
+    '<path d="M6.75 4.5A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25h10.5a.75.75 0 0 0 .75-.75V6.75A2.25 2.25 0 0 0 15.75 4.5H6.75Zm0 1.5h9a.75.75 0 0 1 .75.75v9.818a2.24 2.24 0 0 0-.75-.123h-9A.75.75 0 0 1 6 15.75v-9A.75.75 0 0 1 6.75 6Zm0 11.95h9c.26 0 .515.043.75.123v.177h-9.75a.75.75 0 1 1 0-1.5Z" fill="currentColor"/>'
+    "</svg>"
+)
+AUDIOBOOK_ICON_SVG = (
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
+    '<path d="M12 4.5a6.75 6.75 0 0 0-6.75 6.75v4.5a2.25 2.25 0 0 0 2.25 2.25h.75a.75.75 0 0 0 .75-.75v-4.5a.75.75 0 0 0-.75-.75H6.75v-.75a5.25 5.25 0 1 1 10.5 0V12h-1.5a.75.75 0 0 0-.75.75v4.5a.75.75 0 0 0 .75.75h.75A2.25 2.25 0 0 0 18.75 15.75v-4.5A6.75 6.75 0 0 0 12 4.5Z" fill="currentColor"/>'
+    '<path d="M9.75 18.75a.75.75 0 0 0 0 1.5h4.5a.75.75 0 0 0 0-1.5h-4.5Z" fill="currentColor"/>'
+    "</svg>"
+)
 
 SITE_STYLESHEET = dedent(
     """
@@ -149,6 +168,15 @@ SITE_STYLESHEET = dedent(
       margin: 0;
     }
 
+    .site-title-link {
+      text-decoration: none;
+    }
+
+    .site-title-link:hover,
+    .site-title-link:focus-visible {
+      text-decoration: underline;
+    }
+
     .section-title {
       font-size: clamp(1.4rem, 3vw, 1.9rem);
       margin: 0;
@@ -185,6 +213,10 @@ SITE_STYLESHEET = dedent(
       max-width: 40rem;
     }
 
+    .home-hero h1 {
+      max-width: none;
+    }
+
     .jump-row {
       display: flex;
       flex-wrap: wrap;
@@ -202,6 +234,60 @@ SITE_STYLESHEET = dedent(
 
     .section-header {
       margin-bottom: 1rem;
+    }
+
+    .audio-kicker {
+      margin: 0 0 0.45rem;
+      font-family: var(--ui-font);
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-strong);
+    }
+
+    .audio-summary,
+    .audio-note {
+      max-width: 48rem;
+      margin: 0 0 1rem;
+    }
+
+    .audio-note {
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .audio-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .audio-actions .nav-button,
+    .audio-actions .nav-placeholder {
+      flex: 1 1 12rem;
+    }
+
+    .audio-player {
+      width: 100%;
+      margin-top: 0.55rem;
+    }
+
+    .entry-audio-panel,
+    .audio-track-card {
+      padding: 1.3rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .audio-hero,
+    .audiobook-overview {
+      margin-bottom: 1.5rem;
+    }
+
+    .audio-track-grid {
+      display: grid;
+      gap: 1rem;
     }
 
     .story-grid {
@@ -299,9 +385,38 @@ SITE_STYLESHEET = dedent(
       background: rgba(255, 255, 255, 0.72);
     }
 
+    .nav-button-content {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      min-width: 0;
+    }
+
+    .nav-button-icon {
+      width: 1.1rem;
+      height: 1.1rem;
+      flex: 0 0 auto;
+    }
+
+    .nav-button-label {
+      min-width: 0;
+    }
+
     .nav-placeholder {
       color: var(--muted);
       background: rgba(255, 255, 255, 0.4);
+    }
+
+    .home-button {
+      flex: 0 0 auto;
+      width: var(--hit-target);
+      padding: 0;
+    }
+
+    .home-button svg {
+      width: 1.35rem;
+      height: 1.35rem;
     }
 
     .article-card {
@@ -852,6 +967,36 @@ class BuildResult:
     omission_audit_path: Path
 
 
+@dataclass(frozen=True)
+class AudiobookTrack:
+    track_number: int
+    title: str
+    audio_source_path: Path
+    audio_output_path: str
+    script_source_path: Path
+    script_manifest_path: str
+    target_entry_id: str | None
+    notes: str | None
+
+
+@dataclass(frozen=True)
+class FullAudiobookAsset:
+    title: str
+    audio_source_path: Path
+    audio_output_path: str
+    silence_between_tracks_seconds: float
+    notes: str | None
+    is_available: bool
+
+
+@dataclass(frozen=True)
+class AudiobookCatalog:
+    title: str
+    manifest_path: Path
+    tracks: tuple[AudiobookTrack, ...]
+    full_audiobook: FullAudiobookAsset | None
+
+
 def bundle_entry_from_manifest(row: dict) -> BundleEntry:
     return BundleEntry(
         entry_id=row["entry_id"],
@@ -895,6 +1040,124 @@ def load_manifest(source_dir: Path) -> dict:
     if not manifest_path.exists():
         raise SystemExit(f"Missing manifest.json in source bundle: {source_dir}")
     return json.loads(manifest_path.read_text(encoding="utf-8"))
+
+
+def load_audiobook_catalog(manifest_path: Path | None = DEFAULT_AUDIOBOOK_MANIFEST_PATH) -> AudiobookCatalog | None:
+    if manifest_path is None:
+        return None
+
+    resolved_manifest_path = Path(manifest_path).expanduser().resolve()
+    if not resolved_manifest_path.exists():
+        return None
+
+    payload = json.loads(resolved_manifest_path.read_text(encoding="utf-8"))
+    if payload.get("schema_version") != "onward_audiobook_manifest_v1":
+        raise SystemExit("Audiobook manifest must use schema_version `onward_audiobook_manifest_v1`.")
+
+    title = payload.get("title")
+    if not isinstance(title, str) or not title.strip():
+        raise SystemExit("Audiobook manifest requires a non-empty `title` string.")
+
+    full_audiobook_payload = payload.get("full_audiobook")
+    full_audiobook: FullAudiobookAsset | None = None
+    if full_audiobook_payload is not None:
+        if not isinstance(full_audiobook_payload, dict):
+            raise SystemExit("Audiobook manifest `full_audiobook` must be an object when present.")
+        full_title = full_audiobook_payload.get("title")
+        full_audio_path = full_audiobook_payload.get("audio_path")
+        full_silence_seconds = full_audiobook_payload.get("silence_between_tracks_seconds", 4)
+        full_notes = full_audiobook_payload.get("notes")
+        if not isinstance(full_title, str) or not full_title.strip():
+            raise SystemExit("Audiobook manifest `full_audiobook.title` must be a non-empty string.")
+        if not isinstance(full_audio_path, str) or not full_audio_path.strip():
+            raise SystemExit("Audiobook manifest `full_audiobook.audio_path` must be a non-empty string.")
+        if not isinstance(full_silence_seconds, (int, float)) or float(full_silence_seconds) < 0:
+            raise SystemExit(
+                "Audiobook manifest `full_audiobook.silence_between_tracks_seconds` must be a number >= 0."
+            )
+        if full_notes is not None and not isinstance(full_notes, str):
+            raise SystemExit("Audiobook manifest `full_audiobook.notes` must be a string when present.")
+        resolved_full_audio_path = (resolved_manifest_path.parent / full_audio_path).resolve()
+        full_audiobook = FullAudiobookAsset(
+            title=full_title.strip(),
+            audio_source_path=resolved_full_audio_path,
+            audio_output_path=f"{AUDIOBOOK_PUBLIC_ROOT}/{Path(full_audio_path).as_posix()}",
+            silence_between_tracks_seconds=float(full_silence_seconds),
+            notes=full_notes.strip() if isinstance(full_notes, str) and full_notes.strip() else None,
+            is_available=resolved_full_audio_path.exists(),
+        )
+
+    tracks_payload = payload.get("tracks")
+    if not isinstance(tracks_payload, list) or not tracks_payload:
+        raise SystemExit("Audiobook manifest requires a non-empty `tracks` array.")
+
+    tracks: list[AudiobookTrack] = []
+    seen_track_numbers: set[int] = set()
+    seen_target_entry_ids: set[str] = set()
+
+    for raw_track in tracks_payload:
+        if not isinstance(raw_track, dict):
+            raise SystemExit("Every audiobook manifest track must be an object.")
+
+        track_number = raw_track.get("track_number")
+        title_value = raw_track.get("title")
+        audio_path = raw_track.get("audio_path")
+        script_path = raw_track.get("script_path")
+        target_entry_id = raw_track.get("target_entry_id")
+        notes = raw_track.get("notes")
+
+        if not isinstance(track_number, int) or track_number < 1:
+            raise SystemExit("Audiobook tracks require an integer `track_number` greater than 0.")
+        if track_number in seen_track_numbers:
+            raise SystemExit(f"Duplicate audiobook track number: {track_number}")
+        if not isinstance(title_value, str) or not title_value.strip():
+            raise SystemExit(f"Audiobook track {track_number} requires a non-empty `title`.")
+        if not isinstance(audio_path, str) or not audio_path.strip():
+            raise SystemExit(f"Audiobook track {track_number} requires a non-empty `audio_path`.")
+        if not isinstance(script_path, str) or not script_path.strip():
+            raise SystemExit(f"Audiobook track {track_number} requires a non-empty `script_path`.")
+        if target_entry_id is not None and not isinstance(target_entry_id, str):
+            raise SystemExit(f"Audiobook track {track_number} has an invalid `target_entry_id`.")
+        if notes is not None and not isinstance(notes, str):
+            raise SystemExit(f"Audiobook track {track_number} has an invalid `notes` value.")
+
+        resolved_audio_path = (resolved_manifest_path.parent / audio_path).resolve()
+        resolved_script_path = (resolved_manifest_path.parent / script_path).resolve()
+        if not resolved_audio_path.exists():
+            raise SystemExit(f"Audiobook audio file not found for track {track_number}: {resolved_audio_path}")
+        if not resolved_script_path.exists():
+            raise SystemExit(f"Audiobook script file not found for track {track_number}: {resolved_script_path}")
+
+        normalized_target_entry_id = target_entry_id.strip() if isinstance(target_entry_id, str) else None
+        if normalized_target_entry_id:
+            if normalized_target_entry_id in seen_target_entry_ids:
+                raise SystemExit(f"Duplicate audiobook target_entry_id: {normalized_target_entry_id}")
+            seen_target_entry_ids.add(normalized_target_entry_id)
+
+        seen_track_numbers.add(track_number)
+        tracks.append(
+            AudiobookTrack(
+                track_number=track_number,
+                title=title_value.strip(),
+                audio_source_path=resolved_audio_path,
+                audio_output_path=f"{AUDIOBOOK_PUBLIC_ROOT}/{Path(audio_path).as_posix()}",
+                script_source_path=resolved_script_path,
+                script_manifest_path=Path(script_path).as_posix(),
+                target_entry_id=normalized_target_entry_id or None,
+                notes=notes.strip() if isinstance(notes, str) and notes.strip() else None,
+            )
+        )
+
+    ordered_tracks = sorted(tracks, key=lambda track: track.track_number)
+    if [track.track_number for track in ordered_tracks] != [track.track_number for track in tracks]:
+        raise SystemExit("Audiobook manifest tracks must already be listed in listening order.")
+
+    return AudiobookCatalog(
+        title=title.strip(),
+        manifest_path=resolved_manifest_path,
+        tracks=tuple(ordered_tracks),
+        full_audiobook=full_audiobook,
+    )
 
 
 def extract_article_html(document_text: str, source_path: Path) -> str:
@@ -1476,6 +1739,17 @@ def repo_relative_or_abs(path: Path) -> str:
         return str(path.resolve())
 
 
+def copy_audiobook_public_assets(catalog: AudiobookCatalog, output_dir: Path) -> None:
+    for track in catalog.tracks:
+        destination_path = output_dir / track.audio_output_path
+        destination_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(track.audio_source_path, destination_path)
+    if catalog.full_audiobook and catalog.full_audiobook.is_available:
+        destination_path = output_dir / catalog.full_audiobook.audio_output_path
+        destination_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(catalog.full_audiobook.audio_source_path, destination_path)
+
+
 def load_family_story_supplements(source_dir: Path) -> list[FamilyStorySupplement]:
     registry_path = source_dir.parent / SUPPLEMENT_REGISTRY_PATH.name
     if not registry_path.exists():
@@ -1992,33 +2266,213 @@ def render_index_section(group: EntryGroup, rendered_entries: list[RenderedEntry
     )
 
 
+def format_track_label(track: AudiobookTrack) -> str:
+    return f"Track {track.track_number:02d}"
+
+
+def track_fragment_id(track: AudiobookTrack) -> str:
+    return f"track-{track.track_number:02d}"
+
+
+def render_action_row(links: list[str]) -> str:
+    if not links:
+        return ""
+    return '<div class="audio-actions">' + "".join(links) + "</div>"
+
+
+def render_audio_player(track: AudiobookTrack) -> str:
+    return dedent(
+        f"""\
+        <audio class="audio-player" controls preload="none">
+          <source src="{escape(track.audio_output_path)}" type="audio/mpeg">
+          <a href="{escape(track.audio_output_path)}" download>Download MP3</a>
+        </audio>
+        """
+    ).strip()
+
+
+def render_full_audiobook_player(full_audiobook: FullAudiobookAsset) -> str:
+    return dedent(
+        f"""\
+        <audio class="audio-player" controls preload="none">
+          <source src="{escape(full_audiobook.audio_output_path)}" type="audio/mpeg">
+          <a href="{escape(full_audiobook.audio_output_path)}" download>Download MP3</a>
+        </audio>
+        """
+    ).strip()
+
+
+def render_index_audiobook_panel(catalog: AudiobookCatalog) -> str:
+    track_count = len(catalog.tracks)
+    first_track = catalog.tracks[0]
+    action_links = [render_nav_link("Open Audiobook Player", DEFAULT_AUDIOBOOK_PAGE_PATH, primary=True)]
+    if catalog.full_audiobook and catalog.full_audiobook.is_available:
+        action_links.extend(
+            [
+                render_nav_link("Play Full Audiobook", f"{DEFAULT_AUDIOBOOK_PAGE_PATH}#full-audiobook"),
+                render_nav_link("Download Full Audiobook", catalog.full_audiobook.audio_output_path, download=True),
+            ]
+        )
+    else:
+        action_links.append(render_nav_link("Start with Preamble", f"{DEFAULT_AUDIOBOOK_PAGE_PATH}#{track_fragment_id(first_track)}"))
+    actions = render_action_row(action_links)
+    return dedent(
+        f"""\
+        <section class="panel section-panel audiobook-overview" id="audiobook">
+          <div class="section-header">
+            <p class="audio-kicker">Audiobook</p>
+            <h2 class="section-title">{escape(catalog.title)}</h2>
+          </div>
+          <p class="audio-summary">Listen chapter by chapter in your browser or download any MP3 for later. The current set includes {track_count} tracks, including the memoir supplement and closing poem.</p>
+          {actions}
+        </section>
+        """
+    ).strip()
+
+
+def render_entry_audiobook_panel(track: AudiobookTrack) -> str:
+    notes_html = f'<p class="audio-note">{escape(track.notes)}</p>' if track.notes else ""
+    actions = render_action_row(
+        [
+            render_nav_link("Open Full Audiobook", DEFAULT_AUDIOBOOK_PAGE_PATH, primary=True),
+            render_nav_link("Download MP3", track.audio_output_path, download=True),
+        ]
+    )
+    return dedent(
+        f"""\
+        <section class="panel entry-audio-panel" aria-labelledby="entry-audio-heading">
+          <p class="audio-kicker">{escape(format_track_label(track))}</p>
+          <h2 id="entry-audio-heading" class="section-title">Listen to this section</h2>
+          <p class="audio-summary">This page matches {escape(format_track_label(track).lower())} of the current audiobook.</p>
+          {notes_html}
+          {render_audio_player(track)}
+          {actions}
+        </section>
+        """
+    ).strip()
+
+
+def render_audiobook_track_card(
+    track: AudiobookTrack,
+    rendered_entries_by_id: dict[str, RenderedEntry],
+) -> str:
+    matching_entry = rendered_entries_by_id.get(track.target_entry_id or "")
+    notes_html = f'<p class="audio-note">{escape(track.notes)}</p>' if track.notes else ""
+    actions = [
+        render_nav_link("Download MP3", track.audio_output_path, download=True),
+    ]
+    if matching_entry:
+        actions.insert(0, render_nav_link("Read this section", matching_entry.entry.path, primary=True))
+
+    return dedent(
+        f"""\
+        <section class="panel audio-track-card" id="{escape(track_fragment_id(track))}">
+          <p class="audio-kicker">{escape(format_track_label(track))}</p>
+          <h2 class="section-title">{escape(track.title)}</h2>
+          {notes_html}
+          {render_audio_player(track)}
+          {render_action_row(actions)}
+        </section>
+        """
+    ).strip()
+
+
+def render_audiobook_page(
+    site_title: str,
+    catalog: AudiobookCatalog,
+    rendered_entries: list[RenderedEntry],
+) -> str:
+    rendered_entries_by_id = {rendered.entry.entry_id: rendered for rendered in rendered_entries}
+    track_cards = "\n".join(
+        render_audiobook_track_card(track, rendered_entries_by_id)
+        for track in catalog.tracks
+    )
+    intro_links = [render_home_nav_link()]
+    if catalog.full_audiobook and catalog.full_audiobook.is_available:
+        intro_links.append(render_nav_link("Jump to Full Audiobook", "#full-audiobook"))
+    intro_links.append(render_nav_link("Start with Preamble", f"#{track_fragment_id(catalog.tracks[0])}"))
+    intro_actions = render_action_row(intro_links)
+    full_audiobook_html = ""
+    if catalog.full_audiobook and catalog.full_audiobook.is_available:
+        full_notes_html = (
+            f'<p class="audio-note">{escape(catalog.full_audiobook.notes)}</p>'
+            if catalog.full_audiobook.notes
+            else ""
+        )
+        full_audiobook_html = dedent(
+            f"""\
+            <section class="panel audio-track-card" id="full-audiobook">
+              <p class="audio-kicker">Full Audiobook</p>
+              <h2 class="section-title">{escape(catalog.full_audiobook.title)}</h2>
+              {full_notes_html}
+              {render_full_audiobook_player(catalog.full_audiobook)}
+              {render_action_row([render_nav_link("Download Full Audiobook", catalog.full_audiobook.audio_output_path, download=True)])}
+            </section>
+            """
+        ).strip()
+    body = dedent(
+        f"""\
+        <main class="site-shell">
+          <header class="site-header">
+            {render_site_title_link(site_title)}
+          </header>
+
+          <section class="hero audio-hero">
+            <p class="audio-kicker">Whole-book listening</p>
+            <h1>{escape(catalog.title)}</h1>
+            <p class="audio-summary">Press play on any track below or download the MP3 to listen on your phone, tablet, or computer. The tracks stay in the same order as the reviewed audiobook script set.</p>
+            {intro_actions}
+          </section>
+
+          <section class="audio-track-grid">
+            {full_audiobook_html}
+            {track_cards}
+          </section>
+        </main>
+        """
+    )
+    return render_layout(title=f"Audiobook — {site_title}", body_html=body)
+
+
 def render_index_page(
     site_title: str,
     manifest: dict,
     rendered_entries: list[RenderedEntry],
+    *,
+    audiobook_catalog: AudiobookCatalog | None = None,
 ) -> str:
     sections = {
         group.id: [rendered for rendered in rendered_entries if rendered.group.id == group.id]
         for group in ENTRY_GROUPS
     }
     section_links = " ".join(
-        render_nav_link(group.label, f"#{group.id}")
+        render_nav_link(group.label, f"#{group.id}", icon_svg=BOOK_ICON_SVG)
         for group in ENTRY_GROUPS
         if sections[group.id]
     )
+    if audiobook_catalog:
+        section_links = " ".join(
+            [
+                render_nav_link("Audiobook", "#audiobook", icon_svg=AUDIOBOOK_ICON_SVG),
+                section_links,
+            ]
+        ).strip()
     section_html = "\n".join(
         render_index_section(group, sections[group.id])
         for group in ENTRY_GROUPS
         if sections[group.id]
     )
+    audiobook_html = render_index_audiobook_panel(audiobook_catalog) if audiobook_catalog else ""
 
     body = dedent(
         f"""\
         <main class="site-shell">
-          <section class="hero">
+          <section class="hero home-hero">
             <h1>{escape(manifest["title"])}</h1>
             <div class="jump-row">{section_links}</div>
           </section>
+
+          {audiobook_html}
 
           {section_html}
         </main>
@@ -2027,11 +2481,48 @@ def render_index_page(
     return render_layout(title=site_title, body_html=body)
 
 
-def render_nav_link(label: str, href: str | None, *, primary: bool = False) -> str:
+def render_nav_link(
+    label: str,
+    href: str | None,
+    *,
+    primary: bool = False,
+    download: bool = False,
+    icon_svg: str | None = None,
+) -> str:
     if href is None:
         return f'<span class="nav-placeholder">{escape(label)}</span>'
     class_name = "nav-button primary" if primary else "nav-button secondary"
-    return f'<a class="{class_name}" href="{escape(href)}">{escape(label)}</a>'
+    download_attr = " download" if download else ""
+    label_html = escape(label)
+    if icon_svg:
+        label_html = (
+            f'<span class="nav-button-content">'
+            f'<span class="nav-button-icon">{icon_svg}</span>'
+            f'<span class="nav-button-label">{label_html}</span>'
+            f"</span>"
+        )
+    return f'<a class="{class_name}" href="{escape(href)}"{download_attr}>{label_html}</a>'
+
+
+def render_directional_nav_link(label: str, href: str | None, *, direction: str) -> str:
+    if direction == "back":
+        directional_label = f"← {label}"
+    elif direction == "next":
+        directional_label = f"{label} →"
+    else:
+        raise ValueError(f"Unsupported navigation direction: {direction}")
+    return render_nav_link(directional_label, href)
+
+
+def render_home_nav_link(href: str = "index.html") -> str:
+    return (
+        f'<a class="nav-button primary home-button" href="{escape(href)}" '
+        f'aria-label="Home" title="Home">{HOME_ICON_SVG}</a>'
+    )
+
+
+def render_site_title_link(site_title: str, href: str = "index.html") -> str:
+    return f'<a class="site-title site-title-link" href="{escape(href)}">{escape(site_title)}</a>'
 
 
 def entry_css_class(entry_id: str) -> str:
@@ -2043,23 +2534,29 @@ def render_entry_page(
     site_title: str,
     rendered_entries: list[RenderedEntry],
     index: int,
+    *,
+    audiobook_track_by_entry_id: dict[str, AudiobookTrack] | None = None,
 ) -> str:
     rendered = rendered_entries[index]
     previous_rendered = rendered_entries[index - 1] if index > 0 else None
     next_rendered = rendered_entries[index + 1] if index + 1 < len(rendered_entries) else None
+    audiobook_track = (audiobook_track_by_entry_id or {}).get(rendered.entry.entry_id)
+    audiobook_panel = render_entry_audiobook_panel(audiobook_track) if audiobook_track else ""
 
     body = dedent(
         f"""\
         <main class="site-shell">
           <header class="site-header">
-            <div class="site-title">{escape(site_title)}</div>
+            {render_site_title_link(site_title)}
           </header>
 
           <nav class="page-nav" aria-label="Book entry navigation">
-            {render_nav_link(previous_rendered.display_title if previous_rendered else "Previous", previous_rendered.entry.path if previous_rendered else None)}
-            {render_nav_link("Contents", "index.html", primary=True)}
-            {render_nav_link(next_rendered.display_title if next_rendered else "Next", next_rendered.entry.path if next_rendered else None)}
+            {render_directional_nav_link(previous_rendered.display_title if previous_rendered else "Previous", previous_rendered.entry.path if previous_rendered else None, direction="back")}
+            {render_home_nav_link()}
+            {render_directional_nav_link(next_rendered.display_title if next_rendered else "Next", next_rendered.entry.path if next_rendered else None, direction="next")}
           </nav>
+
+          {audiobook_panel}
 
           <article class="article-card {entry_css_class(rendered.entry.entry_id)}">
             {rendered.article_html}
@@ -2148,6 +2645,7 @@ def build_family_site(
     *,
     entry_ids: list[str] | None = None,
     site_title: str = DEFAULT_SITE_TITLE,
+    audiobook_manifest_path: Path | None = DEFAULT_AUDIOBOOK_MANIFEST_PATH,
 ) -> BuildResult:
     manifest = load_manifest(source_dir)
     all_entries = [bundle_entry_from_manifest(row) for row in manifest.get("entries", [])]
@@ -2203,6 +2701,32 @@ def build_family_site(
         skipped_entry_ids=skipped_entry_ids,
         absorbed_entry_output_paths=absorbed_entry_output_map,
     )
+    audiobook_catalog = load_audiobook_catalog(audiobook_manifest_path)
+    audiobook_track_by_entry_id: dict[str, AudiobookTrack] = {}
+    if audiobook_catalog:
+        rendered_entry_ids = {rendered.entry.entry_id for rendered in rendered_entries}
+        missing_target_entry_ids = sorted(
+            {
+                track.target_entry_id
+                for track in audiobook_catalog.tracks
+                if track.target_entry_id and track.target_entry_id not in rendered_entry_ids
+            }
+        )
+        if missing_target_entry_ids:
+            raise SystemExit(
+                "Audiobook manifest target_entry_id value(s) do not match the rendered site: "
+                + ", ".join(missing_target_entry_ids)
+            )
+        audiobook_track_by_entry_id = {
+            track.target_entry_id: track
+            for track in audiobook_catalog.tracks
+            if track.target_entry_id
+        }
+        copy_audiobook_public_assets(audiobook_catalog, output_dir)
+        write_text(
+            internal_dir / "audiobook" / "manifest.json",
+            audiobook_catalog.manifest_path.read_text(encoding="utf-8"),
+        )
     supplement_audit_rows = [audit_row for _supplement, _rendered_entry, audit_row in supplement_rendered_rows]
     omission_audit_path = internal_dir / "omission-audit.json"
 
@@ -2221,6 +2745,17 @@ def build_family_site(
                 site_title=site_title,
                 rendered_entries=rendered_entries,
                 index=index,
+                audiobook_track_by_entry_id=audiobook_track_by_entry_id,
+            ),
+        )
+
+    if audiobook_catalog:
+        write_text(
+            output_dir / DEFAULT_AUDIOBOOK_PAGE_PATH,
+            render_audiobook_page(
+                site_title=site_title,
+                catalog=audiobook_catalog,
+                rendered_entries=rendered_entries,
             ),
         )
 
@@ -2230,6 +2765,7 @@ def build_family_site(
             site_title=site_title,
             manifest=manifest,
             rendered_entries=rendered_entries,
+            audiobook_catalog=audiobook_catalog,
         ),
     )
 

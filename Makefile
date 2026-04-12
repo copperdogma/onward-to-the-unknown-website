@@ -2,8 +2,9 @@ PYTHON ?= $(shell command -v python 2>/dev/null || command -v python3 2>/dev/nul
 FAMILY_SITE_OUTPUT ?= build/family-site
 FAMILY_SITE_PORT ?= 4173
 AUDIOBOOK_SCRIPT_OUTPUT ?= audiobook/script
+FULL_AUDIOBOOK_MANIFEST ?= audiobook/manifest.json
 
-.PHONY: skills-sync skills-check methodology-compile methodology-check deploy-static test lint build-family-site build-audiobook-script preview-family-site refresh-omission-audit doc-web-contract doc-web-run-onward doc-web-import-run doc-web-import-bundle
+.PHONY: skills-sync skills-check methodology-compile methodology-check deploy-static test lint build-family-site build-audiobook-script build-full-audiobook preview-family-site refresh-omission-audit doc-web-contract doc-web-run-onward doc-web-import-run doc-web-import-bundle
 
 skills-sync:
 	./scripts/sync-agent-skills.sh
@@ -36,6 +37,12 @@ build-audiobook-script:
 		$(if $(SOURCE),--source "$(SOURCE)",) \
 		$(if $(FORCE),--force,) \
 		--output "$(AUDIOBOOK_SCRIPT_OUTPUT)"
+
+build-full-audiobook:
+	$(PYTHON) scripts/build_full_audiobook.py \
+		--manifest "$(FULL_AUDIOBOOK_MANIFEST)" \
+		$(if $(OUTPUT),--output "$(OUTPUT)",) \
+		$(if $(FORCE),--force,)
 
 preview-family-site:
 	$(PYTHON) -m http.server "$(FAMILY_SITE_PORT)" --directory "$(FAMILY_SITE_OUTPUT)"

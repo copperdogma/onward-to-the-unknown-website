@@ -77,7 +77,8 @@ the real environment changes.
     SFTP to `/home/onward_user/onward.copper-dog.com`
   - when the source is the generated whole-book shell at `build/family-site/`,
     the deploy helper excludes `_internal/` maintenance artifacts from the
-    published payload
+    published payload and will publish any generated `audiobook/` MP3 assets
+    plus `audiobook.html`
   - the script keeps a remote `.deploy-manifest.json` so later deploys can
     remove paths that disappeared from the source bundle
   - the repo-local `/deploy` skill wraps that command and requires public

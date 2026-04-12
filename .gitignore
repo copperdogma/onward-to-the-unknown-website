@@ -10,4 +10,5 @@ dist/
 build/
 .runtime/
 input/Onward to the Unknown.pdf
+audiobook/ElevenLabs_Onward_to_the_Unknown/full-audiobook.mp3
 .env

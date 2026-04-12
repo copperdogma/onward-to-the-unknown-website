@@ -92,10 +92,10 @@ download the audiobook without confusion, paywalls, or unnecessary accounts.
 - **Pure code**: Not relevant for the scout itself except to inspect current
   site constraints.
 - **Repo constraints / prior decisions**: The repo has a static DreamHost
-  deploy path, a thin whole-book reading surface, and no audio player or
-  distribution runbook yet. Presentation decisions explicitly defer audio
-  companion embeds, and the user has decided this lane is for family use with
-  no charging.
+  deploy path, a thin whole-book reading surface, and a first on-site
+  audiobook page plus page-level listening panels. The remaining gap is the
+  off-site lane decision and the dated primary-source comparison behind it.
+  The user has decided this lane is for family use with no charging.
 - **Existing patterns to reuse**: Use the scout index, infrastructure truth,
   and current whole-book surface as the planning substrate. Story 003 owns
   generation, not distribution.
@@ -165,13 +165,13 @@ N/A
 - **Owning module / area**: Scout documentation, listening-surface planning,
   and infrastructure-aware delivery guidance.
 - **Methodology reality**: `spec:3` through `spec:7` are `partial`; the
-  whole-book site exists, but audiobook surfaces remain `planned` and no
-  publishing lane has been chosen.
+  whole-book site exists, the first on-site audiobook surfaces are now
+  `partial`, and no off-site publishing lane has been chosen.
 - **Substrate evidence**: `docs/infrastructure.md` documents a static DreamHost
-  path, `docs/presentation-decisions.md` explicitly defers audio embeds, and
-  the coverage matrix still marks chapter/full-book audiobook surfaces as
-  planned. User direction in this thread narrows the target to family-first,
-  no-charge delivery.
+  path, `docs/presentation-decisions.md` now records the first on-site
+  audiobook pattern, and the coverage matrix now marks chapter/full-book
+  audiobook surfaces as `partial`. User direction in this thread narrows the
+  target to family-first, no-charge delivery.
 - **Data contracts / schemas**: The likely follow-on need is companion-media
   metadata for player labels, download links, and off-site references, but this
   story should only define the requirement matrix, not commit a schema yet.
@@ -243,3 +243,9 @@ scout to family-first, no-charge delivery with browser/download simplicity as
 the default evaluation frame, evidence: user direction in this thread, next
 step: compare the simplest on-site family listening flow against free off-site
 lanes.
+20260411-1828 — action: recorded related implementation progress, result:
+Story 011 now owns the first on-site audiobook page and chapter-level listening
+panels, evidence: repo-local `audiobook/manifest.json`, builder/test updates,
+and coverage rows moving from `planned` to `partial`, next step: keep this
+story focused on dated off-site distribution research and family-friendly link
+copy instead of reopening the already-started on-site build slice.

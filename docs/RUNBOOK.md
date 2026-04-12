@@ -14,6 +14,7 @@ make test
 make lint
 make build-family-site
 make build-audiobook-script
+make build-full-audiobook
 make refresh-omission-audit
 make deploy-static
 make doc-web-contract
@@ -29,6 +30,7 @@ make doc-web-contract
 - the current input-bundle contract is documented in `docs/input-contract.md`
 - the current whole-book omission-audit snapshot lives at
   `docs/omission-audit.json`
+- the current audiobook asset manifest lives at `audiobook/manifest.json`
 - the active presentation choices are documented in
   `docs/presentation-decisions.md`
 - UI product-truth scouting now lives in `docs/ui-scout.md` and
@@ -111,6 +113,59 @@ make build-audiobook-script FORCE=1
 The manual preamble lives at `audiobook/script/01-preamble.md` and is not
 touched by the generator. See `docs/runbooks/elevenlabs-audiobook.md` for the
 source-fidelity review and ElevenLabs handoff flow.
+
+## Full Audiobook Build
+
+Build the merged full-audiobook MP3 from the ordered manifest track set:
+
+```bash
+make build-full-audiobook
+```
+
+This command requires `ffmpeg` on `PATH`.
+
+By default this writes to the manifest-declared path:
+
+```text
+audiobook/ElevenLabs_Onward_to_the_Unknown/full-audiobook.mp3
+```
+
+Treat that file as a local generated artifact rather than tracked repo source.
+Rebuild it before `make build-family-site` or deploy prep whenever you want the
+full-book play/download controls included in the published site bundle.
+
+Pass `FORCE=1` if you intentionally want to rebuild and replace the current
+merged file:
+
+```bash
+make build-full-audiobook FORCE=1
+```
+
+## On-Site Audiobook Surface
+
+The whole-book site build now reads `audiobook/manifest.json` when it exists.
+That manifest points at the reviewed MP3 files under
+`audiobook/ElevenLabs_Onward_to_the_Unknown/` and lets the builder:
+
+- copy the referenced MP3 files into `build/family-site/audiobook/`
+- emit `build/family-site/audiobook.html`
+- expose the merged full-audiobook file for direct play and download when it
+  exists
+- add a page-level listening panel to matching chapters or supplements
+
+To refresh that surface locally:
+
+```bash
+make build-family-site
+```
+
+For a quick manual inspection after the build, check:
+
+- `build/family-site/index.html`
+- `build/family-site/audiobook.html`
+- a representative chapter page such as `build/family-site/chapter-009.html`
+- the memoir supplement page when present:
+  `build/family-site/rolland-alain-memoir-family-story.html`
 
 ## UI Scout Lane
 

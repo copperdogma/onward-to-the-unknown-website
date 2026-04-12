@@ -1,5 +1,20 @@
 # Changelog
 
+## [2026-04-11-09] - Shipped the first on-site audiobook surface (Story 011)
+
+### Added
+- Added a repo-owned audiobook manifest, dedicated audiobook page, chapter and
+  supplement listening panels, and a maintained merged full-audiobook build
+  command for the current static family-site surface.
+
+### Changed
+- Updated the whole-book builder, tests, runbooks, coverage matrix, and story
+  graph so on-site audiobook delivery is tracked as a real partial surface
+  rather than a planned-only lane.
+- Refined the shared site navigation with a home icon, clickable site title,
+  directional back/next cues, and icon-bearing landing-page jump buttons to
+  keep the companion-media entry points clearer for readers.
+
 ## [2026-04-11-08] - Kept supplement wrappers reader-facing
 
 ### Changed

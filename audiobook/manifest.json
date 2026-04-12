@@ -1,0 +1,159 @@
+{
+  "schema_version": "onward_audiobook_manifest_v1",
+  "title": "Onward to the Unknown Audiobook",
+  "full_audiobook": {
+    "title": "Full Audiobook",
+    "audio_path": "ElevenLabs_Onward_to_the_Unknown/full-audiobook.mp3",
+    "silence_between_tracks_seconds": 4,
+    "notes": "Merged from the reviewed chapter track set with fixed silence between tracks."
+  },
+  "tracks": [
+    {
+      "track_number": 1,
+      "title": "Preamble",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/01_Preamble.mp3",
+      "script_path": "script/01-preamble.md",
+      "notes": "Repo-authored introduction grounded in the opening and dedication material."
+    },
+    {
+      "track_number": 2,
+      "title": "The First L'Heureux's in Canada",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/02_The First L'Heureux's in Canada.mp3",
+      "script_path": "script/02-the-first-lheureuxs-in-canada.md",
+      "target_entry_id": "chapter-002"
+    },
+    {
+      "track_number": 3,
+      "title": "Mo\u00efse and Sophie",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/03_Mo\u00efse and Sophie.mp3",
+      "script_path": "script/03-moise-and-sophie.md",
+      "target_entry_id": "chapter-005"
+    },
+    {
+      "track_number": 4,
+      "title": "Memories",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/04_Memories.mp3",
+      "script_path": "script/04-memories.md",
+      "target_entry_id": "chapter-007"
+    },
+    {
+      "track_number": 5,
+      "title": "Alma Marie (L'Heureux) Alain",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/05_Alma Marie (L'Heureux) Alain.mp3",
+      "script_path": "script/05-alma-marie-lheureux-alain.md",
+      "target_entry_id": "chapter-009"
+    },
+    {
+      "track_number": 6,
+      "title": "Arthur L'Heureux",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/06_Arthur L'Heureux.mp3",
+      "script_path": "script/06-arthur-lheureux.md",
+      "target_entry_id": "chapter-010"
+    },
+    {
+      "track_number": 7,
+      "title": "Leonidas L'Heureux",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/07_Leonidas L'Heureux.mp3",
+      "script_path": "script/07-leonidas-lheureux.md",
+      "target_entry_id": "chapter-011"
+    },
+    {
+      "track_number": 8,
+      "title": "Josephine (L'Heureux) Alain",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/08_Josephine (L'Heureux) Alain.mp3",
+      "script_path": "script/08-josephine-lheureux-alain.md",
+      "target_entry_id": "chapter-012"
+    },
+    {
+      "track_number": 9,
+      "title": "Paul L'Heureux",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/09_Paul L'Heureux.mp3",
+      "script_path": "script/09-paul-lheureux.md",
+      "target_entry_id": "chapter-013"
+    },
+    {
+      "track_number": 10,
+      "title": "George L'Heureux",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/10_George L'Heureux.mp3",
+      "script_path": "script/10-george-lheureux.md",
+      "target_entry_id": "chapter-014"
+    },
+    {
+      "track_number": 11,
+      "title": "Joe (Joseph) L'Heureux",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/11_Joe (Joseph) L'Heureux.mp3",
+      "script_path": "script/11-joe-joseph-lheureux.md",
+      "target_entry_id": "chapter-015"
+    },
+    {
+      "track_number": 12,
+      "title": "Mathilda (L'Heureux) Devlin",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/12_Mathilda (L'Heureux) Devlin.mp3",
+      "script_path": "script/12-mathilda-lheureux-devlin.md",
+      "target_entry_id": "chapter-016"
+    },
+    {
+      "track_number": 13,
+      "title": "Marie-Louise (L'Heureux) LaClare",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/13_Marie-Louise (L'Heureux) LaClare.mp3",
+      "script_path": "script/13-marie-louise-lheureux-laclare.md",
+      "target_entry_id": "chapter-017"
+    },
+    {
+      "track_number": 14,
+      "title": "Roseanna (L'Heureux) Landreville",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/14_Roseanna (L'Heureux) Landreville.mp3",
+      "script_path": "script/14-roseanna-lheureux-landreville.md",
+      "target_entry_id": "chapter-018"
+    },
+    {
+      "track_number": 15,
+      "title": "Antoinette (L'Heureux) Richard",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/15_Antoinette (L'Heureux) Richard.mp3",
+      "script_path": "script/15-antoinette-lheureux-richard.md",
+      "target_entry_id": "chapter-019"
+    },
+    {
+      "track_number": 16,
+      "title": "Emilie (L'Heureux) Nolin",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/16_Emilie (L'Heureux) Nolin.mp3",
+      "script_path": "script/16-emilie-lheureux-nolin.md",
+      "target_entry_id": "chapter-020"
+    },
+    {
+      "track_number": 17,
+      "title": "Wilfrid L'Heureux",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/17_Wilfrid L'Heureux.mp3",
+      "script_path": "script/17-wilfrid-lheureux.md",
+      "target_entry_id": "chapter-021"
+    },
+    {
+      "track_number": 18,
+      "title": "Pierre L'Heureux",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/18_Pierre L'Heureux.mp3",
+      "script_path": "script/18-pierre-lheureux.md",
+      "target_entry_id": "chapter-022"
+    },
+    {
+      "track_number": 19,
+      "title": "Antoine L'Heureux",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/19_Antoine L'Heureux.mp3",
+      "script_path": "script/19-antoine-lheureux.md",
+      "target_entry_id": "chapter-023"
+    },
+    {
+      "track_number": 20,
+      "title": "Rolland Alain Memoir Family Story",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/20_Rolland Alain Memoir Family Story.mp3",
+      "script_path": "script/20-rolland-alain-memoir-family-story.md",
+      "target_entry_id": "supplement-rolland-alain-memoir"
+    },
+    {
+      "track_number": 21,
+      "title": "I Wish",
+      "audio_path": "ElevenLabs_Onward_to_the_Unknown/21_I Wish.mp3",
+      "script_path": "script/21-i-wish.md",
+      "target_entry_id": "chapter-024"
+    }
+  ]
+}

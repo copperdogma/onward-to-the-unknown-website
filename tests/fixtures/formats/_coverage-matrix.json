@@ -15,19 +15,19 @@
       "id": "chapter-audio",
       "label": "Chapter audiobook links",
       "kind": "companion-media",
-      "upstream": "curated external links",
-      "status": "planned",
+      "upstream": "repo-owned audiobook manifest and MP3 files under audiobook/",
+      "status": "partial",
       "target_surface": "chapter-level media metadata",
-      "notes": "Expected to attach to specific chapter pages."
+      "notes": "The local whole-book builder now maps reviewed MP3 tracks from `audiobook/manifest.json` onto matching chapter and supplement pages, but richer companion metadata and off-site distribution lanes still remain future work."
     },
     {
       "id": "full-book-audio",
       "label": "Full book audio",
       "kind": "companion-media",
-      "upstream": "curated external links",
-      "status": "planned",
+      "upstream": "repo-owned audiobook manifest and MP3 files under audiobook/",
+      "status": "partial",
       "target_surface": "global book companion surface",
-      "notes": "Whole-book listening option."
+      "notes": "The local builder now emits a dedicated `audiobook.html` page, publishes a merged full-audiobook MP3 when built from `audiobook/manifest.json`, and exposes direct browser play/download controls, but the off-site distribution lane is still unresolved."
     },
     {
       "id": "chapter-podcasts",
