@@ -20,3 +20,4 @@ Current priority: refine the existing whole-book reading surface into a site tha
 - **Draft** — `docs/stories/story-010-notebooklm-video-companions.md` — NotebookLM Whole-Book And Chapter Video Companions
 - **Done** — `docs/stories/story-011-first-on-site-audiobook-listening-surface.md` — First On-Site Audiobook Listening Surface
 - **Done** — `docs/stories/story-012-cross-page-shell-review-and-polish.md` — Cross-Page Shell Review And Polish
+- **Done** — `docs/stories/story-013-archive-source-library-and-download-links.md` — Archive Source Library And Download Links

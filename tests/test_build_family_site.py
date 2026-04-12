@@ -3,6 +3,7 @@ from __future__ import annotations
 from html import unescape
 import json
 from pathlib import Path
+import shutil
 
 from modules.build_family_site import (
     BundleEntry,
@@ -96,6 +97,11 @@ def test_build_family_site_emits_reader_facing_pages_and_internal_audit(tmp_path
 
     assert "Fixture Reading Surface" in landing_html
     assert '<section class="hero home-hero">' in landing_html
+    assert 'class="home-hero-grid"' in landing_html
+    assert "A family keepsake" in landing_html
+    assert "What you'll find here" in landing_html
+    assert "Book pages and chapters" in landing_html
+    assert "Take your time and follow the names, memories, and places that feel familiar to you." in landing_html
     assert "Opening Pages" in landing_html
     assert "Family Stories" in landing_html
     assert "Closing Archive" not in unescape(landing_html)
@@ -120,6 +126,9 @@ def test_build_family_site_emits_reader_facing_pages_and_internal_audit(tmp_path
     assert 'aria-label="Home"' in chapter_html
     assert 'class="site-title site-title-link" href="index.html"' in page_html
     assert 'class="site-title site-title-link" href="index.html"' in chapter_html
+    assert 'class="article-heading-row"' not in page_html
+    assert 'class="article-heading-row"' in chapter_one_html
+    assert 'class="article-heading-icon"' in chapter_html
     assert 'href="page-001.html">← Onward to the Unknown</a>' in chapter_one_html
     assert 'href="chapter-009.html"' in chapter_one_html
     assert "Alma Marie (L'Heureux) Alain →" in unescape(chapter_one_html)
@@ -132,9 +141,18 @@ def test_build_family_site_emits_reader_facing_pages_and_internal_audit(tmp_path
     assert "position: sticky;" in stylesheet
     assert ".recipe-callout" in stylesheet
     assert ".home-hero h1" in stylesheet
+    assert ".article-heading-row" in stylesheet
+    assert ".article-heading-icon" in stylesheet
+    assert ".home-hero-grid" in stylesheet
+    assert ".home-hero-aside" in stylesheet
+    assert ".home-feature-grid" in stylesheet
+    assert "grid-template-columns: repeat(2, minmax(0, 1fr));" in stylesheet
     assert "max-width: none;" in stylesheet
     assert ".audio-hero h1" in stylesheet
     assert "white-space: nowrap;" in stylesheet
+    assert ".kicker-row" in stylesheet
+    assert ".kicker-icon" in stylesheet
+    assert ".audio-runtime" in stylesheet
     assert ".nav-button-icon" in stylesheet
     assert ".nav-button-content" in stylesheet
     assert ".jump-row .nav-button-icon" in stylesheet
@@ -305,6 +323,7 @@ def test_build_family_site_surfaces_audiobook_page_and_entry_panel(tmp_path):
                 "audio_path": "tracks/01-preamble.mp3",
                 "script_path": "script/01-preamble.md",
                 "notes": "Opening orientation for the audiobook.",
+                "duration_seconds": 83,
             },
             {
                 "track_number": 5,
@@ -312,13 +331,14 @@ def test_build_family_site_surfaces_audiobook_page_and_entry_panel(tmp_path):
                 "audio_path": "tracks/05-alma-marie.mp3",
                 "script_path": "script/05-alma-marie-lheureux-alain.md",
                 "target_entry_id": "chapter-009",
+                "duration_seconds": 271,
             },
         ],
         full_audiobook={
             "title": "Full Audiobook",
             "audio_path": "tracks/full-audiobook.mp3",
             "silence_between_tracks_seconds": 4,
-            "notes": "Merged fixture audiobook.",
+            "duration_seconds": 354,
         },
     )
 
@@ -332,6 +352,7 @@ def test_build_family_site_surfaces_audiobook_page_and_entry_panel(tmp_path):
     landing_html = (output_dir / "index.html").read_text(encoding="utf-8")
     audiobook_html = (output_dir / "audiobook.html").read_text(encoding="utf-8")
     chapter_html = (output_dir / "chapter-009.html").read_text(encoding="utf-8")
+    stylesheet = (output_dir / "assets" / "family-site.css").read_text(encoding="utf-8")
 
     assert (output_dir / "audiobook.html").exists()
     assert (output_dir / "audiobook" / "tracks" / "01-preamble.mp3").exists()
@@ -342,22 +363,43 @@ def test_build_family_site_surfaces_audiobook_page_and_entry_panel(tmp_path):
     assert "Open Audiobook Player" in landing_html
     assert "Play Full Audiobook" in landing_html
     assert "Download Full Audiobook" in landing_html
+    assert 'class="home-feature-grid"' in landing_html
     assert landing_html.count('class="nav-button-icon"') == 3
     assert landing_html.count('class="section-title-icon"') == 3
     assert 'href="#audiobook"><span class="nav-button-content"><span class="nav-button-icon">' in landing_html
     assert '<h2 class="section-title"><span class="section-title-row"><span class="section-title-icon">' in landing_html
     assert 'class="site-title site-title-link" href="index.html"' in audiobook_html
     assert 'aria-label="Home"' not in audiobook_html
+    assert 'class="site-title-row"' not in audiobook_html
     assert 'id="full-audiobook"' in audiobook_html
     assert '<section class="hero audio-hero">' in audiobook_html
-    assert "Merged fixture audiobook." in audiobook_html
+    assert 'class="kicker-row"' in audiobook_html
+    assert 'class="kicker-icon"' in audiobook_html
+    assert "Jump to Full Audiobook" not in audiobook_html
+    assert "Start with Preamble" not in audiobook_html
+    assert "reviewed audiobook script set" not in audiobook_html
+    assert "Merged fixture audiobook." not in audiobook_html
     assert 'src="audiobook/tracks/full-audiobook.mp3"' in audiobook_html
     assert "Listen to this section" in chapter_html
     assert 'src="audiobook/tracks/05-alma-marie.mp3"' in chapter_html
     assert "Open Full Audiobook" in chapter_html
+    assert "Run time 1:23" in audiobook_html
+    assert "Run time 4:31" in audiobook_html
+    assert "Run time 5:54" in audiobook_html
+    assert 'class="article-heading-row"' in chapter_html
     assert "Opening orientation for the audiobook." in audiobook_html
     assert "Track 05" in audiobook_html
     assert 'href="chapter-009.html"' in audiobook_html
+    assert 'class="audio-track-copy"' in audiobook_html
+    assert 'href="chapter-009.html"><span class="nav-button-content"><span class="nav-button-icon">' in audiobook_html
+    assert 'download><span class="nav-button-content"><span class="nav-button-icon">' in audiobook_html
+    assert 'class="nav-button secondary" href="chapter-009.html"' in audiobook_html
+    assert 'class="nav-button primary" href="chapter-009.html"' not in audiobook_html
+    assert ".audio-track-copy" in stylesheet
+    assert ".audio-track-card .nav-button" in stylesheet
+    assert ".audio-track-card .nav-button-icon" in stylesheet
+    assert "grid-template-columns: 1fr;" in stylesheet
+    assert "grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 1.1fr) auto;" in stylesheet
 
 
 def test_merge_absorbed_article_html_skips_duplicate_cover_blocks():
@@ -590,12 +632,18 @@ def test_build_family_site_surfaces_family_story_supplement(tmp_path):
     supplement_bundle_dir = doc_web_root / "rolland-alain-memoir-r01"
     output_dir = tmp_path / "build" / "family-site"
     source_pdf = input_root / "Memoires of Rolland Alaln fron blrth 1913 to 71st year 1985.pdf"
+    book_pdf = input_root / "Onward to the Unknown.pdf"
+    directory_pdf = input_root / "L'HEUREUX FAMILY DIRECTORY June, 1987.pdf"
+    jackfish_guide = input_root / "Jackfish-Lake-Fishing-Guide.jpg"
 
     source_dir.mkdir(parents=True)
     (source_dir / "provenance").mkdir(parents=True)
     supplement_bundle_dir.mkdir(parents=True)
     (supplement_bundle_dir / "provenance").mkdir(parents=True)
     source_pdf.write_text("fixture memoir pdf", encoding="utf-8")
+    book_pdf.write_text("fixture book pdf", encoding="utf-8")
+    directory_pdf.write_text("fixture directory pdf", encoding="utf-8")
+    jackfish_guide.write_bytes(b"fixture image data")
 
     main_manifest = {
         "run_id": "fixture-run",
@@ -832,6 +880,7 @@ def test_build_family_site_surfaces_family_story_supplement(tmp_path):
     )
     landing_html = (output_dir / "index.html").read_text(encoding="utf-8")
     supplement_html = (output_dir / "rolland-alain-memoir-family-story.html").read_text(encoding="utf-8")
+    source_library_html = (output_dir / "archive-sources.html").read_text(encoding="utf-8")
     omission_audit = json.loads(result.omission_audit_path.read_text(encoding="utf-8"))
     supplement_provenance = json.loads(
         (output_dir / "_internal" / "provenance" / "entries" / "supplement-rolland-alain-memoir.json").read_text(
@@ -843,13 +892,38 @@ def test_build_family_site_surfaces_family_story_supplement(tmp_path):
             encoding="utf-8"
         )
     )
+    source_library_manifest = json.loads((output_dir / "_internal" / "source-library.json").read_text(encoding="utf-8"))
 
     assert "Rolland Alain Memoir Family Story" in landing_html
     assert 'href="rolland-alain-memoir-family-story.html"' in landing_html
+    assert 'href="archive-sources.html"' in landing_html
+    assert 'href="source-files/Onward%20to%20the%20Unknown.pdf"' in landing_html
+    assert "Open Book PDF" in landing_html
+    assert 'class="home-feature-grid"' in landing_html
+    assert "Open the book itself or browse the other family documents gathered here in one place." in landing_html
+    assert "published source files" not in landing_html
     assert "Note that this was not a story originally included in the Onward to the Unknown book." in supplement_html
     assert "Processed through the repo's bounded non-TOC scanned supplement lane." not in supplement_html
     assert "Open Imported HTML" not in supplement_html
-    assert "Download Original PDF" not in supplement_html
+    assert "Open Original PDF" in supplement_html
+    assert "Download Original PDF" in supplement_html
+    assert "Archive Sources" in source_library_html
+    assert "These are the original book and family documents gathered with the archive." in source_library_html
+    assert "current site build" not in source_library_html
+    assert "Back to Home" in source_library_html
+    assert "Back to Reading Surface" not in source_library_html
+    source_library_text = unescape(source_library_html)
+    assert "Onward to the Unknown" in source_library_text
+    assert "A complete scanned PDF of Onward to the Unknown, the reunion history book that anchors the website." in source_library_text
+    assert "Rolland Alain Memoir Family Story" in source_library_text
+    assert "Rolland Alain's 1985 memoir recounting his life from his 1913 birth through age 71." in source_library_text
+    assert "Jackfish Lake Fishing Guide" in source_library_text
+    assert "A hand-drawn map-style fishing guide to Jackfish Lake showing camps, landmarks, and points of interest." in source_library_text
+    assert "L'Heureux Family Directory June, 1987" in source_library_text
+    assert (
+        "These documents were found as photocopies inside one copy of Onward to the Unknown and relate to the reunion or the family history in some way."
+        in source_library_text
+    )
     assert "A missing middle leaf continues here." in supplement_html
     assert "<h2" in supplement_html
     assert "supplement-source-title" in supplement_html
@@ -858,17 +932,61 @@ def test_build_family_site_surfaces_family_story_supplement(tmp_path):
     assert not (output_dir / "supplements" / "rolland-alain-memoir" / "bundle").exists()
     assert not (output_dir / "supplements" / "rolland-alain-memoir" / "source.pdf").exists()
     assert not (output_dir / "supplements" / "rolland-alain-memoir" / "assets").exists()
+    assert (output_dir / "source-files" / "Onward to the Unknown.pdf").exists()
+    assert (output_dir / "source-files" / "Memoires of Rolland Alaln fron blrth 1913 to 71st year 1985.pdf").exists()
+    assert (output_dir / "source-files" / "L'HEUREUX FAMILY DIRECTORY June, 1987.pdf").exists()
+    assert (output_dir / "source-files" / "Jackfish-Lake-Fishing-Guide.jpg").exists()
     assert supplement_metadata["source_bundle_dir"].endswith("rolland-alain-memoir-r01")
     assert "public_bundle_index" not in supplement_metadata
     assert "public_source_pdf" not in supplement_metadata
     assert omission_audit["supplement_count"] == 1
     assert omission_audit["supplements"][0]["supplement_id"] == "rolland-alain-memoir"
     assert omission_audit["supplements"][0]["absorbed_entry_ids"] == ["page-001"]
+    assert omission_audit["source_library"]["published_count"] == 4
+    assert omission_audit["source_library"]["files"][0]["source_path"] == "input/Onward to the Unknown.pdf"
+    assert source_library_manifest["published_count"] == 4
+    assert source_library_manifest["featured_source"] == "input/Onward to the Unknown.pdf"
     assert [row["block_id"] for row in supplement_provenance] == [
         "blk-chapter-001-0001",
         "blk-chapter-001-0002",
         "blk-page-002-0001",
     ]
+
+
+def test_build_family_site_keeps_source_library_when_book_pdf_is_missing(tmp_path):
+    fixture_input_root = Path(__file__).resolve().parent / "fixtures" / "family_site_minimal" / "input"
+    input_root = tmp_path / "input"
+    shutil.copytree(fixture_input_root, input_root)
+    source_dir = input_root / "story206-onward-proof-r10"
+    output_dir = tmp_path / "family-site"
+    archive_pdf = input_root / "Founding of Doremey SK.pdf"
+    archive_pdf.write_text("fixture archive pdf", encoding="utf-8")
+
+    build_family_site(
+        source_dir=source_dir,
+        output_dir=output_dir,
+        site_title="Fixture Reading Surface",
+        audiobook_manifest_path=None,
+    )
+
+    landing_html = (output_dir / "index.html").read_text(encoding="utf-8")
+    source_library_html = (output_dir / "archive-sources.html").read_text(encoding="utf-8")
+    source_library_manifest = json.loads((output_dir / "_internal" / "source-library.json").read_text(encoding="utf-8"))
+
+    assert 'href="archive-sources.html"' in landing_html
+    assert "Open Book PDF" not in landing_html
+    assert 'class="home-feature-grid"' in landing_html
+    assert "The archive collection includes 1 item." in landing_html
+    source_library_text = unescape(source_library_html)
+    assert "Founding of Doremey SK" in source_library_text
+    assert "A complete scanned PDF of Onward to the Unknown, the reunion history book that anchors the website." not in source_library_text
+    assert (
+        "These documents were found as photocopies inside one copy of Onward to the Unknown and relate to the reunion or the family history in some way."
+        in source_library_html
+    )
+    assert "A scanned newspaper article in which an early resident recounts the founding of the village of Doremy, Saskatchewan." in source_library_html
+    assert (output_dir / "source-files" / "Founding of Doremey SK.pdf").exists()
+    assert source_library_manifest["featured_source"] is None
 
 
 def test_enhance_article_html_marks_genealogy_tables_and_rewrites_all_caps_heading():

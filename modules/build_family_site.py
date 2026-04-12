@@ -4,12 +4,14 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import unicodedata
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from html import escape, unescape
 from pathlib import Path
 from textwrap import dedent
+from urllib.parse import quote
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SOURCE_DIR = REPO_ROOT / "input" / "doc-web-html" / "story206-onward-proof-r10"
@@ -19,8 +21,11 @@ DEFAULT_OUTPUT_DIR = Path("build/family-site")
 DEFAULT_SITE_TITLE = "Onward to the Unknown"
 DEFAULT_AUDIOBOOK_MANIFEST_PATH = REPO_ROOT / "audiobook" / "manifest.json"
 DEFAULT_AUDIOBOOK_PAGE_PATH = "audiobook.html"
+DEFAULT_SOURCE_LIBRARY_PAGE_PATH = "archive-sources.html"
 AUDIOBOOK_PUBLIC_ROOT = "audiobook"
+SOURCE_LIBRARY_PUBLIC_ROOT = "source-files"
 SOURCE_ENV_KEYS = ("ONWARD_INPUT_SOURCE_DIR", "DREAMHOST_DEPLOY_SOURCE_DIR")
+FFPROBE_BIN = shutil.which("ffprobe")
 ARTICLE_PATTERN = re.compile(r"<article>(.*?)</article>", re.DOTALL)
 TAG_PATTERN = re.compile(r"<[^>]+>")
 WHITESPACE_PATTERN = re.compile(r"\s+")
@@ -55,6 +60,44 @@ SHORT_LABEL_MAX_LENGTH = 88
 TITLE_CASE_SMALL_WORDS = frozenset(
     {"a", "an", "and", "as", "at", "by", "for", "in", "of", "on", "or", "the", "to"}
 )
+PUBLISHABLE_SOURCE_SUFFIX_LABELS = {
+    ".pdf": "PDF document",
+    ".jpg": "Image scan",
+    ".jpeg": "Image scan",
+    ".png": "Image scan",
+}
+FEATURED_BOOK_SOURCE_FILENAME = "Onward to the Unknown.pdf"
+PHOTOCOPY_SECTION_NOTE = (
+    "These documents were found as photocopies inside one copy of Onward to the Unknown "
+    "and relate to the reunion or the family history in some way."
+)
+SPECIAL_SOURCE_TITLE_OVERRIDES = {
+    FEATURED_BOOK_SOURCE_FILENAME: "Onward to the Unknown",
+    "Memoires of Rolland Alaln fron blrth 1913 to 71st year 1985.pdf": "Rolland Alain Memoir Family Story",
+}
+SPECIAL_SOURCE_SUMMARY_OVERRIDES = {
+    FEATURED_BOOK_SOURCE_FILENAME: (
+        "A complete scanned PDF of Onward to the Unknown, the reunion history book that anchors the website."
+    ),
+    "Dictionnaire généalogique des familles du Québec 1983.pdf": (
+        "A Quebec genealogical dictionary used as a reference for French-Canadian family lines."
+    ),
+    "Founding of Doremey SK.pdf": (
+        "A scanned newspaper article in which an early resident recounts the founding of the village of Doremy, Saskatchewan."
+    ),
+    "L'HEUREUX FAMILY DIRECTORY June, 1987.pdf": (
+        "A June 1987 contact directory listing L'Heureux family households and addresses."
+    ),
+    "LE GRAND ARRANGEMENT DES ACADIENS AU QUÉBEC NOTES DE PETITE-HISTOIRE GÉNÉALOGIES FRANCE • ACADIE • QUÉBEC de 1625 à 1925.pdf": (
+        "A genealogical and local-history volume tracing Acadian families in France, Acadia, and Quebec from 1625 to 1925."
+    ),
+    "Memoires of Rolland Alaln fron blrth 1913 to 71st year 1985.pdf": (
+        "Rolland Alain's 1985 memoir recounting his life from his 1913 birth through age 71."
+    ),
+    "Jackfish-Lake-Fishing-Guide.jpg": (
+        "A hand-drawn map-style fishing guide to Jackfish Lake showing camps, landmarks, and points of interest."
+    ),
+}
 GENEALOGY_TABLE_HEADERS = ("NAME", "BORN", "MARRIED", "SPOUSE", "BOY", "GIRL", "DIED")
 FIGURE_EMBLEM_KEYWORDS = frozenset({"logo", "seal"})
 FIGURE_SIGNATURE_KEYWORDS = frozenset({"signature"})
@@ -85,6 +128,12 @@ AUDIOBOOK_ICON_SVG = (
     '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
     '<path d="M12 4.5a6.75 6.75 0 0 0-6.75 6.75v4.5a2.25 2.25 0 0 0 2.25 2.25h.75a.75.75 0 0 0 .75-.75v-4.5a.75.75 0 0 0-.75-.75H6.75v-.75a5.25 5.25 0 1 1 10.5 0V12h-1.5a.75.75 0 0 0-.75.75v4.5a.75.75 0 0 0 .75.75h.75A2.25 2.25 0 0 0 18.75 15.75v-4.5A6.75 6.75 0 0 0 12 4.5Z" fill="currentColor"/>'
     '<path d="M9.75 18.75a.75.75 0 0 0 0 1.5h4.5a.75.75 0 0 0 0-1.5h-4.5Z" fill="currentColor"/>'
+    "</svg>"
+)
+DOWNLOAD_ICON_SVG = (
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
+    '<path d="M12.75 4.5a.75.75 0 0 0-1.5 0v8.19L8.78 10.22a.75.75 0 1 0-1.06 1.06l3.75 3.75a.75.75 0 0 0 1.06 0l3.75-3.75a.75.75 0 1 0-1.06-1.06l-2.47 2.47V4.5Z" fill="currentColor"/>'
+    '<path d="M5.25 15.75a.75.75 0 0 0-.75.75v1.5A2.25 2.25 0 0 0 6.75 20.25h10.5A2.25 2.25 0 0 0 19.5 18v-1.5a.75.75 0 0 0-1.5 0V18a.75.75 0 0 1-.75.75H6.75A.75.75 0 0 1 6 18v-1.5a.75.75 0 0 0-.75-.75Z" fill="currentColor"/>'
     "</svg>"
 )
 
@@ -230,7 +279,99 @@ SITE_STYLESHEET = dedent(
 
     .home-hero h1 {
       font-size: clamp(2.8rem, 4.8vw, 4.2rem);
-      max-width: none;
+      max-width: 13ch;
+    }
+
+    .home-hero {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(193, 131, 76, 0.16), transparent 26%),
+        radial-gradient(circle at left 18%, rgba(111, 46, 29, 0.08), transparent 32%),
+        linear-gradient(180deg, rgba(255, 251, 245, 0.98), rgba(247, 239, 229, 0.98));
+    }
+
+    .home-hero-grid {
+      display: grid;
+      gap: 1.25rem;
+      align-items: end;
+    }
+
+    .home-hero-copy {
+      min-width: 0;
+    }
+
+    .home-hero-copy .audio-kicker,
+    .home-hero-aside .audio-kicker {
+      margin-bottom: 0.7rem;
+    }
+
+    .home-hero-summary {
+      max-width: 38rem;
+      margin: 1rem 0 0;
+      font-size: clamp(1.08rem, 2vw, 1.28rem);
+      color: var(--ink);
+    }
+
+    .home-hero-aside {
+      padding: 1rem 1.05rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(111, 46, 29, 0.16);
+      background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.42), transparent 34%),
+        linear-gradient(180deg, rgba(252, 246, 239, 0.98), rgba(243, 231, 214, 0.92));
+    }
+
+    .home-hero-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.7rem;
+      margin-top: 0.2rem;
+    }
+
+    .home-hero-stat {
+      padding: 0.75rem 0.8rem;
+      border-radius: 0.9rem;
+      background: rgba(255, 255, 255, 0.68);
+      border: 1px solid rgba(111, 46, 29, 0.12);
+    }
+
+    .home-hero-stat-value {
+      display: block;
+      font-family: var(--ui-font);
+      font-size: 1.45rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--accent);
+    }
+
+    .home-hero-stat-label {
+      display: block;
+      margin-top: 0.35rem;
+      font-family: var(--ui-font);
+      font-size: 0.88rem;
+      line-height: 1.35;
+      color: var(--muted);
+    }
+
+    .home-hero-note {
+      margin: 0.9rem 0 0;
+      font-size: 0.98rem;
+      color: var(--muted);
+    }
+
+    .home-feature-grid {
+      display: grid;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .home-feature-grid > .section-panel {
+      margin-bottom: 0;
+    }
+
+    .home-feature-grid > :only-child {
+      grid-column: 1 / -1;
     }
 
     .audio-hero h1 {
@@ -286,8 +427,24 @@ SITE_STYLESHEET = dedent(
       color: var(--accent-strong);
     }
 
+    .kicker-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      min-width: 0;
+    }
+
+    .kicker-icon {
+      width: 1.1rem;
+      height: 1.1rem;
+      flex: 0 0 auto;
+      color: var(--accent-strong);
+      opacity: 0.88;
+    }
+
     .audio-summary,
-    .audio-note {
+    .audio-note,
+    .audio-runtime {
       max-width: 48rem;
       margin: 0 0 1rem;
     }
@@ -295,6 +452,13 @@ SITE_STYLESHEET = dedent(
     .audio-note {
       color: var(--muted);
       font-size: 0.96rem;
+    }
+
+    .audio-runtime {
+      margin: 0.3rem 0 0;
+      font-family: var(--ui-font);
+      font-size: 0.92rem;
+      color: var(--muted);
     }
 
     .audio-actions {
@@ -315,19 +479,131 @@ SITE_STYLESHEET = dedent(
     }
 
     .entry-audio-panel,
-    .audio-track-card {
+    .audio-track-card,
+    .source-card {
       padding: 1.3rem;
       margin-bottom: 1.2rem;
     }
 
     .audio-hero,
-    .audiobook-overview {
+    .audiobook-overview,
+    .source-hero,
+    .source-overview,
+    .source-section {
       margin-bottom: 1.5rem;
     }
 
-    .audio-track-grid {
+    .audiobook-overview,
+    .source-overview {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .audiobook-overview .audio-summary,
+    .source-overview .audio-summary {
+      max-width: none;
+    }
+
+    .audiobook-overview .audio-actions,
+    .source-overview .audio-actions {
+      margin-top: auto;
+      padding-top: 1rem;
+    }
+
+    .audio-track-grid,
+    .source-library-grid {
       display: grid;
       gap: 1rem;
+    }
+
+    .audio-track-card {
+      margin-bottom: 0;
+      padding: 0.9rem 1rem;
+      display: grid;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .audio-track-copy {
+      min-width: 0;
+    }
+
+    .audio-track-copy .audio-kicker {
+      margin-bottom: 0.25rem;
+      font-size: 0.82rem;
+    }
+
+    .audio-track-copy .section-title {
+      font-size: clamp(1.18rem, 2.1vw, 1.45rem);
+      margin: 0;
+    }
+
+    .audio-track-copy .audio-runtime {
+      margin-top: 0.3rem;
+      margin-bottom: 0;
+    }
+
+    .audio-track-copy .audio-note {
+      margin: 0.35rem 0 0;
+      font-size: 0.92rem;
+    }
+
+    .audio-track-card .audio-player {
+      margin-top: 0;
+      min-width: 0;
+    }
+
+    .audio-track-card .audio-actions {
+      gap: 0.45rem;
+      margin-top: 0;
+    }
+
+    .audio-track-card .nav-button,
+    .audio-track-card .nav-placeholder {
+      flex: 0 0 auto;
+      min-height: 2.5rem;
+      padding: 0.55rem 0.85rem;
+      font-size: 0.92rem;
+    }
+
+    .audio-track-card .nav-button-content {
+      gap: 0.35rem;
+    }
+
+    .audio-track-card .nav-button-icon {
+      width: 1rem;
+      height: 1rem;
+    }
+
+    .source-card.featured {
+      border-color: rgba(111, 46, 29, 0.26);
+      background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.42), transparent 32%),
+        linear-gradient(180deg, rgba(252, 246, 239, 0.98), rgba(243, 231, 214, 0.92));
+    }
+
+    .source-meta {
+      margin: 0.35rem 0 0;
+      font-family: var(--ui-font);
+      font-size: 0.96rem;
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
+
+    .source-meta code {
+      font-size: 0.9em;
+    }
+
+    .source-hero .source-page-title {
+      font-size: clamp(2rem, 4vw, 3rem);
+      margin: 0 0 0.85rem;
+    }
+
+    .source-section-note {
+      max-width: 48rem;
+      margin: 0 0 1rem;
+      color: var(--muted);
     }
 
     .story-grid {
@@ -472,6 +748,26 @@ SITE_STYLESHEET = dedent(
     .article-card h1 {
       font-size: clamp(2.1rem, 4vw, 3.2rem);
       margin: 0 0 1rem;
+    }
+
+    .article-heading-row {
+      display: inline-flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      min-width: 0;
+    }
+
+    .article-heading-icon {
+      width: 1.8rem;
+      height: 1.8rem;
+      flex: 0 0 auto;
+      color: var(--accent-strong);
+      opacity: 0.88;
+      transform: translateY(0.14em);
+    }
+
+    .article-heading-text {
+      min-width: 0;
     }
 
     .article-card h2 {
@@ -864,7 +1160,22 @@ SITE_STYLESHEET = dedent(
     }
 
     @media (min-width: 56rem) {
-      .home-hero h1,
+      .home-hero-grid {
+        grid-template-columns: minmax(0, 1.55fr) minmax(18rem, 0.95fr);
+      }
+
+      .home-feature-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .audio-track-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .audio-track-card {
+        grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 1.1fr) auto;
+      }
+
       .audio-hero h1 {
         white-space: nowrap;
       }
@@ -1020,6 +1331,19 @@ class BuildResult:
 
 
 @dataclass(frozen=True)
+class PublishedSourceAsset:
+    source_path: Path
+    relative_input_path: str
+    public_output_path: str
+    title: str
+    filename: str
+    kind_label: str
+    summary_text: str
+    size_bytes: int
+    featured: bool
+
+
+@dataclass(frozen=True)
 class AudiobookTrack:
     track_number: int
     title: str
@@ -1029,6 +1353,7 @@ class AudiobookTrack:
     script_manifest_path: str
     target_entry_id: str | None
     notes: str | None
+    duration_seconds: float | None
 
 
 @dataclass(frozen=True)
@@ -1039,6 +1364,7 @@ class FullAudiobookAsset:
     silence_between_tracks_seconds: float
     notes: str | None
     is_available: bool
+    duration_seconds: float | None
 
 
 @dataclass(frozen=True)
@@ -1094,6 +1420,49 @@ def load_manifest(source_dir: Path) -> dict:
     return json.loads(manifest_path.read_text(encoding="utf-8"))
 
 
+def parse_optional_duration_seconds(value: object, field_name: str) -> float | None:
+    if value is None:
+        return None
+    if not isinstance(value, (int, float)) or float(value) < 0:
+        raise SystemExit(f"Audiobook manifest `{field_name}` must be a number >= 0 when present.")
+    return float(value)
+
+
+def probe_audio_duration_seconds(audio_path: Path) -> float | None:
+    if not FFPROBE_BIN or not audio_path.exists():
+        return None
+    result = subprocess.run(
+        [
+            str(FFPROBE_BIN),
+            "-v",
+            "error",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "default=noprint_wrappers=1:nokey=1",
+            str(audio_path),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        return None
+    try:
+        duration_seconds = float(result.stdout.strip())
+    except ValueError:
+        return None
+    if duration_seconds < 0:
+        return None
+    return duration_seconds
+
+
+def resolve_audio_duration_seconds(audio_path: Path, configured_duration_seconds: float | None) -> float | None:
+    if configured_duration_seconds is not None:
+        return configured_duration_seconds
+    return probe_audio_duration_seconds(audio_path)
+
+
 def load_audiobook_catalog(manifest_path: Path | None = DEFAULT_AUDIOBOOK_MANIFEST_PATH) -> AudiobookCatalog | None:
     if manifest_path is None:
         return None
@@ -1118,6 +1487,10 @@ def load_audiobook_catalog(manifest_path: Path | None = DEFAULT_AUDIOBOOK_MANIFE
         full_title = full_audiobook_payload.get("title")
         full_audio_path = full_audiobook_payload.get("audio_path")
         full_silence_seconds = full_audiobook_payload.get("silence_between_tracks_seconds", 4)
+        full_duration_seconds = parse_optional_duration_seconds(
+            full_audiobook_payload.get("duration_seconds"),
+            "full_audiobook.duration_seconds",
+        )
         full_notes = full_audiobook_payload.get("notes")
         if not isinstance(full_title, str) or not full_title.strip():
             raise SystemExit("Audiobook manifest `full_audiobook.title` must be a non-empty string.")
@@ -1137,6 +1510,7 @@ def load_audiobook_catalog(manifest_path: Path | None = DEFAULT_AUDIOBOOK_MANIFE
             silence_between_tracks_seconds=float(full_silence_seconds),
             notes=full_notes.strip() if isinstance(full_notes, str) and full_notes.strip() else None,
             is_available=resolved_full_audio_path.exists(),
+            duration_seconds=resolve_audio_duration_seconds(resolved_full_audio_path, full_duration_seconds),
         )
 
     tracks_payload = payload.get("tracks")
@@ -1157,6 +1531,10 @@ def load_audiobook_catalog(manifest_path: Path | None = DEFAULT_AUDIOBOOK_MANIFE
         script_path = raw_track.get("script_path")
         target_entry_id = raw_track.get("target_entry_id")
         notes = raw_track.get("notes")
+        duration_seconds = parse_optional_duration_seconds(
+            raw_track.get("duration_seconds"),
+            f"tracks[{track_number}].duration_seconds" if isinstance(track_number, int) else "tracks[].duration_seconds",
+        )
 
         if not isinstance(track_number, int) or track_number < 1:
             raise SystemExit("Audiobook tracks require an integer `track_number` greater than 0.")
@@ -1197,6 +1575,7 @@ def load_audiobook_catalog(manifest_path: Path | None = DEFAULT_AUDIOBOOK_MANIFE
                 script_manifest_path=Path(script_path).as_posix(),
                 target_entry_id=normalized_target_entry_id or None,
                 notes=notes.strip() if isinstance(notes, str) and notes.strip() else None,
+                duration_seconds=resolve_audio_duration_seconds(resolved_audio_path, duration_seconds),
             )
         )
 
@@ -1791,6 +2170,124 @@ def repo_relative_or_abs(path: Path) -> str:
         return str(path.resolve())
 
 
+def public_href(path: str) -> str:
+    return "/".join(quote(part) for part in path.split("/"))
+
+
+def source_library_input_root(source_dir: Path) -> Path:
+    if source_dir.parent.name == "doc-web-html":
+        return source_dir.parent.parent
+    if source_dir.parent.name == "input":
+        return source_dir.parent
+    return REPO_ROOT / "input"
+
+
+def source_library_sort_key(path: Path) -> tuple[int, int, str]:
+    featured_rank = 0 if path.name == FEATURED_BOOK_SOURCE_FILENAME else 1
+    kind_rank = 0 if path.suffix.lower() == ".pdf" else 1
+    return featured_rank, kind_rank, normalize_merge_text(path.stem)
+
+
+def source_title_from_path(source_path: Path, *, title_override: str | None = None) -> str:
+    if title_override:
+        return title_override
+    if source_path.name in SPECIAL_SOURCE_TITLE_OVERRIDES:
+        return SPECIAL_SOURCE_TITLE_OVERRIDES[source_path.name]
+    base_name = re.sub(r"[-_]+", " ", source_path.stem)
+    base_name = WHITESPACE_PATTERN.sub(" ", base_name).strip()
+    return soften_display_title(base_name) or source_path.stem
+
+
+def source_summary_text(source_path: Path, *, title_override: str | None = None) -> str:
+    if source_path.name in SPECIAL_SOURCE_SUMMARY_OVERRIDES:
+        return SPECIAL_SOURCE_SUMMARY_OVERRIDES[source_path.name]
+    if title_override:
+        return f"Preserved source attachment for {title_override}."
+    if source_path.suffix.lower() == ".pdf":
+        return "Preserved family archive PDF."
+    return "Preserved family archive image."
+
+
+def format_file_size(size_bytes: int) -> str:
+    if size_bytes < 1024:
+        return f"{size_bytes} B"
+    units = ("KB", "MB", "GB")
+    size = float(size_bytes)
+    for unit in units:
+        size /= 1024.0
+        if size < 1024.0 or unit == units[-1]:
+            return f"{size:.1f} {unit}"
+    return f"{size_bytes} B"
+
+
+def discover_published_source_assets(
+    source_dir: Path,
+    supplements: list[FamilyStorySupplement],
+) -> tuple[PublishedSourceAsset, ...]:
+    input_root = source_library_input_root(source_dir)
+    if not input_root.exists():
+        return ()
+
+    title_overrides_by_path = {
+        supplement.source_pdf.resolve(): supplement.title
+        for supplement in supplements
+    }
+    assets: list[PublishedSourceAsset] = []
+    for source_path in sorted(input_root.iterdir(), key=source_library_sort_key):
+        if not source_path.is_file():
+            continue
+        kind_label = PUBLISHABLE_SOURCE_SUFFIX_LABELS.get(source_path.suffix.lower())
+        if not kind_label:
+            continue
+        title_override = title_overrides_by_path.get(source_path.resolve())
+        relative_input_path = f"{input_root.name}/{source_path.relative_to(input_root).as_posix()}"
+        assets.append(
+            PublishedSourceAsset(
+                source_path=source_path.resolve(),
+                relative_input_path=relative_input_path,
+                public_output_path=f"{SOURCE_LIBRARY_PUBLIC_ROOT}/{source_path.name}",
+                title=source_title_from_path(source_path, title_override=title_override),
+                filename=source_path.name,
+                kind_label=kind_label,
+                summary_text=source_summary_text(source_path, title_override=title_override),
+                size_bytes=source_path.stat().st_size,
+                featured=source_path.name == FEATURED_BOOK_SOURCE_FILENAME,
+            )
+        )
+    return tuple(assets)
+
+
+def copy_published_source_assets(assets: tuple[PublishedSourceAsset, ...], output_dir: Path) -> None:
+    for asset in assets:
+        destination_path = output_dir / asset.public_output_path
+        destination_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(asset.source_path, destination_path)
+
+
+def serialize_source_library_manifest(assets: tuple[PublishedSourceAsset, ...]) -> str:
+    featured_asset = next((asset for asset in assets if asset.featured), None)
+    payload = {
+        "schema_version": "onward_source_library_v1",
+        "page_path": DEFAULT_SOURCE_LIBRARY_PAGE_PATH if assets else None,
+        "published_count": len(assets),
+        "featured_source": featured_asset.relative_input_path if featured_asset else None,
+        "files": [
+            {
+                "title": asset.title,
+                "filename": asset.filename,
+                "kind_label": asset.kind_label,
+                "summary_text": asset.summary_text,
+                "source_path": asset.relative_input_path,
+                "output_path": asset.public_output_path,
+                "size_bytes": asset.size_bytes,
+                "featured": asset.featured,
+            }
+            for asset in assets
+        ],
+    }
+    return json.dumps(payload, indent=2, sort_keys=True) + "\n"
+
+
 def copy_audiobook_public_assets(catalog: AudiobookCatalog, output_dir: Path) -> None:
     for track in catalog.tracks:
         destination_path = output_dir / track.audio_output_path
@@ -1931,7 +2428,9 @@ def render_supplement_article_html(
     supplement: FamilyStorySupplement,
     *,
     body_html: str,
+    action_links: list[str],
 ) -> str:
+    actions_html = "".join(action_links)
     return dedent(
         f"""\
         <section class="supplement-intro">
@@ -1939,7 +2438,7 @@ def render_supplement_article_html(
           <h1>{escape(supplement.title)}</h1>
           <p class="supplement-preamble">{escape(supplement.preamble)}</p>
           <div class="supplement-actions">
-            {render_nav_link("Read Memoir", "#supplement-body", primary=True)}
+            {actions_html}
           </div>
         </section>
         <section id="supplement-body" class="supplement-body">
@@ -1954,6 +2453,7 @@ def build_supplement_rendered_entry(
     *,
     output_dir: Path,
     internal_dir: Path,
+    published_source_assets_by_path: dict[Path, PublishedSourceAsset],
 ) -> tuple[RenderedEntry, SupplementAuditRow]:
     bundle_manifest = load_manifest(supplement.bundle_dir)
     bundle_entries = [bundle_entry_from_manifest(row) for row in bundle_manifest.get("entries", [])]
@@ -1991,9 +2491,20 @@ def build_supplement_rendered_entry(
     )
     enhanced_body_html = enhance_article_html(synthetic_entry, merged_article_html, supplement.title)
     enhanced_body_html = demote_primary_heading(enhanced_body_html)
+    action_links = [render_nav_link("Read Memoir", "#supplement-body", primary=True)]
+    published_source = published_source_assets_by_path.get(supplement.source_pdf.resolve())
+    if published_source:
+        source_href = public_href(published_source.public_output_path)
+        action_links.extend(
+            [
+                render_nav_link("Open Original PDF", source_href),
+                render_nav_link("Download Original PDF", source_href, download=True),
+            ]
+        )
     article_html = render_supplement_article_html(
         supplement,
         body_html=enhanced_body_html,
+        action_links=action_links,
     )
 
     supplement_provenance_rows = load_provenance_rows(supplement.bundle_dir)
@@ -2318,6 +2829,55 @@ def render_index_section(group: EntryGroup, rendered_entries: list[RenderedEntry
     )
 
 
+def render_source_library_card(asset: PublishedSourceAsset) -> str:
+    kicker = "Featured book PDF" if asset.featured else asset.kind_label
+    file_meta = f"{asset.kind_label} · {format_file_size(asset.size_bytes)}"
+    source_href = public_href(asset.public_output_path)
+    return dedent(
+        f"""\
+        <section class="panel source-card{' featured' if asset.featured else ''}">
+          <p class="audio-kicker">{escape(kicker)}</p>
+          <h2 class="section-title">{escape(asset.title)}</h2>
+          <p class="audio-summary">{escape(asset.summary_text)}</p>
+          <p class="source-meta">{escape(file_meta)}</p>
+          <p class="source-meta"><code>{escape(asset.relative_input_path)}</code></p>
+          {render_action_row([
+              render_nav_link(f"Open {'PDF' if asset.source_path.suffix.lower() == '.pdf' else 'Image'}", source_href, primary=True),
+              render_nav_link(f"Download {'PDF' if asset.source_path.suffix.lower() == '.pdf' else 'Image'}", source_href, download=True),
+          ])}
+        </section>
+        """
+    ).strip()
+
+
+def render_index_source_panel(assets: tuple[PublishedSourceAsset, ...]) -> str:
+    if not assets:
+        return ""
+    featured_asset = next((asset for asset in assets if asset.featured), None)
+    action_links = [render_nav_link("Browse Source Library", DEFAULT_SOURCE_LIBRARY_PAGE_PATH, primary=featured_asset is None)]
+    if featured_asset:
+        action_links.insert(0, render_nav_link("Open Book PDF", public_href(featured_asset.public_output_path), primary=True))
+    item_label = "item" if len(assets) == 1 else "items"
+    summary = (
+        f"Open the book itself or browse the other family documents gathered here in one place. "
+        f"The archive collection includes {len(assets)} {item_label}."
+        if featured_asset
+        else f"Browse the family documents and scans gathered here in one place. The archive collection includes {len(assets)} {item_label}."
+    )
+    return dedent(
+        f"""\
+        <section class="panel section-panel source-overview" id="archive-sources">
+          <div class="section-header">
+            <p class="audio-kicker">Archive sources</p>
+            {render_section_title("Archive Sources", icon_svg=BOOK_ICON_SVG)}
+          </div>
+          <p class="audio-summary">{escape(summary)}</p>
+          {render_action_row(action_links)}
+        </section>
+        """
+    ).strip()
+
+
 def format_track_label(track: AudiobookTrack) -> str:
     return f"Track {track.track_number:02d}"
 
@@ -2330,6 +2890,52 @@ def render_action_row(links: list[str]) -> str:
     if not links:
         return ""
     return '<div class="audio-actions">' + "".join(links) + "</div>"
+
+
+def render_kicker(label: str, *, icon_svg: str | None = None) -> str:
+    if not icon_svg:
+        return f'<p class="audio-kicker">{escape(label)}</p>'
+    return (
+        '<p class="audio-kicker">'
+        '<span class="kicker-row">'
+        f'<span class="kicker-icon">{icon_svg}</span>'
+        f'<span>{escape(label)}</span>'
+        "</span>"
+        "</p>"
+    )
+
+
+def format_audio_duration(duration_seconds: float | None) -> str | None:
+    if duration_seconds is None:
+        return None
+    total_seconds = max(0, int(round(duration_seconds)))
+    hours, remainder = divmod(total_seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    if hours:
+        return f"{hours}:{minutes:02d}:{seconds:02d}"
+    return f"{minutes}:{seconds:02d}"
+
+
+def render_audio_runtime(duration_seconds: float | None) -> str:
+    duration_label = format_audio_duration(duration_seconds)
+    if duration_label is None:
+        return ""
+    return f'<p class="audio-runtime">Run time {escape(duration_label)}</p>'
+
+
+def decorate_primary_heading_with_icon(article_html: str, icon_svg: str) -> str:
+    match = PRIMARY_HEADING_PATTERN.search(article_html)
+    if not match:
+        return article_html
+    replacement = (
+        f"{match.group(1)}"
+        '<span class="article-heading-row">'
+        f'<span class="article-heading-icon">{icon_svg}</span>'
+        f'<span class="article-heading-text">{match.group(2)}</span>'
+        "</span>"
+        f"{match.group(3)}"
+    )
+    return article_html[: match.start()] + replacement + article_html[match.end() :]
 
 
 def render_audio_player(track: AudiobookTrack) -> str:
@@ -2393,9 +2999,10 @@ def render_entry_audiobook_panel(track: AudiobookTrack) -> str:
     return dedent(
         f"""\
         <section class="panel entry-audio-panel" aria-labelledby="entry-audio-heading">
-          <p class="audio-kicker">{escape(format_track_label(track))}</p>
+          {render_kicker(format_track_label(track))}
           <h2 id="entry-audio-heading" class="section-title">Listen to this section</h2>
           <p class="audio-summary">This page matches {escape(format_track_label(track).lower())} of the current audiobook.</p>
+          {render_audio_runtime(track.duration_seconds)}
           {notes_html}
           {render_audio_player(track)}
           {actions}
@@ -2411,17 +3018,20 @@ def render_audiobook_track_card(
     matching_entry = rendered_entries_by_id.get(track.target_entry_id or "")
     notes_html = f'<p class="audio-note">{escape(track.notes)}</p>' if track.notes else ""
     actions = [
-        render_nav_link("Download MP3", track.audio_output_path, download=True),
+        render_nav_link("Download MP3", track.audio_output_path, download=True, icon_svg=DOWNLOAD_ICON_SVG),
     ]
     if matching_entry:
-        actions.insert(0, render_nav_link("Read this section", matching_entry.entry.path, primary=True))
+        actions.insert(0, render_nav_link("Read this section", matching_entry.entry.path, icon_svg=BOOK_ICON_SVG))
 
     return dedent(
         f"""\
         <section class="panel audio-track-card" id="{escape(track_fragment_id(track))}">
-          <p class="audio-kicker">{escape(format_track_label(track))}</p>
-          <h2 class="section-title">{escape(track.title)}</h2>
-          {notes_html}
+          <div class="audio-track-copy">
+            {render_kicker(format_track_label(track))}
+            <h2 class="section-title">{escape(track.title)}</h2>
+            {render_audio_runtime(track.duration_seconds)}
+            {notes_html}
+          </div>
           {render_audio_player(track)}
           {render_action_row(actions)}
         </section>
@@ -2439,26 +3049,20 @@ def render_audiobook_page(
         render_audiobook_track_card(track, rendered_entries_by_id)
         for track in catalog.tracks
     )
-    intro_links: list[str] = []
-    if catalog.full_audiobook and catalog.full_audiobook.is_available:
-        intro_links.append(render_nav_link("Jump to Full Audiobook", "#full-audiobook"))
-    intro_links.append(render_nav_link("Start with Preamble", f"#{track_fragment_id(catalog.tracks[0])}"))
-    intro_actions = render_action_row(intro_links)
     full_audiobook_html = ""
     if catalog.full_audiobook and catalog.full_audiobook.is_available:
-        full_notes_html = (
-            f'<p class="audio-note">{escape(catalog.full_audiobook.notes)}</p>'
-            if catalog.full_audiobook.notes
-            else ""
-        )
+        full_notes_html = f'<p class="audio-note">{escape(catalog.full_audiobook.notes)}</p>' if catalog.full_audiobook.notes else ""
         full_audiobook_html = dedent(
             f"""\
             <section class="panel audio-track-card" id="full-audiobook">
-              <p class="audio-kicker">Full Audiobook</p>
-              <h2 class="section-title">{escape(catalog.full_audiobook.title)}</h2>
-              {full_notes_html}
+              <div class="audio-track-copy">
+                {render_kicker("Full Audiobook")}
+                <h2 class="section-title">{escape(catalog.full_audiobook.title)}</h2>
+                {render_audio_runtime(catalog.full_audiobook.duration_seconds)}
+                {full_notes_html}
+              </div>
               {render_full_audiobook_player(catalog.full_audiobook)}
-              {render_action_row([render_nav_link("Download Full Audiobook", catalog.full_audiobook.audio_output_path, download=True)])}
+              {render_action_row([render_nav_link("Download Full Audiobook", catalog.full_audiobook.audio_output_path, download=True, icon_svg=DOWNLOAD_ICON_SVG)])}
             </section>
             """
         ).strip()
@@ -2470,10 +3074,9 @@ def render_audiobook_page(
           </header>
 
           <section class="hero audio-hero">
-            <p class="audio-kicker">Whole-book listening</p>
+            {render_kicker("Whole-book listening", icon_svg=AUDIOBOOK_ICON_SVG)}
             <h1>{escape(catalog.title)}</h1>
-            <p class="audio-summary">Press play on any track below or download the MP3 to listen on your phone, tablet, or computer. The tracks stay in the same order as the reviewed audiobook script set.</p>
-            {intro_actions}
+            <p class="audio-summary">Press play on any track below, or download an MP3 to listen on your phone, tablet, or computer.</p>
           </section>
 
           <section class="audio-track-grid">
@@ -2486,12 +3089,98 @@ def render_audiobook_page(
     return render_layout(title=f"Audiobook — {site_title}", body_html=body)
 
 
+def render_source_library_page(
+    site_title: str,
+    assets: tuple[PublishedSourceAsset, ...],
+) -> str:
+    featured_asset = next((asset for asset in assets if asset.featured), None)
+    supporting_assets = tuple(asset for asset in assets if not asset.featured)
+    hero_actions = [render_nav_link("Back to Home", "index.html", primary=featured_asset is None)]
+    if featured_asset:
+        featured_href = public_href(featured_asset.public_output_path)
+        hero_actions.extend(
+            [
+                render_nav_link("Open Book PDF", featured_href, primary=True),
+                render_nav_link("Download Book PDF", featured_href, download=True),
+            ]
+        )
+    page_title_html = (
+        '<h1 class="section-title source-page-title">'
+        '<span class="section-title-row">'
+        f'<span class="section-title-icon">{BOOK_ICON_SVG}</span>'
+        '<span>Archive Sources</span>'
+        "</span>"
+        "</h1>"
+    )
+    featured_section_html = ""
+    if featured_asset:
+        featured_section_html = dedent(
+            f"""\
+            <section class="panel section-panel source-section">
+              <div class="section-header">
+                {render_section_title("Onward to the Unknown", icon_svg=BOOK_ICON_SVG)}
+              </div>
+              <div class="source-library-grid">
+                {render_source_library_card(featured_asset)}
+              </div>
+            </section>
+            """
+        ).strip()
+    supporting_section_html = ""
+    if supporting_assets:
+        supporting_cards = "\n".join(render_source_library_card(asset) for asset in supporting_assets)
+        supporting_section_html = dedent(
+            f"""\
+            <section class="panel section-panel source-section">
+              <div class="section-header">
+                {render_section_title("Photocopied Archive Documents", icon_svg=BOOK_ICON_SVG)}
+              </div>
+              <p class="source-section-note">{escape(PHOTOCOPY_SECTION_NOTE)}</p>
+              <div class="source-library-grid">
+                {supporting_cards}
+              </div>
+            </section>
+            """
+        ).strip()
+    body = dedent(
+        f"""\
+        <main class="site-shell">
+          <header class="site-header">
+            {render_site_title_link(site_title)}
+          </header>
+
+          <section class="hero source-hero">
+            <p class="audio-kicker">Original archive files</p>
+            {page_title_html}
+            <p class="audio-summary">These are the original book and family documents gathered with the archive. Open any item in your browser or download a copy to keep.</p>
+            {render_action_row(hero_actions)}
+          </section>
+
+          {featured_section_html}
+
+          {supporting_section_html}
+        </main>
+        """
+    )
+    return render_layout(title=f"Archive Sources — {site_title}", body_html=body)
+
+
+def render_home_hero_stat(value: str, label: str) -> str:
+    return (
+        '<div class="home-hero-stat">'
+        f'<span class="home-hero-stat-value">{escape(value)}</span>'
+        f'<span class="home-hero-stat-label">{escape(label)}</span>'
+        "</div>"
+    )
+
+
 def render_index_page(
     site_title: str,
     manifest: dict,
     rendered_entries: list[RenderedEntry],
     *,
     audiobook_catalog: AudiobookCatalog | None = None,
+    source_assets: tuple[PublishedSourceAsset, ...] = (),
 ) -> str:
     sections = {
         group.id: [rendered for rendered in rendered_entries if rendered.group.id == group.id]
@@ -2502,6 +3191,13 @@ def render_index_page(
         for group in ENTRY_GROUPS
         if sections[group.id]
     )
+    if source_assets:
+        section_links = " ".join(
+            [
+                render_nav_link("Archive Sources", DEFAULT_SOURCE_LIBRARY_PAGE_PATH, icon_svg=BOOK_ICON_SVG),
+                section_links,
+            ]
+        ).strip()
     if audiobook_catalog:
         section_links = " ".join(
             [
@@ -2514,17 +3210,52 @@ def render_index_page(
         for group in ENTRY_GROUPS
         if sections[group.id]
     )
+    family_story_count = len(sections["family-stories"])
+    book_section_count = len(rendered_entries) - family_story_count
+    archive_file_count = len(source_assets)
+    audio_track_count = len(audiobook_catalog.tracks) if audiobook_catalog else 0
+    hero_summary = (
+        "Begin with the book, listen to the audiobook, and spend time with the stories and family documents gathered here."
+    )
+    hero_stats = "".join(
+        [
+            render_home_hero_stat(str(book_section_count), "Book pages and chapters"),
+            render_home_hero_stat(str(family_story_count), "Family stories"),
+            render_home_hero_stat(str(archive_file_count), "Archive documents"),
+            render_home_hero_stat(str(audio_track_count), "Audiobook tracks"),
+        ]
+    )
+    source_html = render_index_source_panel(source_assets)
     audiobook_html = render_index_audiobook_panel(audiobook_catalog) if audiobook_catalog else ""
+    home_feature_html = ""
+    if source_html or audiobook_html:
+        home_feature_html = (
+            '<div class="home-feature-grid">'
+            + source_html
+            + audiobook_html
+            + "</div>"
+        )
 
     body = dedent(
         f"""\
         <main class="site-shell">
           <section class="hero home-hero">
-            <h1>{escape(manifest["title"])}</h1>
+            <div class="home-hero-grid">
+              <div class="home-hero-copy">
+                <p class="audio-kicker">A family keepsake</p>
+                <h1>{escape(manifest["title"])}</h1>
+                <p class="home-hero-summary">{escape(hero_summary)}</p>
+                <p class="home-hero-note">Take your time and follow the names, memories, and places that feel familiar to you.</p>
+              </div>
+              <aside class="home-hero-aside" aria-label="Family collection summary">
+                <p class="audio-kicker">What you'll find here</p>
+                <div class="home-hero-stat-grid">{hero_stats}</div>
+              </aside>
+            </div>
             <div class="jump-row">{section_links}</div>
           </section>
 
-          {audiobook_html}
+          {home_feature_html}
 
           {section_html}
         </main>
@@ -2608,6 +3339,9 @@ def render_entry_page(
     next_rendered = rendered_entries[index + 1] if index + 1 < len(rendered_entries) else None
     audiobook_track = (audiobook_track_by_entry_id or {}).get(rendered.entry.entry_id)
     audiobook_panel = render_entry_audiobook_panel(audiobook_track) if audiobook_track else ""
+    article_html = rendered.article_html
+    if rendered.entry.kind == "chapter":
+        article_html = decorate_primary_heading_with_icon(article_html, BOOK_ICON_SVG)
 
     body = dedent(
         f"""\
@@ -2625,7 +3359,7 @@ def render_entry_page(
           {audiobook_panel}
 
           <article class="article-card {entry_css_class(rendered.entry.entry_id)}">
-            {rendered.article_html}
+            {article_html}
           </article>
         </main>
         """
@@ -2641,6 +3375,7 @@ def serialize_omission_audit(
     site_title: str,
     audit_rows: list[AuditRow],
     supplement_rows: list[SupplementAuditRow],
+    source_assets: tuple[PublishedSourceAsset, ...],
 ) -> str:
     status_counts = Counter(row.status for row in audit_rows)
     group_rows = []
@@ -2701,6 +3436,22 @@ def serialize_omission_audit(
             }
             for row in supplement_rows
         ],
+        "source_library": {
+            "page_path": DEFAULT_SOURCE_LIBRARY_PAGE_PATH if source_assets else None,
+            "published_count": len(source_assets),
+            "files": [
+                {
+                    "title": asset.title,
+                    "filename": asset.filename,
+                    "kind_label": asset.kind_label,
+                    "source_path": asset.relative_input_path,
+                    "output_path": asset.public_output_path,
+                    "size_bytes": asset.size_bytes,
+                    "featured": asset.featured,
+                }
+                for asset in source_assets
+            ],
+        },
     }
     return json.dumps(payload, indent=2, sort_keys=True) + "\n"
 
@@ -2732,6 +3483,13 @@ def build_family_site(
 
     provenance_rows = load_provenance_rows(source_dir)
     supplements = load_family_story_supplements(source_dir)
+    published_source_assets = discover_published_source_assets(source_dir, supplements)
+    published_source_assets_by_path = {
+        asset.source_path.resolve(): asset
+        for asset in published_source_assets
+    }
+    copy_published_source_assets(published_source_assets, output_dir)
+    write_text(internal_dir / "source-library.json", serialize_source_library_manifest(published_source_assets))
     absorbed_entry_output_map = absorbed_output_paths(selected_entries)
     absorbed_entries_by_target_id = absorbed_entries_by_target(selected_entries)
     rendered_entries = build_rendered_entries(
@@ -2747,6 +3505,7 @@ def build_family_site(
             supplement,
             output_dir=output_dir,
             internal_dir=internal_dir,
+            published_source_assets_by_path=published_source_assets_by_path,
         )
         supplement_rendered_rows.append((supplement, rendered_entry, audit_row))
     rendered_entries = insert_supplement_rendered_entries(
@@ -2796,7 +3555,16 @@ def build_family_site(
     supplement_audit_rows = [audit_row for _supplement, _rendered_entry, audit_row in supplement_rendered_rows]
     omission_audit_path = internal_dir / "omission-audit.json"
 
-    write_text(omission_audit_path, serialize_omission_audit(manifest, site_title, audit_rows, supplement_audit_rows))
+    write_text(
+        omission_audit_path,
+        serialize_omission_audit(
+            manifest,
+            site_title,
+            audit_rows,
+            supplement_audit_rows,
+            published_source_assets,
+        ),
+    )
 
     for rendered in rendered_entries:
         write_text(
@@ -2825,6 +3593,15 @@ def build_family_site(
             ),
         )
 
+    if published_source_assets:
+        write_text(
+            output_dir / DEFAULT_SOURCE_LIBRARY_PAGE_PATH,
+            render_source_library_page(
+                site_title=site_title,
+                assets=published_source_assets,
+            ),
+        )
+
     write_text(
         output_dir / "index.html",
         render_index_page(
@@ -2832,6 +3609,7 @@ def build_family_site(
             manifest=manifest,
             rendered_entries=rendered_entries,
             audiobook_catalog=audiobook_catalog,
+            source_assets=published_source_assets,
         ),
     )
 

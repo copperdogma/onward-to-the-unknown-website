@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-04-11",
+  "updated_at": "2026-04-12",
   "surfaces": [
     {
       "id": "book-core-html",
@@ -53,8 +53,8 @@
       "kind": "archive-material",
       "upstream": "family archive files",
       "status": "partial",
-      "target_surface": "supplement galleries and source attachments",
-      "notes": "The first repo-owned scanned supplement now ships as the Rolland Alain memoir bundle plus preserved PDF source, but broader supplement galleries and additional family-archive scans still remain future work."
+      "target_surface": "archive-sources page, supplement source attachments, and future supplement galleries",
+      "notes": "The local builder now publishes the current root-level archive PDFs/image scan from `input/` onto `archive-sources.html` and reuses that seam for the Rolland Alain memoir source-PDF link, but broader supplement galleries, richer metadata, and additional archive-material shaping still remain future work."
     }
   ]
 }

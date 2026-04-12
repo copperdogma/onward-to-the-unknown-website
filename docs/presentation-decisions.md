@@ -30,6 +30,14 @@ supplements into the `Family Stories` run:
 - Repo-owned family-story supplements may appear in that same family-story run
   when they are backed by an accepted `doc_web_bundle`, a preserved source PDF,
   and a short provenance preamble.
+- A dedicated `Archive Sources` page may publish preserved root-level `input/`
+  PDFs and image scans with open/download actions, so source files stay
+  reachable from one central reader-facing location instead of being hidden in
+  maintainer-only metadata.
+- When the actual `Onward to the Unknown.pdf` is available locally, the
+  `Archive Sources` page may feature it first as the primary book download and
+  group the remaining photocopied reunion/family-history documents under their
+  own note-led section.
 - Source order across the full manifest stays intact for previous/next entry
   navigation.
 - The landing page uses explicit grouped sections rather than the raw mixed
@@ -70,9 +78,14 @@ supplements into the `Family Stories` run:
 - Content-empty facsimile leaves may be intentionally deferred when they have
   no text, no image, and no table content to surface honestly.
 - A supplement wrapper page should stay reader-facing: keep the contextual
-  preamble and the main reading action, and defer raw imported HTML, original
-  PDF links, and similar provenance/process affordances until a dedicated
-  archive-copy surface or explicitly relevant page-level attachment exists.
+  preamble and the main reading action, and only add original-PDF links when a
+  dedicated archive-copy surface or explicitly relevant page-level attachment
+  exists. Raw imported HTML and internal audit affordances should still stay
+  off the public page.
+- The homepage may promote the archive-source library as a separate panel and
+  may feature a direct `Open Book PDF` action when `input/Onward to the Unknown.pdf`
+  exists in the local intake. If that file is absent, the source-library panel
+  should still appear without inventing a missing-file promise.
 - When the repo owns reviewed audiobook MP3 files, the first listening surface
   should stay simple: add a dedicated audiobook page plus a page-level
   listening panel on matching chapters or supplements, using native browser
@@ -102,7 +115,8 @@ supplements into the `Family Stories` run:
 - Final full-book information-architecture polish
 - Podcast, video, and richer companion-media embeds beyond the first on-site
   audiobook surface
-- A generalized public supplement gallery beyond the bounded memoir wrapper
+- A generalized public supplement gallery beyond the current `Archive Sources`
+  page plus the bounded memoir wrapper/source link
 - Breaking family pages into smaller fragments
 - Any claim that this is the final visual language for the entire site
 
@@ -114,8 +128,11 @@ to browse for older readers. Story 004 intentionally started with the family
 run; Story 005 expands that into a whole-book surface so the rest of the book
 no longer disappears during reshaping. Story 007 adds the first bounded
 supplement case: a memoir found as a photocopy inside the user's copy of the
-book. The current surface still stays thin and whole-entry-first so the project
-can learn from a real full-book render plus one real supplement wrapper before
-committing to a heavier runtime or deeper editorial restructuring. The audit
-and provenance proof surfaces still exist for maintainers, but they should not
-compete with the reading experience on the public pages themselves.
+book. Story 013 adds the first central archive-copy surface for the root-level
+`input/` PDFs and scans, plus a direct memoir-source link that reuses that
+central publication seam. The current surface still stays thin and
+whole-entry-first so the project can learn from a real full-book render, one
+real supplement wrapper, and one real source-library page before committing to
+a heavier runtime or deeper editorial restructuring. The audit and provenance
+proof surfaces still exist for maintainers, but they should not compete with
+the reading experience on the public pages themselves.

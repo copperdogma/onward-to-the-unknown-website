@@ -3,10 +3,11 @@
 ## Product Ideal
 
 The website is the durable digital edition of *Onward to the Unknown* for the
-family and anyone invited into the archive. Reading the book should feel
-frictionless: a person can move chapter by chapter, jump by topic or person,
-follow links to companion audio and scans, and trust that every piece of
-content belongs where it appears.
+family and anyone invited into the archive, with mostly elderly relatives as
+the primary audience. Reading the book should feel frictionless: a person can
+move chapter by chapter, jump by topic or person, follow links to companion
+audio and scans, and trust that every piece of content belongs where it
+appears.
 
 The site should make the full book materially accessible on the web. If any
 source material is deferred, hidden from a given surface, or omitted from an
@@ -22,6 +23,11 @@ The reading and browsing experience should be especially accommodating for
 older family members. Core actions need large hit targets, legible controls,
 clear page structure, and interaction patterns that remain easy to use on both
 desktop and mobile devices.
+
+The tone should be warm, welcoming, and family-centered. Reader-facing copy
+should never drift into meta-language about the site, build process, intake
+process, workflow, or implementation; it should speak directly about the book,
+the people, the stories, the photographs, and the family documents.
 
 ## Execution Ideal
 
@@ -39,6 +45,9 @@ instead of relying on memory.
 
 - **Archive-First.** The site should feel like a careful family archive, not a
   generic marketing site or disposable microsite.
+- **Warm and Inviting.** The language and presentation should help older
+  relatives feel welcomed into familiar family history rather than confronted
+  with technical or institutional wording.
 - **Structure Before Chrome.** Prefer a clean canonical content model over
   presentation-only fixes that trap the project inside one rendering path.
 - **Provenance Is Visible.** Users and maintainers should be able to tell where

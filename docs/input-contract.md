@@ -4,7 +4,8 @@ This repo currently consumes locally staged `doc-web` HTML bundles rather than
 a richer canonical content export. The current whole-book local builder reads
 the accepted main-book bundle directly and may also attach repo-owned family
 story supplements through a sibling registry in the same `input/doc-web-html/`
-area.
+area. It may also publish preserved root-level archive source files from
+`input/` onto a reader-facing source-library page.
 
 ## Canonical Bundle Path
 
@@ -15,6 +16,8 @@ area.
   `input/doc-web-html/family-story-supplements.json`
 - First accepted supplement bundle on 2026-04-11:
   `input/doc-web-html/rolland-alain-memoir-r01`
+- Reader-facing source-library page on 2026-04-12:
+  `build/family-site/archive-sources.html`
 - The local builder can also read:
   - `ONWARD_INPUT_SOURCE_DIR`
   - `DREAMHOST_DEPLOY_SOURCE_DIR` as a compatibility fallback
@@ -52,6 +55,17 @@ area.
     - `entry_ids`
     - `absorbed_entry_ids`
     - `preamble`
+- optional root-level preserved source files under `input/`
+  - currently published when the file lives directly under `input/` and uses a
+    supported extension: `.pdf`, `.jpg`, `.jpeg`, or `.png`
+  - intentionally excludes `input/doc-web-html/` and nested asset directories
+    such as `input/onward-to-the-unknown-images/`
+  - published copies are written under `build/family-site/source-files/`
+  - the builder emits `_internal/source-library.json` plus a public
+    `archive-sources.html` page for these files
+  - `input/Onward to the Unknown.pdf` is treated as the featured book-source
+    path when it exists locally, but the build does not fail if that ignored
+    local file is absent
 
 ## Observed Shape On 2026-04-10
 
@@ -76,6 +90,22 @@ area.
 - Asset roots: none
 - Original source PDF remains at
   `input/Memoires of Rolland Alaln fron blrth 1913 to 71st year 1985.pdf`
+
+## Observed Source-Library Shape On 2026-04-12
+
+- Public page path: `build/family-site/archive-sources.html`
+- Public asset root: `build/family-site/source-files/`
+- Internal manifest: `build/family-site/_internal/source-library.json`
+- Published file count in the current worktree: `7`
+  - `6` PDFs
+  - `1` image scan (`Jackfish-Lake-Fishing-Guide.jpg`)
+- Memoir source attachment is published through the same source-library copy as
+  `source-files/Memoires of Rolland Alaln fron blrth 1913 to 71st year 1985.pdf`
+- `input/Onward to the Unknown.pdf` is currently present in this worktree as a
+  repo-local ignored input, so the homepage and source-library page render the
+  featured `Open Book PDF` actions here
+- Other worktrees only show that featured-book treatment when the same local
+  file exists under `input/Onward to the Unknown.pdf`
 
 ## Manifest Fields The Builder Uses
 
@@ -106,7 +136,9 @@ bundle contract and uses the registry file for only the extra wrapper metadata:
 - where the supplement card appears in the family-story run
 - which bundle entry ids are reader-facing versus absorbed
 - the short contextual preamble shown above the supplement body
-- the original PDF attachment path
+- the original PDF attachment path, which can now resolve to a published public
+  source-file copy when the file also appears as a supported root-level
+  `input/` asset
 
 ## HTML Contract Assumptions
 
@@ -139,9 +171,12 @@ inspection rather than reader-facing page chrome.
 - A fully generalized supplement system beyond the current bounded
   family-story registry plus the checked-in Rolland Alain memoir bundle
 - Normalized companion-media wiring
+- Rich editorial metadata beyond the current root-level source-file discovery
+  and supplement title override
 - A fully generic one-command import refresh for every future archive format
 
 Those remain follow-on steps. For now, the contract is “this specific staged
-bundle shape plus the bounded memoir supplement seam exist locally, can be
-rendered repeatably as a whole-book reading surface, and can be audited without
-losing track of the shipped supplement.”
+bundle shape plus the bounded memoir supplement seam and the current
+root-level source-library seam exist locally, can be rendered repeatably as a
+whole-book reading surface, and can be audited without losing track of the
+shipped supplement/source files.”

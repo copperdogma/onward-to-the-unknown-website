@@ -3,7 +3,8 @@
 Read this file at the start of every session.
 
 > **Mission:** Turn *Onward to the Unknown* and its companion family-archive
-> materials into a trustworthy, navigable website. The current intake boundary
+> materials into a trustworthy, navigable website for mostly elderly relatives
+> to spend time with part of their family history. The current intake boundary
 > is the local `input/` folder, which holds the staged website/source material
 > this repo needs to consume; this repo owns that intake contract, site
 > structure, presentation, linked media surfaces, and publication workflow.
@@ -37,6 +38,11 @@ active story, but you still need the relevant spec and state context first.
   integration exists.
 - Structure before presentation. Prefer canonical data/content artifacts that
   can feed multiple site views over one-off HTML fixes.
+- Remember the audience. Reader-facing copy and interaction choices should feel
+  warm, plainspoken, and inviting for mostly elderly relatives.
+- Never publish meta-language about the site, build, intake, workflow, or
+  process. Reader-facing language should talk about the family, the book, the
+  stories, the photographs, and the documents themselves.
 - Provenance matters. Links to audio, scans, and companion materials should be
   inspectable and traceable to their source record.
 - Do not invent runtime commands or framework conventions that do not exist in

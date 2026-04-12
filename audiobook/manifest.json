@@ -4,16 +4,14 @@
   "full_audiobook": {
     "title": "Full Audiobook",
     "audio_path": "ElevenLabs_Onward_to_the_Unknown/full-audiobook.mp3",
-    "silence_between_tracks_seconds": 4,
-    "notes": "Merged from the reviewed chapter track set with fixed silence between tracks."
+    "silence_between_tracks_seconds": 4
   },
   "tracks": [
     {
       "track_number": 1,
       "title": "Preamble",
       "audio_path": "ElevenLabs_Onward_to_the_Unknown/01_Preamble.mp3",
-      "script_path": "script/01-preamble.md",
-      "notes": "Repo-authored introduction grounded in the opening and dedication material."
+      "script_path": "script/01-preamble.md"
     },
     {
       "track_number": 2,

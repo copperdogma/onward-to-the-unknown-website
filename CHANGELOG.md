@@ -1,5 +1,25 @@
 # Changelog
 
+## [2026-04-12-02] - Published archive sources and elder-friendly audio polish (Story 013)
+
+### Added
+- Added a central `Archive Sources` page that publishes the current root-level
+  family PDFs and scans with direct open and download actions, including the
+  featured `Onward to the Unknown.pdf` when it is present locally.
+
+### Changed
+- Updated the homepage to surface the archive library more clearly and to use
+  warmer family-facing copy for older relatives.
+- Refined the audiobook and chapter pages so the page headers use book/audio
+  icon cues in the reading area, track rows stay compact, and every audiobook
+  file now shows its runtime.
+
+### Fixed
+- Fixed the Rolland Alain memoir page so its original-PDF buttons resolve to
+  the same published public source copy shown in the central archive library.
+- Fixed lingering public-facing meta/process wording on the archive and
+  audiobook pages, including the removed jump buttons and internal merge notes.
+
 ## [2026-04-12-01] - Polished the shared cross-page shell (Story 012)
 
 ### Changed

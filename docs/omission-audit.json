@@ -823,6 +823,75 @@
   "run_id": "story206-onward-proof-r10",
   "schema_version": "onward_omission_audit_v1",
   "site_title": "Onward to the Unknown",
+  "source_library": {
+    "files": [
+      {
+        "featured": true,
+        "filename": "Onward to the Unknown.pdf",
+        "kind_label": "PDF document",
+        "output_path": "source-files/Onward to the Unknown.pdf",
+        "size_bytes": 168233921,
+        "source_path": "input/Onward to the Unknown.pdf",
+        "title": "Onward to the Unknown"
+      },
+      {
+        "featured": false,
+        "filename": "Dictionnaire g\u00e9n\u00e9alogique des familles du Qu\u00e9bec 1983.pdf",
+        "kind_label": "PDF document",
+        "output_path": "source-files/Dictionnaire g\u00e9n\u00e9alogique des familles du Qu\u00e9bec 1983.pdf",
+        "size_bytes": 2753334,
+        "source_path": "input/Dictionnaire g\u00e9n\u00e9alogique des familles du Qu\u00e9bec 1983.pdf",
+        "title": "Dictionnaire g\u00e9n\u00e9alogique des familles du Qu\u00e9bec 1983"
+      },
+      {
+        "featured": false,
+        "filename": "Founding of Doremey SK.pdf",
+        "kind_label": "PDF document",
+        "output_path": "source-files/Founding of Doremey SK.pdf",
+        "size_bytes": 1820191,
+        "source_path": "input/Founding of Doremey SK.pdf",
+        "title": "Founding of Doremey SK"
+      },
+      {
+        "featured": false,
+        "filename": "L'HEUREUX FAMILY DIRECTORY June, 1987.pdf",
+        "kind_label": "PDF document",
+        "output_path": "source-files/L'HEUREUX FAMILY DIRECTORY June, 1987.pdf",
+        "size_bytes": 3883940,
+        "source_path": "input/L'HEUREUX FAMILY DIRECTORY June, 1987.pdf",
+        "title": "L'Heureux Family Directory June, 1987"
+      },
+      {
+        "featured": false,
+        "filename": "LE GRAND ARRANGEMENT DES ACADIENS AU QU\u00c9BEC NOTES DE PETITE-HISTOIRE G\u00c9N\u00c9ALOGIES FRANCE \u2022 ACADIE \u2022 QU\u00c9BEC de 1625 \u00e0 1925.pdf",
+        "kind_label": "PDF document",
+        "output_path": "source-files/LE GRAND ARRANGEMENT DES ACADIENS AU QU\u00c9BEC NOTES DE PETITE-HISTOIRE G\u00c9N\u00c9ALOGIES FRANCE \u2022 ACADIE \u2022 QU\u00c9BEC de 1625 \u00e0 1925.pdf",
+        "size_bytes": 2879571,
+        "source_path": "input/LE GRAND ARRANGEMENT DES ACADIENS AU QU\u00c9BEC NOTES DE PETITE-HISTOIRE G\u00c9N\u00c9ALOGIES FRANCE \u2022 ACADIE \u2022 QU\u00c9BEC de 1625 \u00e0 1925.pdf",
+        "title": "Le Grand Arrangement Des Acadiens Au Qu\u00e9bec Notes De Petite Histoire G\u00e9n\u00e9alogies France \u2022 Acadie \u2022 Qu\u00e9bec De 1625 \u00c0 1925"
+      },
+      {
+        "featured": false,
+        "filename": "Memoires of Rolland Alaln fron blrth 1913 to 71st year 1985.pdf",
+        "kind_label": "PDF document",
+        "output_path": "source-files/Memoires of Rolland Alaln fron blrth 1913 to 71st year 1985.pdf",
+        "size_bytes": 15855902,
+        "source_path": "input/Memoires of Rolland Alaln fron blrth 1913 to 71st year 1985.pdf",
+        "title": "Rolland Alain Memoir Family Story"
+      },
+      {
+        "featured": false,
+        "filename": "Jackfish-Lake-Fishing-Guide.jpg",
+        "kind_label": "Image scan",
+        "output_path": "source-files/Jackfish-Lake-Fishing-Guide.jpg",
+        "size_bytes": 1679742,
+        "source_path": "input/Jackfish-Lake-Fishing-Guide.jpg",
+        "title": "Jackfish Lake Fishing Guide"
+      }
+    ],
+    "page_path": "archive-sources.html",
+    "published_count": 7
+  },
   "status_counts": {
     "intentionally_deferred": 2,
     "rendered": 31
