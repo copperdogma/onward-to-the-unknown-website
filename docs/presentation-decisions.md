@@ -77,6 +77,11 @@ supplements into the `Family Stories` run:
   should stay simple: add a dedicated audiobook page plus a page-level
   listening panel on matching chapters or supplements, using native browser
   audio controls and an explicit download link instead of a custom player.
+- Shared hero headings on the homepage and audiobook page should stay on one
+  line on wide desktop layouts when the available space honestly permits it,
+  while smaller layouts may wrap naturally.
+- Landing jump-row icons are secondary cues, not primary artwork: keep them
+  small, inline with the label, and visually quieter than the button text.
 - Provenance and omission-audit artifacts remain internal maintenance surfaces,
   with the checked-in snapshot living at `docs/omission-audit.json`.
 - `docs/omission-audit.json` is the checked-in proof that every manifest entry

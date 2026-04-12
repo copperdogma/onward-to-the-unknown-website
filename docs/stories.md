@@ -19,3 +19,4 @@ Current priority: refine the existing whole-book reading surface into a site tha
 - **Pending** — `docs/stories/story-009-podcast-distribution-scout-and-elder-friendly-listening.md` — Podcast Distribution Scout And Elder-Friendly Listening
 - **Draft** — `docs/stories/story-010-notebooklm-video-companions.md` — NotebookLM Whole-Book And Chapter Video Companions
 - **Done** — `docs/stories/story-011-first-on-site-audiobook-listening-surface.md` — First On-Site Audiobook Listening Surface
+- **Done** — `docs/stories/story-012-cross-page-shell-review-and-polish.md` — Cross-Page Shell Review And Polish

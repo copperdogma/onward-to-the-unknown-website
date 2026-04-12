@@ -182,6 +182,21 @@ SITE_STYLESHEET = dedent(
       margin: 0;
     }
 
+    .section-title-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      min-width: 0;
+    }
+
+    .section-title-icon {
+      width: 2.8rem;
+      height: 2.8rem;
+      flex: 0 0 auto;
+      color: var(--accent-strong);
+      opacity: 0.88;
+    }
+
     .hero,
     .panel,
     .story-card,
@@ -214,6 +229,12 @@ SITE_STYLESHEET = dedent(
     }
 
     .home-hero h1 {
+      font-size: clamp(2.8rem, 4.8vw, 4.2rem);
+      max-width: none;
+    }
+
+    .audio-hero h1 {
+      font-size: clamp(2.3rem, 4.1vw, 3.7rem);
       max-width: none;
     }
 
@@ -225,6 +246,25 @@ SITE_STYLESHEET = dedent(
 
     .jump-row {
       margin-top: 1.25rem;
+    }
+
+    .jump-row .nav-button {
+      font-size: 0.98rem;
+    }
+
+    .jump-row .nav-button-content {
+      gap: 0.4rem;
+    }
+
+    .jump-row .nav-button-icon {
+      width: 1.375rem;
+      height: 1.375rem;
+      color: var(--muted);
+      opacity: 0.84;
+    }
+
+    .jump-row .nav-button-label {
+      white-space: nowrap;
     }
 
     .section-panel {
@@ -823,6 +863,13 @@ SITE_STYLESHEET = dedent(
       }
     }
 
+    @media (min-width: 56rem) {
+      .home-hero h1,
+      .audio-hero h1 {
+        white-space: nowrap;
+      }
+    }
+
     @media (max-width: 38rem) {
       html { font-size: 100%; }
 
@@ -882,6 +929,11 @@ ENTRY_GROUPS = (
     ),
 )
 ENTRY_GROUPS_BY_ID = {group.id: group for group in ENTRY_GROUPS}
+SECTION_ICON_SVG_BY_ID = {
+    "opening-pages": BOOK_ICON_SVG,
+    "family-stories": BOOK_ICON_SVG,
+    "closing-archive": BOOK_ICON_SVG,
+}
 
 
 @dataclass(frozen=True)
@@ -2256,7 +2308,7 @@ def render_index_section(group: EntryGroup, rendered_entries: list[RenderedEntry
         f"""\
         <section class="panel section-panel" id="{escape(group.id)}">
           <div class="section-header">
-            <h2 class="section-title">{escape(group.label)}</h2>
+            {render_section_title(group.label, icon_svg=SECTION_ICON_SVG_BY_ID.get(group.id))}
           </div>
           <div class="story-grid">
             {cards}
@@ -2321,7 +2373,7 @@ def render_index_audiobook_panel(catalog: AudiobookCatalog) -> str:
         <section class="panel section-panel audiobook-overview" id="audiobook">
           <div class="section-header">
             <p class="audio-kicker">Audiobook</p>
-            <h2 class="section-title">{escape(catalog.title)}</h2>
+            {render_section_title(catalog.title, icon_svg=AUDIOBOOK_ICON_SVG)}
           </div>
           <p class="audio-summary">Listen chapter by chapter in your browser or download any MP3 for later. The current set includes {track_count} tracks, including the memoir supplement and closing poem.</p>
           {actions}
@@ -2387,7 +2439,7 @@ def render_audiobook_page(
         render_audiobook_track_card(track, rendered_entries_by_id)
         for track in catalog.tracks
     )
-    intro_links = [render_home_nav_link()]
+    intro_links: list[str] = []
     if catalog.full_audiobook and catalog.full_audiobook.is_available:
         intro_links.append(render_nav_link("Jump to Full Audiobook", "#full-audiobook"))
     intro_links.append(render_nav_link("Start with Preamble", f"#{track_fragment_id(catalog.tracks[0])}"))
@@ -2502,6 +2554,20 @@ def render_nav_link(
             f"</span>"
         )
     return f'<a class="{class_name}" href="{escape(href)}"{download_attr}>{label_html}</a>'
+
+
+def render_section_title(label: str, *, icon_svg: str | None = None) -> str:
+    label_html = escape(label)
+    if not icon_svg:
+        return f'<h2 class="section-title">{label_html}</h2>'
+    return (
+        '<h2 class="section-title">'
+        '<span class="section-title-row">'
+        f'<span class="section-title-icon">{icon_svg}</span>'
+        f'<span>{label_html}</span>'
+        "</span>"
+        "</h2>"
+    )
 
 
 def render_directional_nav_link(label: str, href: str | None, *, direction: str) -> str:

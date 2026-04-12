@@ -425,10 +425,15 @@
         "path": "docs/stories/story-011-first-on-site-audiobook-listening-surface.md",
         "title": "First On-Site Audiobook Listening Surface",
         "status": "Done"
+      },
+      {
+        "path": "docs/stories/story-012-cross-page-shell-review-and-polish.md",
+        "title": "Cross-Page Shell Review And Polish",
+        "status": "Done"
       }
     ],
     "counts_by_status": {
-      "Done": 7,
+      "Done": 8,
       "Draft": 2,
       "Pending": 2
     }

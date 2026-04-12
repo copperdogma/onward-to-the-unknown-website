@@ -1,5 +1,19 @@
 # Changelog
 
+## [2026-04-12-01] - Polished the shared cross-page shell (Story 012)
+
+### Changed
+- Tightened the shared family-site shell so the homepage and audiobook hero
+  headings stay stable on wide layouts while still wrapping naturally on
+  smaller screens.
+- Rebalanced the landing jump-row icon treatment and reused the same icon
+  language in the homepage section headers so companion-media entry points read
+  more consistently.
+
+### Fixed
+- Fixed the audiobook hero action row so the page no longer renders the stray
+  stretched home button that appeared after the shared home-link change.
+
 ## [2026-04-11-09] - Shipped the first on-site audiobook surface (Story 011)
 
 ### Added

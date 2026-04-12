@@ -100,8 +100,10 @@ def test_build_family_site_emits_reader_facing_pages_and_internal_audit(tmp_path
     assert "Family Stories" in landing_html
     assert "Closing Archive" not in unescape(landing_html)
     assert landing_html.count('class="nav-button-icon"') == 2
+    assert landing_html.count('class="section-title-icon"') == 2
     assert 'href="#opening-pages"><span class="nav-button-content"><span class="nav-button-icon">' in landing_html
     assert 'href="#family-stories"><span class="nav-button-content"><span class="nav-button-icon">' in landing_html
+    assert '<span class="section-title-icon">' in landing_html
     assert "Alma Marie (L'Heureux) Alain" in unescape(landing_html)
     assert "The Ancestral Lineage of Moïse and Sophie" in unescape(landing_html)
     assert "Onward to the Unknown" in unescape(landing_html)
@@ -131,8 +133,15 @@ def test_build_family_site_emits_reader_facing_pages_and_internal_audit(tmp_path
     assert ".recipe-callout" in stylesheet
     assert ".home-hero h1" in stylesheet
     assert "max-width: none;" in stylesheet
+    assert ".audio-hero h1" in stylesheet
+    assert "white-space: nowrap;" in stylesheet
     assert ".nav-button-icon" in stylesheet
     assert ".nav-button-content" in stylesheet
+    assert ".jump-row .nav-button-icon" in stylesheet
+    assert ".jump-row .nav-button-label" in stylesheet
+    assert ".jump-row .nav-button-icon {\n  width: 1.375rem;\n  height: 1.375rem;" in stylesheet
+    assert ".section-title-icon {\n  width: 2.8rem;\n  height: 2.8rem;" in stylesheet
+    assert ".section-title-icon" in stylesheet
 
     entry_rows = json.loads(
         (output_dir / "_internal" / "provenance" / "entries" / "chapter-009.json").read_text(encoding="utf-8")
@@ -334,10 +343,13 @@ def test_build_family_site_surfaces_audiobook_page_and_entry_panel(tmp_path):
     assert "Play Full Audiobook" in landing_html
     assert "Download Full Audiobook" in landing_html
     assert landing_html.count('class="nav-button-icon"') == 3
+    assert landing_html.count('class="section-title-icon"') == 3
     assert 'href="#audiobook"><span class="nav-button-content"><span class="nav-button-icon">' in landing_html
-    assert 'aria-label="Home"' in audiobook_html
+    assert '<h2 class="section-title"><span class="section-title-row"><span class="section-title-icon">' in landing_html
     assert 'class="site-title site-title-link" href="index.html"' in audiobook_html
+    assert 'aria-label="Home"' not in audiobook_html
     assert 'id="full-audiobook"' in audiobook_html
+    assert '<section class="hero audio-hero">' in audiobook_html
     assert "Merged fixture audiobook." in audiobook_html
     assert 'src="audiobook/tracks/full-audiobook.mp3"' in audiobook_html
     assert "Listen to this section" in chapter_html
