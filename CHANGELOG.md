@@ -1,5 +1,16 @@
 # Changelog
 
+## [2026-04-12-03] - Prevented stale stylesheet deploys (Story 013)
+
+### Changed
+- Versioned the generated `family-site.css` link across the family-site pages
+  so each deploy requests the current stylesheet content instead of relying on
+  a long-lived bare asset URL.
+
+### Fixed
+- Fixed the live site rendering stale CSS after deploy, which had been pairing
+  the newer homepage and audiobook HTML with older layout styles.
+
 ## [2026-04-12-02] - Published archive sources and elder-friendly audio polish (Story 013)
 
 ### Added

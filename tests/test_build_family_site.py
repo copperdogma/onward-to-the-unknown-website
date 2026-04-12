@@ -7,6 +7,7 @@ import shutil
 
 from modules.build_family_site import (
     BundleEntry,
+    SITE_STYLESHEET_HREF,
     absorbed_output_paths,
     build_family_site,
     build_summary_text,
@@ -96,6 +97,7 @@ def test_build_family_site_emits_reader_facing_pages_and_internal_audit(tmp_path
     omission_audit = json.loads(result.omission_audit_path.read_text(encoding="utf-8"))
 
     assert "Fixture Reading Surface" in landing_html
+    assert f'<link rel="stylesheet" href="{SITE_STYLESHEET_HREF}">' in landing_html
     assert '<section class="hero home-hero">' in landing_html
     assert 'class="home-hero-grid"' in landing_html
     assert "A family keepsake" in landing_html
@@ -118,6 +120,7 @@ def test_build_family_site_emits_reader_facing_pages_and_internal_audit(tmp_path
     assert 'class="story-card-media"' in landing_html
     assert 'src="images/family-portrait.svg"' in landing_html
     assert "<title>Onward to the Unknown — Fixture Reading Surface</title>" in page_html
+    assert f'<link rel="stylesheet" href="{SITE_STYLESHEET_HREF}">' in page_html
     assert "<h1 id=\"blk-page-001-0001\">Onward to the Unknown</h1>" in page_html
     assert 'id="blk-chapter-009-0001"' in chapter_html
     assert 'id="blk-page-001-0001"' in page_html

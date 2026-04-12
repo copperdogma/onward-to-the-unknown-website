@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -1213,6 +1214,9 @@ SITE_STYLESHEET = dedent(
     }
     """
 ).strip()
+SITE_STYLESHEET_HREF = (
+    f"assets/family-site.css?v={hashlib.sha256((SITE_STYLESHEET + chr(10)).encode('utf-8')).hexdigest()[:12]}"
+)
 
 
 @dataclass(frozen=True)
@@ -2777,7 +2781,7 @@ def render_layout(title: str, body_html: str) -> str:
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{escape(title)}</title>
-        <link rel="stylesheet" href="assets/family-site.css">
+        <link rel="stylesheet" href="{SITE_STYLESHEET_HREF}">
         </head>
         <body>
         {body_html}
