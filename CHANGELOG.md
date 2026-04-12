@@ -1,5 +1,22 @@
 # Changelog
 
+## [2026-04-12-04] - Settled the first audiobook distribution lane (Story 008)
+
+### Added
+- Added a dated audiobook-distribution scout that compares the current
+  site-hosted MP3 flow against ElevenReader, Spotify direct upload, Voices by
+  INaudio, and Audio Native using current primary sources.
+
+### Changed
+- Recorded the site-hosted audiobook surface as the current primary family
+  listening lane in the presentation decisions, infrastructure truth, runbook,
+  coverage matrix, and generated methodology views.
+
+### Fixed
+- Fixed planning-truth drift so the coverage matrix and generated methodology
+  graph no longer describe the audiobook distribution lane as unresolved after
+  Story 008's recommendation.
+
 ## [2026-04-12-03] - Prevented stale stylesheet deploys (Story 013)
 
 ### Changed

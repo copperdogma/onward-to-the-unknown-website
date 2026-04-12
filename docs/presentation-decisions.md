@@ -90,6 +90,14 @@ supplements into the `Family Stories` run:
   should stay simple: add a dedicated audiobook page plus a page-level
   listening panel on matching chapters or supplements, using native browser
   audio controls and an explicit download link instead of a custom player.
+- The site-hosted audiobook surface should remain the primary family listening
+  path: older relatives should be able to press play or download an MP3
+  without installing an app, creating an account, or going through a purchase
+  flow first.
+- If an external audiobook lane is added later, treat it as a secondary
+  convenience duplicate. Do not replace the repo-owned MP3 set with a
+  platform-generated narration flow, and do not let an external storefront
+  become the only practical way family members can listen.
 - Shared hero headings on the homepage and audiobook page should stay on one
   line on wide desktop layouts when the available space honestly permits it,
   while smaller layouts may wrap naturally.

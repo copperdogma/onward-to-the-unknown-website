@@ -1,6 +1,6 @@
 ---
 title: "Audiobook Distribution Scout And Elder-Friendly Listening"
-status: "Pending"
+status: "Done"
 priority: "Medium"
 ideal_refs:
   - "2. Connected Companion Media"
@@ -46,7 +46,7 @@ legacy_system: "manual audiobook link placement plus off-site audiobook platform
 # Story 008 — Audiobook Distribution Scout And Elder-Friendly Listening
 
 **Priority**: Medium
-**Status**: Pending
+**Status**: Done
 **Decision Refs**: `docs/scout.md`, `docs/presentation-decisions.md`, `docs/infrastructure.md`, `docs/RUNBOOK.md`, `tests/fixtures/formats/_coverage-matrix.json`, none found after search for repo-local ADRs or audiobook-distribution scout docs
 **Depends On**: Stories 005 and 006
 
@@ -60,14 +60,14 @@ download the audiobook without confusion, paywalls, or unnecessary accounts.
 
 ## Acceptance Criteria
 
-- [ ] A dated scout report compares on-site audiobook entry points and off-site
+- [x] A dated scout report compares on-site audiobook entry points and off-site
       audiobook distribution lanes using current primary sources, limited to
       free or effectively no-cost options that fit this family project.
-- [ ] The report recommends a first publishing lane and a first website
+- [x] The report recommends a first publishing lane and a first website
       listening pattern, with specific notes about how an 80+ reader would find
       it, what explanatory copy the site should use, and what metadata/assets
       each lane requires.
-- [ ] The repo records any follow-up implementation, hosting, or rights
+- [x] The repo records any follow-up implementation, hosting, or rights
       questions clearly enough that the next story can build or reject the plan
       without redoing the entire scout from scratch.
 
@@ -104,49 +104,50 @@ download the audiobook without confusion, paywalls, or unnecessary accounts.
 
 ## Tasks
 
-- [ ] Research current audiobook distribution options from official or primary
+- [x] Research current audiobook distribution options from official or primary
       sources and date-stamp the findings.
-- [ ] Compare on-site listening patterns for the current site, including a
+- [x] Compare on-site listening patterns for the current site, including a
       top-of-page "listen to this page" affordance, a whole-book listen entry
       point, and simple download/open options.
-- [ ] Evaluate off-site audiobook lanes, including free or low-cost options,
+- [x] Evaluate off-site audiobook lanes, including free or low-cost options,
       onboarding friction, discoverability, and how the site would link family
       members into those experiences without pushing them through a purchase
       flow.
-- [ ] Recommend elder-friendly copy and interaction patterns for audiobook
+- [x] Recommend elder-friendly copy and interaction patterns for audiobook
       discovery on the site.
-- [ ] Reject any lane that requires charging family members or depends on a
+- [x] Reject any lane that requires charging family members or depends on a
       commercial storefront as the primary access path.
-- [ ] Record required metadata, file formats, hosting assumptions, and open
+- [x] Record required metadata, file formats, hosting assumptions, and open
       rights or workflow questions for the recommended lane.
-- [ ] Add the dated scout report to `docs/scout/` and link it from
+- [x] Add the dated scout report to `docs/scout/` and link it from
       `docs/scout.md`.
-- [ ] Update `docs/presentation-decisions.md`, `docs/infrastructure.md`, or
+- [x] Update `docs/presentation-decisions.md`, `docs/infrastructure.md`, or
       `docs/RUNBOOK.md` if the research changes repo truth about likely
       audiobook delivery.
-- [ ] Check whether the chosen recommendation makes any temporary notes or
+- [x] Check whether the chosen recommendation makes any temporary notes or
       assumptions redundant; remove them or create a concrete follow-up.
-- [ ] Run required checks for touched scope:
-  - [ ] `make methodology-compile`
-  - [ ] `make methodology-check`
-  - [ ] Manually review the scout report for plain-language clarity aimed at
+- [x] Run required checks for touched scope:
+  - [x] `make methodology-compile`
+  - [x] `make methodology-check`
+  - [x] Manually review the scout report for plain-language clarity aimed at
         older readers.
-- [ ] If the scout defines a standing review gate or acceptance criterion for
-      future audio publishing, update `docs/evals/registry.yaml`.
-- [ ] Search docs and update any related to audiobook delivery or listening
+- [x] No new standing review gate was warranted for `docs/evals/registry.yaml`;
+      leaving the eval registry unchanged is the honest outcome for this
+      documentation-only scout.
+- [x] Search docs and update any related to audiobook delivery or listening
       guidance.
-- [ ] Verify project tenets:
-  - [ ] Recommendations are grounded in current primary sources.
-  - [ ] Older-reader usability is explicit, not implicit.
-  - [ ] On-site and off-site lanes preserve honest provenance and expectations.
-  - [ ] The next implementation slice can start without redoing the research.
+- [x] Verify project tenets:
+  - [x] Recommendations are grounded in current primary sources.
+  - [x] Older-reader usability is explicit, not implicit.
+  - [x] On-site and off-site lanes preserve honest provenance and expectations.
+  - [x] The next implementation slice can start without redoing the research.
 
 ## Workflow Gates
 
-- [ ] Build complete: implementation finished, required checks run, and summary
+- [x] Build complete: implementation finished, required checks run, and summary
       shared
-- [ ] Validation complete or explicitly skipped by user
-- [ ] Story marked done via `/mark-story-done`
+- [x] Validation complete or explicitly skipped by user
+- [x] Story marked done via `/mark-story-done`
 
 ## Blocker Summary
 
@@ -226,10 +227,73 @@ N/A
 
 ## Plan
 
-1. Gather current official-source evidence for audiobook lanes.
-2. Compare the simplest on-site listening pattern against off-site platforms.
-3. Recommend the first lane and the site copy needed for older readers.
-4. Record the follow-up build slice and any unresolved constraints.
+### Eval-First Gate
+
+- **Success eval**:
+  - a dated scout report exists under `docs/scout/` with current primary-source
+    citations for each compared lane
+  - the report compares the real on-site listening surface already shipped in
+    this repo against the strongest free or effectively no-cost off-site lanes
+  - the report ends with one recommended first lane, one recommended on-site
+    listening pattern, required metadata/assets, and explicit older-reader copy
+    guidance
+  - touched truth surfaces compile and check cleanly with
+    `make methodology-compile` and `make methodology-check`
+- **Baseline now**:
+  - the repo has a real on-site audiobook surface through
+    `audiobook/manifest.json`, `build/family-site/audiobook.html`, and
+    chapter-level listening panels in `modules/build_family_site.py`
+  - `docs/scout.md` has no audiobook-distribution scout entry yet
+  - `tests/fixtures/formats/_coverage-matrix.json` still describes off-site
+    audiobook distribution as unresolved future work
+  - no repo-local ADR or eval entry currently captures the audiobook lane
+    decision
+- **Candidate approaches**:
+  - AI-only synthesis without browsing: reject, because provider rules,
+    pricing, and publish surfaces are time-sensitive and require primary-source
+    verification
+  - hybrid research + repo documentation update: preferred; use current vendor
+    docs as evidence, then record the recommendation in repo truth surfaces
+  - pure code: not the main solution; code inspection is only needed to
+    confirm the current on-site listening substrate
+
+### Task Plan
+
+1. **Capture the scout evidence and recommendation** (`S`)
+   - Files: `docs/scout/scout-002-audiobook-distribution-and-elder-friendly-listening.md`,
+     `docs/scout.md`
+   - Gather current primary-source evidence for the candidate lanes, including
+     the shipped on-site browser/download flow and the external options that
+     were already named in project notes.
+   - Done looks like: one dated scout report compares lane friction, costs,
+     account requirements, embeddability/linking, and family-reader fit, then
+     recommends the first lane unambiguously.
+
+2. **Refresh the project truth surfaces** (`XS`)
+   - Files: `docs/presentation-decisions.md`, `docs/infrastructure.md`,
+     `docs/RUNBOOK.md`
+   - Record only the repo truths that the scout actually settles: likely the
+     preferred first listening/discovery pattern, the preferred first publish
+     lane, and any hosting or operator constraints that matter for later build
+     work.
+   - Done looks like: no core doc still implies that audiobook distribution is
+     entirely undecided where this story now establishes a recommendation.
+
+3. **Keep methodology and follow-up hooks honest** (`XS`)
+   - Files: this story file, `docs/evals/registry.yaml` only if the scout
+     defines a standing gate
+   - Update the work log with exploration/implementation evidence, and only add
+     an eval registry entry if the scout introduces a recurring verification
+     rule that future stories should rerun.
+   - Done looks like: the next story can build or reject the lane without
+     repeating the research, and no fake eval completeness is added.
+
+4. **Verify the touched scope** (`XS`)
+   - Run: `make methodology-compile`, `make methodology-check`
+   - Inspect: the new scout report for plain-language clarity and the updated
+     truth docs for consistency with the shipped on-site audiobook surface
+   - Done looks like: the repo compiles cleanly and the recommendation reads as
+     a family-facing access plan rather than maintainer shorthand.
 
 ## Work Log
 
@@ -249,3 +313,54 @@ panels, evidence: repo-local `audiobook/manifest.json`, builder/test updates,
 and coverage rows moving from `planned` to `partial`, next step: keep this
 story focused on dated off-site distribution research and family-friendly link
 copy instead of reopening the already-started on-site build slice.
+20260412-1308 — exploration: verified Ideal/spec alignment against
+`docs/ideal.md`, `docs/spec.md`, `docs/methodology/state.yaml`, and
+`docs/methodology/graph.json`; no repo-local ADR applies. Read dependency
+stories `story-005` and `story-006`, the current audiobook implementation in
+`story-011`, coverage rows `chapter-audio` and `full-book-audio`, and the live
+repo truth surfaces in `docs/presentation-decisions.md`,
+`docs/infrastructure.md`, `docs/RUNBOOK.md`, `README.md`, and
+`docs/runbooks/elevenlabs-audiobook.md`. Traced the actual on-site listening
+substrate through `modules/build_family_site.py`, `audiobook/manifest.json`,
+and the existing audiobook build commands; confirmed the story is buildable,
+not blocked, because the on-site browser/download flow is already real and the
+remaining gap is dated primary-source comparison plus recommendation capture.
+Files likely to change: the new scout report, `docs/scout.md`, and whichever of
+the presentation/infrastructure/runbook docs the research materially settles.
+Files at risk are documentation-only; no code or schema change is currently
+required. Next step: present the plan for approval, then perform the research
+and truth-surface updates.
+20260412-1517 — implementation: completed the dated scout and truth-surface
+refresh for audiobook delivery. Added
+`docs/scout/scout-002-audiobook-distribution-and-elder-friendly-listening.md`
+and indexed it from `docs/scout.md`; updated
+`docs/presentation-decisions.md`, `docs/infrastructure.md`, and
+`docs/RUNBOOK.md` to record the settled recommendation that the site-hosted
+MP3 flow is the first family listening lane and that external platforms remain
+secondary duplicates at most. Primary-source evidence gathered in this pass:
+ElevenReader Publishing is free but does not accept external audio uploads and
+generates narration on demand inside the product; Spotify direct upload is
+free, non-exclusive, and supports ElevenLabs digital voice narration but adds
+purchase/account/app friction; Voices by INaudio is a retail/library
+distribution path with pricing, payout, and go-live overhead; Audio Native and
+ElevenLabs Video do not solve this story's distribution problem. Verification
+in this pass: `make methodology-compile`, `make methodology-check`, and manual
+review of the new scout for plain-language clarity. `docs/evals/registry.yaml`
+was intentionally left unchanged because this story did not create a recurring
+measured gate. Next step: `/validate`.
+20260412-1534 — validation repair: aligned
+`tests/fixtures/formats/_coverage-matrix.json` with the newly landed scout so
+the canonical planning truth no longer says the audiobook distribution lane is
+unresolved after this story's recommendation. Fresh verification in this pass:
+`make methodology-compile`, `make methodology-check`, and `git diff --check`.
+Result: generated methodology views now match the updated audiobook lane
+recommendation, the story's validation gate is complete, and the only
+remaining close-out step is `/mark-story-done`.
+20260412-1540 — close-out: marked Story 008 done after fresh completion
+evidence confirmed the scout, truth-surface updates, and validation suite on
+the current tip. Close-out verification in this pass: `python -m pytest tests/`
+(`39 passed`), `python -m ruff check modules/ tests/`, `make methodology-compile`,
+`make methodology-check`, and `git diff --check`. Result: the story status,
+workflow gates, coverage-matrix truth, generated methodology views, and
+changelog are now aligned with the shipped audiobook-distribution recommendation.
+Next step: `/check-in-diff`.

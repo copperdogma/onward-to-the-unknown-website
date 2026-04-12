@@ -83,6 +83,10 @@ the real environment changes.
     remove paths that disappeared from the source bundle
   - the repo-local `/deploy` skill wraps that command and requires public
     hostname verification after upload
+  - because that same deploy path already publishes `audiobook.html` plus the
+    generated `audiobook/` MP3 assets, the repo-owned website is the current
+    recommended first audiobook distribution lane for family listening; no
+    extra platform is required to launch the audiobook surface
   - the current live payload is the staged export bundle
     `input/doc-web-html/story206-onward-proof-r10`
 

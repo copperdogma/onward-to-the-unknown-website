@@ -167,6 +167,12 @@ For a quick manual inspection after the build, check:
 - the memoir supplement page when present:
   `build/family-site/rolland-alain-memoir-family-story.html`
 
+For the current family-facing launch plan, treat this site-hosted surface as
+the canonical audiobook lane. The expected reader path is simple browser play
+or direct MP3 download with no app or account requirement. External platforms
+such as Spotify, ElevenReader, or Voices by INaudio are optional follow-up
+lanes, not prerequisites for shipping the current audiobook surface.
+
 ## UI Scout Lane
 
 Use the dedicated internal UI-scout lane when walking the current website like
