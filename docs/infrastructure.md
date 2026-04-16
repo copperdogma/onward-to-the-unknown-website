@@ -77,16 +77,17 @@ the real environment changes.
     SFTP to `/home/onward_user/onward.copper-dog.com`
   - when the source is the generated whole-book shell at `build/family-site/`,
     the deploy helper excludes `_internal/` maintenance artifacts from the
-    published payload and will publish any generated `audiobook/` MP3 assets
-    plus `audiobook.html`
+    published payload and will publish any generated `audiobook/` or
+    `podcast/` MP3 assets plus `audiobook.html` and `podcast.html`
   - the script keeps a remote `.deploy-manifest.json` so later deploys can
     remove paths that disappeared from the source bundle
   - the repo-local `/deploy` skill wraps that command and requires public
     hostname verification after upload
-  - because that same deploy path already publishes `audiobook.html` plus the
-    generated `audiobook/` MP3 assets, the repo-owned website is the current
-    recommended first audiobook distribution lane for family listening; no
-    extra platform is required to launch the audiobook surface
+  - because that same deploy path already publishes `audiobook.html`,
+    `podcast.html`, and the generated `audiobook/` and `podcast/` MP3 assets,
+    the repo-owned website is the current recommended first listening lane for
+    both audiobook and podcast delivery; no extra platform is required to
+    launch either family-facing surface
   - the current live payload is the staged export bundle
     `input/doc-web-html/story206-onward-proof-r10`
 

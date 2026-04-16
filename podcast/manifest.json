@@ -1,0 +1,188 @@
+{
+  "schema_version": "onward_podcast_manifest_v1",
+  "title": "Onward to the Unknown Podcast",
+  "generator": "NotebookLM",
+  "prompt_path": "notebooklm-prompt.md",
+  "full_book_episode": {
+    "title": "Overview: Three Centuries of L'Heureux Family Grit",
+    "audio_path": "NotebookLM_Onward_to_the_Unknown/01_Overview_Three_Centuries_of_L_Heureux_Family_Grit.mp3",
+    "source_path": "../input/doc-web-html/story206-onward-proof-r10",
+    "source_export_filename": "01_Overview_Three_Centuries_of_L_Heureux_Family_Grit.m4a",
+    "source_note": "Whole-book NotebookLM episode generated from the staged main-book bundle.",
+    "notes": "A whole-book episode that moves across the full family history."
+  },
+  "episodes": [
+    {
+      "episode_number": 2,
+      "title": "The First L'Heureux's in Canada",
+      "audio_path": "NotebookLM_Onward_to_the_Unknown/02_The First L'Heureux's in Canada_How_Suzanne_Jarousseau_saved_the_L_Heureux_name.mp3",
+      "source_path": "../audiobook/script/02-the-first-lheureuxs-in-canada.md",
+      "source_export_filename": "02_The First L'Heureux's in Canada_How_Suzanne_Jarousseau_saved_the_L_Heureux_name.m4a",
+      "source_note": "NotebookLM episode generated from the audiobook script for Chapter 02.",
+      "target_entry_id": "chapter-002",
+      "notes": "A chapter episode following Suzanne Jarousseau and the first L'Heureux family in Canada."
+    },
+    {
+      "episode_number": 3,
+      "title": "Moïse and Sophie",
+      "audio_path": "NotebookLM_Onward_to_the_Unknown/03-moise-and-sophie_Moïse_and_Sophie_L_Heureux_s_Frontier_Survival.mp3",
+      "source_path": "../audiobook/script/03-moise-and-sophie.md",
+      "source_export_filename": "03-moise-and-sophie_Moïse_and_Sophie_L_Heureux_s_Frontier_Survival.m4a",
+      "source_note": "NotebookLM episode generated from the audiobook script for Chapter 03.",
+      "target_entry_id": "chapter-005"
+    },
+    {
+      "episode_number": 4,
+      "title": "Memories",
+      "audio_path": "NotebookLM_Onward_to_the_Unknown/04-memories_Sophisticated_culture_on_a_rugged_pioneer_farm.mp3",
+      "source_path": "../audiobook/script/04-memories.md",
+      "source_export_filename": "04-memories_Sophisticated_culture_on_a_rugged_pioneer_farm.m4a",
+      "source_note": "NotebookLM episode generated from the audiobook script for Chapter 04.",
+      "target_entry_id": "chapter-007"
+    },
+    {
+      "episode_number": 5,
+      "title": "Alma Marie (L'Heureux) Alain",
+      "audio_path": "NotebookLM_Onward_to_the_Unknown/05-alma-marie-lheureux-alain_From_ox_carts_to_steam_engines.mp3",
+      "source_path": "../audiobook/script/05-alma-marie-lheureux-alain.md",
+      "source_export_filename": "05-alma-marie-lheureux-alain_From_ox_carts_to_steam_engines.m4a",
+      "source_note": "NotebookLM episode generated from the audiobook script for Chapter 05.",
+      "target_entry_id": "chapter-009"
+    },
+    {
+      "episode_number": 6,
+      "title": "Arthur L'Heureux",
+      "audio_path": "NotebookLM_Onward_to_the_Unknown/06-arthur-lheureux_Arthur_L_Heureux_s_Whistle_and_Fifty-Six_Horses.mp3",
+      "source_path": "../audiobook/script/06-arthur-lheureux.md",
+      "source_export_filename": "06-arthur-lheureux_Arthur_L_Heureux_s_Whistle_and_Fifty-Six_Horses.m4a",
+      "source_note": "NotebookLM episode generated from the audiobook script for Chapter 06.",
+      "target_entry_id": "chapter-010"
+    },
+    {
+      "episode_number": 7,
+      "title": "Leonidas L'Heureux",
+      "audio_path": "NotebookLM_Onward_to_the_Unknown/07-leonidas-lheureux_The_Brutal_Survival_of_Leonidas_L_Heureux.mp3",
+      "source_path": "../audiobook/script/07-leonidas-lheureux.md",
+      "source_export_filename": "07-leonidas-lheureux_The_Brutal_Survival_of_Leonidas_L_Heureux.m4a",
+      "source_note": "NotebookLM episode generated from the audiobook script for Chapter 07.",
+      "target_entry_id": "chapter-011"
+    },
+    {
+      "episode_number": 8,
+      "title": "Josephine (L'Heureux) Alain",
+      "audio_path": "NotebookLM_Onward_to_the_Unknown/08-josephine-lheureux-alain_How_Josephine_L_Heureux_anchored_her_family.mp3",
+      "source_path": "../audiobook/script/08-josephine-lheureux-alain.md",
+      "source_export_filename": "08-josephine-lheureux-alain_How_Josephine_L_Heureux_anchored_her_family.m4a",
+      "source_note": "NotebookLM episode generated from the audiobook script for Chapter 08.",
+      "target_entry_id": "chapter-012"
+    },
+    {
+      "episode_number": 9,
+      "title": "Paul L'Heureux",
+      "audio_path": "NotebookLM_Onward_to_the_Unknown/09-paul-lheureux_Paul_L_Heureux_From_Horseback_to_Bush_Pilot.mp3",
+      "source_path": "../audiobook/script/09-paul-lheureux.md",
+      "source_export_filename": "09-paul-lheureux_Paul_L_Heureux_From_Horseback_to_Bush_Pilot.m4a",
+      "source_note": "NotebookLM episode generated from the audiobook script for Chapter 09.",
+      "target_entry_id": "chapter-013"
+    },
+    {
+      "episode_number": 10,
+      "title": "George L'Heureux",
+      "audio_path": "NotebookLM_Onward_to_the_Unknown/10-george-lheureux_Dragging_a_House_Across_the_Prairie.mp3",
+      "source_path": "../audiobook/script/10-george-lheureux.md",
+      "source_export_filename": "10-george-lheureux_Dragging_a_House_Across_the_Prairie.m4a",
+      "source_note": "NotebookLM episode generated from the audiobook script for Chapter 10.",
+      "target_entry_id": "chapter-014"
+    },
+    {
+      "episode_number": 11,
+      "title": "Joe (Joseph) L'Heureux",
+      "audio_path": "NotebookLM_Onward_to_the_Unknown/11-joe-joseph-lheureux_Joe_L_Heureux_Outsmarted_the_Canadian_Prairies.mp3",
+      "source_path": "../audiobook/script/11-joe-joseph-lheureux.md",
+      "source_export_filename": "11-joe-joseph-lheureux_Joe_L_Heureux_Outsmarted_the_Canadian_Prairies.m4a",
+      "source_note": "NotebookLM episode generated from the audiobook script for Chapter 11.",
+      "target_entry_id": "chapter-015"
+    },
+    {
+      "episode_number": 12,
+      "title": "Mathilda (L'Heureux) Devlin",
+      "audio_path": "NotebookLM_Onward_to_the_Unknown/12-mathilda-lheureux-devlin_Twenty_Five_Years_Of_Devlin_Farm_Survival.mp3",
+      "source_path": "../audiobook/script/12-mathilda-lheureux-devlin.md",
+      "source_export_filename": "12-mathilda-lheureux-devlin_Twenty_Five_Years_Of_Devlin_Farm_Survival.m4a",
+      "source_note": "NotebookLM episode generated from the audiobook script for Chapter 12.",
+      "target_entry_id": "chapter-016"
+    },
+    {
+      "episode_number": 13,
+      "title": "Marie-Louise (L'Heureux) LaClare",
+      "audio_path": "NotebookLM_Onward_to_the_Unknown/13-marie-louise-lheureux-laclare_Cat_hide_shoelaces_and_radical_hospitality.mp3",
+      "source_path": "../audiobook/script/13-marie-louise-lheureux-laclare.md",
+      "source_export_filename": "13-marie-louise-lheureux-laclare_Cat_hide_shoelaces_and_radical_hospitality.m4a",
+      "source_note": "NotebookLM episode generated from the audiobook script for Chapter 13.",
+      "target_entry_id": "chapter-017"
+    },
+    {
+      "episode_number": 14,
+      "title": "Roseanna (L'Heureux) Landreville",
+      "audio_path": "NotebookLM_Onward_to_the_Unknown/14-roseanna-lheureux-landreville_Wolves,_Cold_Tea,_and_Tiny_Boots.mp3",
+      "source_path": "../audiobook/script/14-roseanna-lheureux-landreville.md",
+      "source_export_filename": "14-roseanna-lheureux-landreville_Wolves,_Cold_Tea,_and_Tiny_Boots.m4a",
+      "source_note": "NotebookLM episode generated from the audiobook script for Chapter 14.",
+      "target_entry_id": "chapter-018"
+    },
+    {
+      "episode_number": 15,
+      "title": "Antoinette (L'Heureux) Richard",
+      "audio_path": "NotebookLM_Onward_to_the_Unknown/15-antoinette-lheureux-richard_Feeding_Boxcar_Workers_with_the_Richard_Family.mp3",
+      "source_path": "../audiobook/script/15-antoinette-lheureux-richard.md",
+      "source_export_filename": "15-antoinette-lheureux-richard_Feeding_Boxcar_Workers_with_the_Richard_Family.m4a",
+      "source_note": "NotebookLM episode generated from the audiobook script for Chapter 15.",
+      "target_entry_id": "chapter-019"
+    },
+    {
+      "episode_number": 16,
+      "title": "Emilie (L'Heureux) Nolin",
+      "audio_path": "NotebookLM_Onward_to_the_Unknown/16-emilie-lheureux-nolin_The_prairie_survival_of_Emilie_L_Heureux.mp3",
+      "source_path": "../audiobook/script/16-emilie-lheureux-nolin.md",
+      "source_export_filename": "16-emilie-lheureux-nolin_The_prairie_survival_of_Emilie_L_Heureux.m4a",
+      "source_note": "NotebookLM episode generated from the audiobook script for Chapter 16.",
+      "target_entry_id": "chapter-020"
+    },
+    {
+      "episode_number": 17,
+      "title": "Wilfrid L'Heureux",
+      "audio_path": "NotebookLM_Onward_to_the_Unknown/17-wilfrid-lheureux_Wilfrid_L_Heureux_From_Broncos_to_Tanks.mp3",
+      "source_path": "../audiobook/script/17-wilfrid-lheureux.md",
+      "source_export_filename": "17-wilfrid-lheureux_Wilfrid_L_Heureux_From_Broncos_to_Tanks.m4a",
+      "source_note": "NotebookLM episode generated from the audiobook script for Chapter 17.",
+      "target_entry_id": "chapter-021"
+    },
+    {
+      "episode_number": 18,
+      "title": "Pierre L'Heureux",
+      "audio_path": "NotebookLM_Onward_to_the_Unknown/18-pierre-lheureux_The_Living_Room_Dentist_of_Jackfish.mp3",
+      "source_path": "../audiobook/script/18-pierre-lheureux.md",
+      "source_export_filename": "18-pierre-lheureux_The_Living_Room_Dentist_of_Jackfish.m4a",
+      "source_note": "NotebookLM episode generated from the audiobook script for Chapter 18.",
+      "target_entry_id": "chapter-022"
+    },
+    {
+      "episode_number": 19,
+      "title": "Antoine L'Heureux",
+      "audio_path": "NotebookLM_Onward_to_the_Unknown/19-antoine-lheureux_Antoine_L_Heureux_and_the_Jackfish_Kid.mp3",
+      "source_path": "../audiobook/script/19-antoine-lheureux.md",
+      "source_export_filename": "19-antoine-lheureux_Antoine_L_Heureux_and_the_Jackfish_Kid.m4a",
+      "source_note": "NotebookLM episode generated from the audiobook script for Chapter 19.",
+      "target_entry_id": "chapter-023"
+    },
+    {
+      "episode_number": 20,
+      "title": "Rolland Alain Memoir Family Story",
+      "audio_path": "NotebookLM_Onward_to_the_Unknown/20-rolland-alain-memoir-family-story.md_Frontier_Justice_and_the_Rolland_Alain_Memoir.mp3",
+      "source_path": "../audiobook/script/20-rolland-alain-memoir-family-story.md",
+      "source_export_filename": "20-rolland-alain-memoir-family-story.md_Frontier_Justice_and_the_Rolland_Alain_Memoir.m4a",
+      "source_note": "NotebookLM episode generated from the audiobook script for the Rolland Alain memoir supplement.",
+      "target_entry_id": "supplement-rolland-alain-memoir"
+    }
+  ]
+}

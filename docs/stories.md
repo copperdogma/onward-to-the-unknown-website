@@ -9,7 +9,7 @@ Current priority: refine the existing whole-book reading surface into a site tha
 ## Current Stories
 
 - **Done** — `docs/stories/story-001-first-accessible-site-and-dreamhost-deploy.md` — DreamHost Hosted Subdomain, DNS, and Static Deploy Path
-- **Draft** — `docs/stories/story-002-notebooklm-family-story-podcasts.md` — NotebookLM Whole-Book And Family-Story Podcasts
+- **Draft** — `docs/stories/story-002-notebooklm-family-story-podcasts.md` — NotebookLM Whole-Book And Chapter Podcasts
 - **Done** — `docs/stories/story-003-elevenlabs-full-audiobook.md` — ElevenLabs Full Audiobook
 - **Done** — `docs/stories/story-004-first-local-accessible-family-pages-slice.md` — First Local Accessible Family-Pages Slice
 - **Done** — `docs/stories/story-005-whole-book-accessible-reading-surface-and-omission-audit.md` — Whole-Book Accessible Reading Surface And Omission Audit
@@ -21,3 +21,4 @@ Current priority: refine the existing whole-book reading surface into a site tha
 - **Done** — `docs/stories/story-011-first-on-site-audiobook-listening-surface.md` — First On-Site Audiobook Listening Surface
 - **Done** — `docs/stories/story-012-cross-page-shell-review-and-polish.md` — Cross-Page Shell Review And Polish
 - **Done** — `docs/stories/story-013-archive-source-library-and-download-links.md` — Archive Source Library And Download Links
+- **Done** — `docs/stories/story-014-first-on-site-podcast-listening-surface.md` — First On-Site Podcast Listening Surface

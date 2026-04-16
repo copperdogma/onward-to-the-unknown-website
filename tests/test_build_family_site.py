@@ -58,6 +58,54 @@ def write_fixture_audiobook_manifest(
     return manifest_path
 
 
+def write_fixture_podcast_manifest(
+    tmp_path: Path,
+    *,
+    episodes: list[dict[str, object]],
+    full_book_episode: dict[str, object] | None = None,
+    title: str = "Fixture Podcast",
+) -> Path:
+    podcast_root = tmp_path / "podcast-fixture"
+    prompt_path = podcast_root / "notebooklm-prompt.md"
+    prompt_path.parent.mkdir(parents=True, exist_ok=True)
+    prompt_path.write_text("# Fixture prompt\n", encoding="utf-8")
+
+    for episode in episodes:
+        audio_relative_path = Path(str(episode["audio_path"]))
+        source_relative_path = Path(str(episode["source_path"]))
+        audio_path = podcast_root / audio_relative_path
+        source_path = podcast_root / source_relative_path
+        audio_path.parent.mkdir(parents=True, exist_ok=True)
+        source_path.parent.mkdir(parents=True, exist_ok=True)
+        audio_path.write_bytes(b"ID3 fixture mp3")
+        source_path.write_text(f"# {episode['title']}\n", encoding="utf-8")
+
+    if full_book_episode:
+        full_audio_path = podcast_root / Path(str(full_book_episode["audio_path"]))
+        full_source_path = podcast_root / Path(str(full_book_episode["source_path"]))
+        full_audio_path.parent.mkdir(parents=True, exist_ok=True)
+        full_source_path.parent.mkdir(parents=True, exist_ok=True)
+        full_audio_path.write_bytes(b"ID3 fixture full podcast")
+        full_source_path.write_text(f"# {full_book_episode['title']}\n", encoding="utf-8")
+
+    manifest_path = podcast_root / "manifest.json"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "onward_podcast_manifest_v1",
+                "title": title,
+                "prompt_path": "notebooklm-prompt.md",
+                "full_book_episode": full_book_episode,
+                "episodes": episodes,
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    return manifest_path
+
+
 def test_build_family_site_emits_reader_facing_pages_and_internal_audit(tmp_path):
     fixture_dir = (
         Path(__file__).resolve().parent
@@ -73,10 +121,13 @@ def test_build_family_site_emits_reader_facing_pages_and_internal_audit(tmp_path
         output_dir=output_dir,
         site_title="Fixture Reading Surface",
         audiobook_manifest_path=None,
+        podcast_manifest_path=None,
     )
 
     assert result.rendered_entry_ids == ("page-001", "chapter-001", "chapter-009")
     assert (output_dir / "index.html").exists()
+    assert (output_dir / "book.html").exists()
+    assert (output_dir / "archive-sources.html").exists()
     assert (output_dir / "page-001.html").exists()
     assert (output_dir / "chapter-001.html").exists()
     assert (output_dir / "chapter-009.html").exists()
@@ -90,6 +141,8 @@ def test_build_family_site_emits_reader_facing_pages_and_internal_audit(tmp_path
     assert (output_dir / "_internal" / "source-manifest.json").exists()
 
     landing_html = (output_dir / "index.html").read_text(encoding="utf-8")
+    book_html = (output_dir / "book.html").read_text(encoding="utf-8")
+    source_library_html = (output_dir / "archive-sources.html").read_text(encoding="utf-8")
     page_html = (output_dir / "page-001.html").read_text(encoding="utf-8")
     chapter_one_html = (output_dir / "chapter-001.html").read_text(encoding="utf-8")
     chapter_html = (output_dir / "chapter-009.html").read_text(encoding="utf-8")
@@ -104,21 +157,34 @@ def test_build_family_site_emits_reader_facing_pages_and_internal_audit(tmp_path
     assert "What you'll find here" in landing_html
     assert "Book pages and chapters" in landing_html
     assert "Take your time and follow the names, memories, and places that feel familiar to you." in landing_html
-    assert "Opening Pages" in landing_html
-    assert "Family Stories" in landing_html
+    assert "Opening Pages" not in landing_html
+    assert "Family Stories" not in landing_html
     assert "Closing Archive" not in unescape(landing_html)
-    assert landing_html.count('class="nav-button-icon"') == 2
     assert landing_html.count('class="section-title-icon"') == 2
-    assert 'href="#opening-pages"><span class="nav-button-content"><span class="nav-button-icon">' in landing_html
-    assert 'href="#family-stories"><span class="nav-button-content"><span class="nav-button-icon">' in landing_html
     assert '<span class="section-title-icon">' in landing_html
-    assert "Alma Marie (L'Heureux) Alain" in unescape(landing_html)
-    assert "The Ancestral Lineage of Moïse and Sophie" in unescape(landing_html)
+    assert 'id="book"' in landing_html
+    assert 'id="archive-sources"' in landing_html
+    assert "Go to Book" in landing_html
+    assert "Go to Archive Sources" in landing_html
+    assert "Alma Marie (L'Heureux) Alain" not in unescape(landing_html)
+    assert "The Ancestral Lineage of Moïse and Sophie" not in unescape(landing_html)
     assert "Onward to the Unknown" in unescape(landing_html)
     assert "Image 1" not in landing_html
     assert "ONWARD TO THE UNKNOWN 1887 - 1987" not in unescape(landing_html)
-    assert 'class="story-card-media"' in landing_html
-    assert 'src="images/family-portrait.svg"' in landing_html
+    assert 'class="story-card-media"' not in landing_html
+    assert 'src="images/family-portrait.svg"' not in landing_html
+    assert 'class="site-menu-link-content"' in landing_html
+    assert 'class="site-menu-link-icon"' in landing_html
+    assert "Opening Pages" in book_html
+    assert "Family Stories" in book_html
+    assert "Closing Archive" not in unescape(book_html)
+    assert "Alma Marie (L'Heureux) Alain" in unescape(book_html)
+    assert "The Ancestral Lineage of Moïse and Sophie" in unescape(book_html)
+    assert 'class="story-card-media"' in book_html
+    assert 'src="images/family-portrait.svg"' in book_html
+    assert 'class="site-menu-link is-current" href="book.html" aria-current="page"' in book_html
+    assert "Open the Book PDF" not in book_html
+    assert "Archive Shelf" in source_library_html
     assert "<title>Onward to the Unknown — Fixture Reading Surface</title>" in page_html
     assert f'<link rel="stylesheet" href="{SITE_STYLESHEET_HREF}">' in page_html
     assert "<h1 id=\"blk-page-001-0001\">Onward to the Unknown</h1>" in page_html
@@ -129,6 +195,11 @@ def test_build_family_site_emits_reader_facing_pages_and_internal_audit(tmp_path
     assert 'aria-label="Home"' in chapter_html
     assert 'class="site-title site-title-link" href="index.html"' in page_html
     assert 'class="site-title site-title-link" href="index.html"' in chapter_html
+    assert 'aria-label="Site sections"' in page_html
+    assert 'href="book.html"' in chapter_html
+    assert 'href="archive-sources.html"' in chapter_html
+    assert 'href="audiobook.html"' in chapter_html
+    assert 'href="podcast.html"' in chapter_html
     assert 'class="article-heading-row"' not in page_html
     assert 'class="article-heading-row"' in chapter_one_html
     assert 'class="article-heading-icon"' in chapter_html
@@ -149,7 +220,7 @@ def test_build_family_site_emits_reader_facing_pages_and_internal_audit(tmp_path
     assert ".home-hero-grid" in stylesheet
     assert ".home-hero-aside" in stylesheet
     assert ".home-feature-grid" in stylesheet
-    assert "grid-template-columns: repeat(2, minmax(0, 1fr));" in stylesheet
+    assert "grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));" in stylesheet
     assert "max-width: none;" in stylesheet
     assert ".audio-hero h1" in stylesheet
     assert "white-space: nowrap;" in stylesheet
@@ -158,9 +229,10 @@ def test_build_family_site_emits_reader_facing_pages_and_internal_audit(tmp_path
     assert ".audio-runtime" in stylesheet
     assert ".nav-button-icon" in stylesheet
     assert ".nav-button-content" in stylesheet
-    assert ".jump-row .nav-button-icon" in stylesheet
-    assert ".jump-row .nav-button-label" in stylesheet
-    assert ".jump-row .nav-button-icon {\n  width: 1.375rem;\n  height: 1.375rem;" in stylesheet
+    assert ".site-menu-link" in stylesheet
+    assert ".site-menu-link-content" in stylesheet
+    assert ".site-menu-link-icon" in stylesheet
+    assert ".entry-audio-grid" in stylesheet
     assert ".section-title-icon {\n  width: 2.8rem;\n  height: 2.8rem;" in stylesheet
     assert ".section-title-icon" in stylesheet
 
@@ -190,6 +262,7 @@ def test_build_family_site_rejects_missing_requested_entry(tmp_path):
             output_dir=tmp_path / "family-site",
             entry_ids=["chapter-999"],
             audiobook_manifest_path=None,
+            podcast_manifest_path=None,
         )
     except SystemExit as exc:
         assert "chapter-999" in str(exc)
@@ -213,6 +286,7 @@ def test_build_family_site_audits_filtered_subset(tmp_path):
         entry_ids=["chapter-009"],
         site_title="Fixture Reading Surface",
         audiobook_manifest_path=None,
+        podcast_manifest_path=None,
     )
 
     assert result.rendered_entry_ids == ("chapter-009",)
@@ -302,7 +376,12 @@ def test_build_family_site_avoids_duplicate_browser_title_for_cover_page(tmp_pat
     )
     output_dir = tmp_path / "family-site"
 
-    build_family_site(source_dir=fixture_dir, output_dir=output_dir, audiobook_manifest_path=None)
+    build_family_site(
+        source_dir=fixture_dir,
+        output_dir=output_dir,
+        audiobook_manifest_path=None,
+        podcast_manifest_path=None,
+    )
 
     page_html = (output_dir / "page-001.html").read_text(encoding="utf-8")
     assert "<title>Onward to the Unknown</title>" in page_html
@@ -350,6 +429,7 @@ def test_build_family_site_surfaces_audiobook_page_and_entry_panel(tmp_path):
         output_dir=output_dir,
         site_title="Fixture Reading Surface",
         audiobook_manifest_path=audiobook_manifest_path,
+        podcast_manifest_path=None,
     )
 
     landing_html = (output_dir / "index.html").read_text(encoding="utf-8")
@@ -362,16 +442,22 @@ def test_build_family_site_surfaces_audiobook_page_and_entry_panel(tmp_path):
     assert (output_dir / "audiobook" / "tracks" / "05-alma-marie.mp3").exists()
     assert (output_dir / "audiobook" / "tracks" / "full-audiobook.mp3").exists()
     assert (output_dir / "_internal" / "audiobook" / "manifest.json").exists()
-    assert "Fixture Audiobook" in landing_html
-    assert "Open Audiobook Player" in landing_html
-    assert "Play Full Audiobook" in landing_html
-    assert "Download Full Audiobook" in landing_html
+    assert "Fixture Audiobook" not in landing_html
+    assert "Go to Book" in landing_html
+    assert "Go to Archive Sources" in landing_html
+    assert "Go to Audiobook" in landing_html
+    assert "Open Audiobook Player" not in landing_html
+    assert "Play Full Audiobook" not in landing_html
+    assert "Download Full Audiobook" not in landing_html
     assert 'class="home-feature-grid"' in landing_html
-    assert landing_html.count('class="nav-button-icon"') == 3
     assert landing_html.count('class="section-title-icon"') == 3
-    assert 'href="#audiobook"><span class="nav-button-content"><span class="nav-button-icon">' in landing_html
     assert '<h2 class="section-title"><span class="section-title-row"><span class="section-title-icon">' in landing_html
+    assert "Start Reading" not in landing_html
     assert 'class="site-title site-title-link" href="index.html"' in audiobook_html
+    assert 'aria-label="Site sections"' in audiobook_html
+    assert 'href="book.html"' in audiobook_html
+    assert 'href="archive-sources.html"' in audiobook_html
+    assert 'class="site-menu-link is-current" href="audiobook.html" aria-current="page"' in audiobook_html
     assert 'aria-label="Home"' not in audiobook_html
     assert 'class="site-title-row"' not in audiobook_html
     assert 'id="full-audiobook"' in audiobook_html
@@ -383,7 +469,11 @@ def test_build_family_site_surfaces_audiobook_page_and_entry_panel(tmp_path):
     assert "reviewed audiobook script set" not in audiobook_html
     assert "Merged fixture audiobook." not in audiobook_html
     assert 'src="audiobook/tracks/full-audiobook.mp3"' in audiobook_html
-    assert "Listen to this section" in chapter_html
+    assert audiobook_html.index('id="full-audiobook"') < audiobook_html.index('id="track-05"')
+    assert "Individual Tracks" in audiobook_html
+    assert 'class="entry-audio-grid has-single"' in chapter_html
+    assert '<details class="panel entry-audio-panel">' in chapter_html
+    assert "Audiobook / Track 05" in chapter_html
     assert 'src="audiobook/tracks/05-alma-marie.mp3"' in chapter_html
     assert "Open Full Audiobook" in chapter_html
     assert "Run time 1:23" in audiobook_html
@@ -403,6 +493,174 @@ def test_build_family_site_surfaces_audiobook_page_and_entry_panel(tmp_path):
     assert ".audio-track-card .nav-button-icon" in stylesheet
     assert "grid-template-columns: 1fr;" in stylesheet
     assert "grid-template-columns: minmax(0, 1.5fr) minmax(18rem, 1.1fr) auto;" in stylesheet
+
+
+def test_build_family_site_keeps_full_audiobook_section_when_mp3_is_missing(tmp_path):
+    fixture_dir = (
+        Path(__file__).resolve().parent
+        / "fixtures"
+        / "family_site_minimal"
+        / "input"
+        / "story206-onward-proof-r10"
+    )
+    output_dir = tmp_path / "family-site"
+    audiobook_manifest_path = write_fixture_audiobook_manifest(
+        tmp_path,
+        tracks=[
+            {
+                "track_number": 5,
+                "title": "Alma Marie (L'Heureux) Alain",
+                "audio_path": "tracks/05-alma-marie.mp3",
+                "script_path": "script/05-alma-marie-lheureux-alain.md",
+                "target_entry_id": "chapter-009",
+                "duration_seconds": 271,
+            },
+        ],
+        full_audiobook={
+            "title": "Full Audiobook",
+            "audio_path": "tracks/full-audiobook.mp3",
+            "silence_between_tracks_seconds": 4,
+        },
+    )
+    (audiobook_manifest_path.parent / "tracks" / "full-audiobook.mp3").unlink()
+
+    build_family_site(
+        source_dir=fixture_dir,
+        output_dir=output_dir,
+        site_title="Fixture Reading Surface",
+        audiobook_manifest_path=audiobook_manifest_path,
+        podcast_manifest_path=None,
+    )
+
+    audiobook_html = (output_dir / "audiobook.html").read_text(encoding="utf-8")
+
+    assert 'id="full-audiobook"' in audiobook_html
+    assert "The individual tracks below are ready now" in audiobook_html
+    assert 'src="audiobook/tracks/full-audiobook.mp3"' not in audiobook_html
+    assert "Download Full Audiobook" not in audiobook_html
+
+
+def test_build_family_site_surfaces_podcast_page_and_entry_panel(tmp_path):
+    fixture_dir = (
+        Path(__file__).resolve().parent
+        / "fixtures"
+        / "family_site_minimal"
+        / "input"
+        / "story206-onward-proof-r10"
+    )
+    output_dir = tmp_path / "family-site"
+    audiobook_manifest_path = write_fixture_audiobook_manifest(
+        tmp_path,
+        tracks=[
+            {
+                "track_number": 5,
+                "title": "Alma Marie (L'Heureux) Alain",
+                "audio_path": "tracks/05-alma-marie.mp3",
+                "script_path": "script/05-alma-marie-lheureux-alain.md",
+                "target_entry_id": "chapter-009",
+                "duration_seconds": 271,
+            },
+        ],
+    )
+    podcast_manifest_path = write_fixture_podcast_manifest(
+        tmp_path,
+        episodes=[
+            {
+                "episode_number": 5,
+                "title": "Alma Marie (L'Heureux) Alain",
+                "audio_path": "tracks/05-alma-marie-podcast.mp3",
+                "source_path": "sources/05-alma-marie.md",
+                "target_entry_id": "chapter-009",
+                "notes": "Companion episode for this chapter.",
+                "duration_seconds": 211,
+            },
+        ],
+        full_book_episode={
+            "title": "Whole-Book Episode",
+            "audio_path": "tracks/full-book-podcast.mp3",
+            "source_path": "sources/whole-book.md",
+            "notes": "A whole-book conversation across the family history.",
+            "duration_seconds": 354,
+        },
+    )
+
+    build_family_site(
+        source_dir=fixture_dir,
+        output_dir=output_dir,
+        site_title="Fixture Reading Surface",
+        audiobook_manifest_path=audiobook_manifest_path,
+        podcast_manifest_path=podcast_manifest_path,
+    )
+
+    landing_html = (output_dir / "index.html").read_text(encoding="utf-8")
+    podcast_html = (output_dir / "podcast.html").read_text(encoding="utf-8")
+    chapter_html = (output_dir / "chapter-009.html").read_text(encoding="utf-8")
+
+    assert (output_dir / "podcast.html").exists()
+    assert (output_dir / "podcast" / "tracks" / "05-alma-marie-podcast.mp3").exists()
+    assert (output_dir / "podcast" / "tracks" / "full-book-podcast.mp3").exists()
+    assert (output_dir / "_internal" / "podcast" / "manifest.json").exists()
+    assert (output_dir / "_internal" / "podcast" / "notebooklm-prompt.md").exists()
+    assert landing_html.count('class="section-title-icon"') == 4
+    assert "Go to Book" in landing_html
+    assert "Go to Archive Sources" in landing_html
+    assert "Go to Audiobook" in landing_html
+    assert "Go to Podcast" in landing_html
+    assert "Open Podcast Page" not in landing_html
+    assert "Play Whole-Book Episode" not in landing_html
+    assert "Download Whole-Book Episode" not in landing_html
+    assert 'class="site-title site-title-link" href="index.html"' in podcast_html
+    assert 'aria-label="Site sections"' in podcast_html
+    assert 'href="book.html"' in podcast_html
+    assert 'href="archive-sources.html"' in podcast_html
+    assert 'class="site-menu-link is-current" href="podcast.html" aria-current="page"' in podcast_html
+    assert 'id="full-book-podcast"' in podcast_html
+    assert '<section class="hero audio-hero">' in podcast_html
+    assert 'class="kicker-row"' in podcast_html
+    assert 'class="kicker-icon"' in podcast_html
+    assert 'src="podcast/tracks/full-book-podcast.mp3"' in podcast_html
+    assert "Whole-Book Episode" in podcast_html
+    assert "Episode 05" in podcast_html
+    assert "Read this chapter" in podcast_html
+    assert 'href="chapter-009.html"' in podcast_html
+    assert 'class="entry-audio-grid has-multiple"' in chapter_html
+    assert chapter_html.count('<details class="panel entry-audio-panel">') == 2
+    assert "Audiobook / Track 05" in chapter_html
+    assert "Podcast / Episode 05" in chapter_html
+    assert 'src="podcast/tracks/05-alma-marie-podcast.mp3"' in chapter_html
+    assert "Open Podcast Page" in chapter_html
+    assert "Companion episode for this chapter." in chapter_html
+    assert "Run time 3:31" in podcast_html
+    assert "Run time 5:54" in podcast_html
+
+
+def test_repo_podcast_manifest_tracks_audiobook_entry_targets():
+    repo_root = Path(__file__).resolve().parent.parent
+    audiobook_manifest = json.loads((repo_root / "audiobook" / "manifest.json").read_text(encoding="utf-8"))
+    podcast_manifest = json.loads((repo_root / "podcast" / "manifest.json").read_text(encoding="utf-8"))
+
+    audiobook_targets_by_script = {
+        str(track["script_path"]): str(track["target_entry_id"])
+        for track in audiobook_manifest["tracks"]
+        if track.get("target_entry_id")
+    }
+
+    matched_episode_count = 0
+    for episode in podcast_manifest["episodes"]:
+        source_path = Path(str(episode["source_path"]))
+        if source_path.parts[:2] != ("..", "audiobook"):
+            continue
+
+        script_path = str(Path(*source_path.parts[2:]))
+        expected_target = audiobook_targets_by_script.get(script_path)
+        assert expected_target is not None, f"Missing audiobook target mapping for {script_path}."
+        assert episode["target_entry_id"] == expected_target, (
+            f"Podcast episode {episode['episode_number']} ({episode['title']}) targets "
+            f"{episode['target_entry_id']} but the audiobook script maps to {expected_target}."
+        )
+        matched_episode_count += 1
+
+    assert matched_episode_count >= 1
 
 
 def test_merge_absorbed_article_html_skips_duplicate_cover_blocks():
@@ -517,7 +775,12 @@ def test_build_family_site_absorbs_page_002_content_into_page_001(tmp_path):
         encoding="utf-8",
     )
 
-    result = build_family_site(source_dir=source_dir, output_dir=output_dir, audiobook_manifest_path=None)
+    result = build_family_site(
+        source_dir=source_dir,
+        output_dir=output_dir,
+        audiobook_manifest_path=None,
+        podcast_manifest_path=None,
+    )
 
     assert result.rendered_entry_ids == ("page-001",)
     assert not (output_dir / "page-002.html").exists()
@@ -616,7 +879,12 @@ def test_build_family_site_keeps_absorbed_page_provenance_rows(tmp_path):
         encoding="utf-8",
     )
 
-    build_family_site(source_dir=source_dir, output_dir=output_dir, audiobook_manifest_path=None)
+    build_family_site(
+        source_dir=source_dir,
+        output_dir=output_dir,
+        audiobook_manifest_path=None,
+        podcast_manifest_path=None,
+    )
 
     provenance_rows = json.loads(
         (output_dir / "_internal" / "provenance" / "entries" / "page-001.json").read_text(encoding="utf-8")
@@ -873,7 +1141,12 @@ def test_build_family_site_surfaces_family_story_supplement(tmp_path):
     stale_public_dir.mkdir(parents=True)
     (stale_public_dir / "stale.txt").write_text("stale", encoding="utf-8")
 
-    result = build_family_site(source_dir=source_dir, output_dir=output_dir, audiobook_manifest_path=None)
+    result = build_family_site(
+        source_dir=source_dir,
+        output_dir=output_dir,
+        audiobook_manifest_path=None,
+        podcast_manifest_path=None,
+    )
 
     assert result.rendered_entry_ids == (
         "page-001",
@@ -882,6 +1155,7 @@ def test_build_family_site_surfaces_family_story_supplement(tmp_path):
         "chapter-024",
     )
     landing_html = (output_dir / "index.html").read_text(encoding="utf-8")
+    book_html = (output_dir / "book.html").read_text(encoding="utf-8")
     supplement_html = (output_dir / "rolland-alain-memoir-family-story.html").read_text(encoding="utf-8")
     source_library_html = (output_dir / "archive-sources.html").read_text(encoding="utf-8")
     omission_audit = json.loads(result.omission_audit_path.read_text(encoding="utf-8"))
@@ -897,23 +1171,32 @@ def test_build_family_site_surfaces_family_story_supplement(tmp_path):
     )
     source_library_manifest = json.loads((output_dir / "_internal" / "source-library.json").read_text(encoding="utf-8"))
 
-    assert "Rolland Alain Memoir Family Story" in landing_html
-    assert 'href="rolland-alain-memoir-family-story.html"' in landing_html
+    assert "Rolland Alain Memoir Family Story" not in landing_html
+    assert "Go to Book" in landing_html
     assert 'href="archive-sources.html"' in landing_html
-    assert 'href="source-files/Onward%20to%20the%20Unknown.pdf"' in landing_html
-    assert "Open Book PDF" in landing_html
     assert 'class="home-feature-grid"' in landing_html
-    assert "Open the book itself or browse the other family documents gathered here in one place." in landing_html
+    assert "Go to Archive Sources" in landing_html
     assert "published source files" not in landing_html
+    assert "Opening Pages" in book_html
+    assert "Family Stories" in book_html
+    assert "Closing Archive" in book_html
+    assert "Rolland Alain Memoir Family Story" in book_html
+    assert 'href="rolland-alain-memoir-family-story.html"' in book_html
+    assert "Read through the opening pages, move through the family stories, and finish with the closing archive at your own pace." in book_html
+    assert "Open the Book PDF" in book_html
+    assert 'href="source-files/Onward%20to%20the%20Unknown.pdf"' in book_html
     assert "Note that this was not a story originally included in the Onward to the Unknown book." in supplement_html
     assert "Processed through the repo's bounded non-TOC scanned supplement lane." not in supplement_html
     assert "Open Imported HTML" not in supplement_html
     assert "Open Original PDF" in supplement_html
-    assert "Download Original PDF" in supplement_html
+    assert "Download Original PDF" not in supplement_html
     assert "Archive Sources" in source_library_html
-    assert "These are the original book and family documents gathered with the archive." in source_library_html
+    assert "These are the original book and family documents gathered with the archive. Open any item in your browser and take your time with it there." in source_library_html
+    assert "Open Book PDF" in source_library_html
+    assert "Download Book PDF" not in source_library_html
+    assert 'href="source-files/Onward%20to%20the%20Unknown.pdf"' in source_library_html
     assert "current site build" not in source_library_html
-    assert "Back to Home" in source_library_html
+    assert "Back to Home" not in source_library_html
     assert "Back to Reading Surface" not in source_library_html
     source_library_text = unescape(source_library_html)
     assert "Onward to the Unknown" in source_library_text
@@ -970,6 +1253,7 @@ def test_build_family_site_keeps_source_library_when_book_pdf_is_missing(tmp_pat
         output_dir=output_dir,
         site_title="Fixture Reading Surface",
         audiobook_manifest_path=None,
+        podcast_manifest_path=None,
     )
 
     landing_html = (output_dir / "index.html").read_text(encoding="utf-8")
@@ -979,7 +1263,7 @@ def test_build_family_site_keeps_source_library_when_book_pdf_is_missing(tmp_pat
     assert 'href="archive-sources.html"' in landing_html
     assert "Open Book PDF" not in landing_html
     assert 'class="home-feature-grid"' in landing_html
-    assert "The archive collection includes 1 item." in landing_html
+    assert "Go to Archive Sources" in landing_html
     source_library_text = unescape(source_library_html)
     assert "Founding of Doremey SK" in source_library_text
     assert "A complete scanned PDF of Onward to the Unknown, the reunion history book that anchors the website." not in source_library_text

@@ -390,3 +390,16 @@ and clarified in the README/runbooks that `make build-full-audiobook` requires
 `ffmpeg` and should be rerun locally before site build/deploy when full-book
 audio needs to publish, evidence: `.gitignore`, `README.md`, `docs/RUNBOOK.md`,
 and `docs/runbooks/elevenlabs-audiobook.md`, next step: `/check-in-diff`.
+20260416-1138 — maintenance: recovered the missing merged full-audiobook asset
+using the already-maintained concat builder rather than recreating the flow,
+result: `make build-full-audiobook` regenerated
+`audiobook/ElevenLabs_Onward_to_the_Unknown/full-audiobook.mp3` from the
+ordered manifest track set, fresh `ffprobe` checks confirmed the merged runtime
+matches the sum of all track durations plus `20` four-second silence gaps
+exactly, and `make build-family-site` restored the full-audiobook player in the
+rebuilt public audiobook page, evidence: `modules/build_full_audiobook.py`,
+`scripts/build_full_audiobook.py`, `Makefile`, fresh `python -m pytest
+tests/test_build_full_audiobook.py tests/test_build_family_site.py -q`, and
+artifact checks in `build/family-site/audiobook.html` plus
+`build/family-site/audiobook/ElevenLabs_Onward_to_the_Unknown/full-audiobook.mp3`,
+next step: publish this rebuilt asset whenever the next site deploy goes out.

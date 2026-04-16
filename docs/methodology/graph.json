@@ -45,7 +45,7 @@
           "C3"
         ],
         "substrate": "partial",
-        "last_reviewed": "2026-04-10"
+        "last_reviewed": "2026-04-12"
       },
       {
         "id": "spec:4",
@@ -55,7 +55,7 @@
           "C4"
         ],
         "substrate": "partial",
-        "last_reviewed": "2026-04-09"
+        "last_reviewed": "2026-04-12"
       },
       {
         "id": "spec:5",
@@ -65,7 +65,7 @@
           "C5"
         ],
         "substrate": "partial",
-        "last_reviewed": "2026-04-10"
+        "last_reviewed": "2026-04-12"
       },
       {
         "id": "spec:6",
@@ -75,7 +75,7 @@
           "C6"
         ],
         "substrate": "partial",
-        "last_reviewed": "2026-04-09"
+        "last_reviewed": "2026-04-12"
       },
       {
         "id": "spec:7",
@@ -85,7 +85,7 @@
           "C7"
         ],
         "substrate": "partial",
-        "last_reviewed": "2026-04-11"
+        "last_reviewed": "2026-04-12"
       },
       {
         "id": "spec:8",
@@ -130,23 +130,23 @@
       },
       "spec:3": {
         "substrate": "partial",
-        "last_reviewed": "2026-04-10"
+        "last_reviewed": "2026-04-12"
       },
       "spec:4": {
         "substrate": "partial",
-        "last_reviewed": "2026-04-09"
+        "last_reviewed": "2026-04-12"
       },
       "spec:5": {
         "substrate": "partial",
-        "last_reviewed": "2026-04-10"
+        "last_reviewed": "2026-04-12"
       },
       "spec:6": {
         "substrate": "partial",
-        "last_reviewed": "2026-04-09"
+        "last_reviewed": "2026-04-12"
       },
       "spec:7": {
         "substrate": "partial",
-        "last_reviewed": "2026-04-11"
+        "last_reviewed": "2026-04-12"
       },
       "spec:8": {
         "substrate": "partial",
@@ -168,23 +168,23 @@
       },
       "C3": {
         "phase": "climb",
-        "last_reviewed": "2026-04-09"
+        "last_reviewed": "2026-04-12"
       },
       "C4": {
         "phase": "climb",
-        "last_reviewed": "2026-04-09"
+        "last_reviewed": "2026-04-12"
       },
       "C5": {
         "phase": "climb",
-        "last_reviewed": "2026-04-09"
+        "last_reviewed": "2026-04-12"
       },
       "C6": {
         "phase": "climb",
-        "last_reviewed": "2026-04-09"
+        "last_reviewed": "2026-04-12"
       },
       "C7": {
         "phase": "climb",
-        "last_reviewed": "2026-04-11"
+        "last_reviewed": "2026-04-12"
       },
       "B1": {
         "phase": "hold",
@@ -343,19 +343,19 @@
         "id": "chapter-podcasts",
         "label": "Chapter podcast episodes",
         "kind": "companion-media",
-        "upstream": "curated external links",
-        "status": "planned",
+        "upstream": "repo-owned podcast manifest and MP3 files under podcast/",
+        "status": "partial",
         "target_surface": "chapter-level companion metadata",
-        "notes": "Podcast material connected to individual chapters."
+        "notes": "The local whole-book builder now maps reviewed MP3 episodes from `podcast/manifest.json` onto matching chapter pages and adds a page-level podcast panel where a chapter episode exists. The current recommended family listening lane is this site-hosted MP3 flow, while any future external feed or directory duplicate remains optional follow-up work."
       },
       {
         "id": "full-book-podcast",
         "label": "Full book podcast",
         "kind": "companion-media",
-        "upstream": "curated external links",
-        "status": "planned",
+        "upstream": "repo-owned podcast manifest and MP3 files under podcast/",
+        "status": "partial",
         "target_surface": "global companion surface",
-        "notes": "Long-form podcast coverage for the whole book."
+        "notes": "The local builder now emits a dedicated `podcast.html` page, publishes the whole-book podcast MP3 declared in `podcast/manifest.json`, and exposes direct browser play/download controls. The current recommended first distribution lane is this site-hosted surface, with any off-site duplicate remaining optional follow-up work."
       },
       {
         "id": "scanned-supplements",
@@ -378,7 +378,7 @@
       },
       {
         "path": "docs/stories/story-002-notebooklm-family-story-podcasts.md",
-        "title": "NotebookLM Whole-Book And Family-Story Podcasts",
+        "title": "NotebookLM Whole-Book And Chapter Podcasts",
         "status": "Draft"
       },
       {
@@ -435,10 +435,15 @@
         "path": "docs/stories/story-013-archive-source-library-and-download-links.md",
         "title": "Archive Source Library And Download Links",
         "status": "Done"
+      },
+      {
+        "path": "docs/stories/story-014-first-on-site-podcast-listening-surface.md",
+        "title": "First On-Site Podcast Listening Surface",
+        "status": "Done"
       }
     ],
     "counts_by_status": {
-      "Done": 10,
+      "Done": 11,
       "Draft": 2,
       "Pending": 1
     }

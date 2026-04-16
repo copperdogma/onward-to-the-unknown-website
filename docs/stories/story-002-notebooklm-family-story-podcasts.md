@@ -1,5 +1,5 @@
 ---
-title: "NotebookLM Whole-Book And Family-Story Podcasts"
+title: "NotebookLM Whole-Book And Chapter Podcasts"
 status: "Draft"
 priority: "Medium"
 ideal_refs:
@@ -49,7 +49,7 @@ roadmap_tags:
 legacy_system: "Google NotebookLM workflow over staged archive materials"
 ---
 
-# Story 002 — NotebookLM Whole-Book And Family-Story Podcasts
+# Story 002 — NotebookLM Whole-Book And Chapter Podcasts
 
 **Priority**: Medium
 **Status**: Draft
@@ -59,7 +59,7 @@ legacy_system: "Google NotebookLM workflow over staged archive materials"
 ## Goal
 
 Create a repeatable, provenance-aware NotebookLM workflow that can generate one
-podcast for the whole book and one podcast per family story from authoritative
+podcast for the whole book and one podcast per chapter from authoritative
 source packets, without turning the process into a set of opaque one-off
 uploads that drift from the repo's source truth.
 
@@ -68,9 +68,9 @@ uploads that drift from the repo's source truth.
 - [ ] A documented source-prep workflow exists for creating one whole-book
       NotebookLM podcast from authoritative staged or canonical source
       materials.
-- [ ] Reliable per-family-story source packets are defined with naming,
-      lineage, and review rules so one podcast can be generated for each family
-      story without ad hoc selection.
+- [ ] Reliable per-chapter source packets are defined with naming, lineage, and
+      review rules so one podcast can be generated for each chapter without ad
+      hoc selection.
 - [ ] The repo records where generated podcast outputs, prompts, and metadata
       should live so the site can later link to them with inspectable
       provenance.
@@ -94,26 +94,27 @@ uploads that drift from the repo's source truth.
 - **Pure code**: Not realistic for the generation step because the core
   capability lives in an external AI product.
 - **Repo constraints / prior decisions**: There is no existing NotebookLM
-  workflow, no packet-generation rule for whole-book versus family-story
-  variants, and no output inventory path in the repo yet. The whole-book site
-  slice should shape the packet boundaries instead of every audio workflow
-  inventing its own format.
+  workflow, no packet-generation rule for whole-book versus chapter variants,
+  and no output inventory path in the repo yet. The whole-book site slice
+  should shape the packet boundaries instead of every audio workflow inventing
+  its own format.
 - **Existing patterns to reuse**: Story 005 established the authoritative
   whole-book source slice. Coverage rows already acknowledge chapter and
-  full-book podcast surfaces.
-- **Eval**: Pilot the whole-book workflow and one representative family-story
+  full-book podcast surfaces, and the audiobook script corpus now offers a
+  chapter-aligned fallback source lane when that is the clearest packet.
+- **Eval**: Pilot the whole-book workflow and one representative chapter
   packet. Compare repeatability, source lineage, and manual review burden
   before scaling to the full set.
 
 ## Tasks
 
-- [ ] Define how whole-book and per-family-story source packets will be derived
-      from the staged source snapshot or canonical site data.
+- [ ] Define how whole-book and per-chapter source packets will be derived from
+      the staged source snapshot or canonical site data.
 - [ ] Run a small baseline NotebookLM experiment on the whole-book corpus
       before building extra prep or packaging logic.
 - [ ] Document naming, provenance, storage, and human-review rules for
       generated podcasts.
-- [ ] Generate the whole-book podcast and one podcast per family story once the
+- [ ] Generate the whole-book podcast and one podcast per chapter once the
       source packets are ready.
 - [ ] Record links and metadata for generated podcasts so they can become
       inspectable companion media on the site.
@@ -180,7 +181,7 @@ N/A
 ## Files to Modify
 
 - `tests/fixtures/formats/_coverage-matrix.json` — update podcast surface truth
-  when whole-book and per-family-story outputs become real (60 lines)
+  when whole-book and per-chapter outputs become real (60 lines)
 - `docs/evals/registry.yaml` — record any baseline/pilot quality checks that
   become part of the workflow (6 lines)
 - `docs/RUNBOOK.md` — add recurring human workflow steps if this becomes a
@@ -190,7 +191,7 @@ N/A
 ## Redundancy / Removal Targets
 
 - Ad hoc NotebookLM notebook naming that is not anchored to whole-book or
-  family-story identities.
+  chapter identities.
 - Separate manual packet notes if canonical source slices can generate the same
   inputs.
 - One-off podcast link lists that are not tied back to source lineage.
@@ -200,18 +201,19 @@ N/A
 - No new story was created for the user's 2026-04-11 request because this is
   the same subsystem, validation boundary, and success surface as the existing
   NotebookLM podcast story; the honest move is to broaden this story's scope.
-- The whole-book pilot should happen before per-family scaling unless the
+- The whole-book pilot should happen before per-chapter scaling unless the
   baseline proves that the broader corpus fails badly.
-- The scoped output set is now explicit: one whole-book podcast and one podcast
-  per family story, not one per chapter.
+- The scoped output set now follows the machine-readable coverage truth and the
+  active rollout: one whole-book podcast and one podcast per chapter where an
+  episode exists.
 
 ## Plan
 
-1. Establish what the authoritative whole-book corpus and per-family-story
+1. Establish what the authoritative whole-book corpus and per-chapter
    packets are.
 2. Pilot the whole-book NotebookLM workflow with minimal tooling.
 3. Lock naming, provenance, and storage rules.
-4. Scale to one podcast per family story and record the outputs for later site
+4. Scale to one podcast per chapter and record the outputs for later site
    integration.
 
 ## Work Log
@@ -228,3 +230,11 @@ the whole-book corpus.
 20260411-1119 — action: captured remaining scope decision, result: ruled out a
 per-chapter podcast rollout for this story line, evidence: user direction in
 this thread, next step: keep the packet model centered on the family-story run.
+20260412-1600 — action: realigned the generation story with the current asset
+rollout, result: renamed the story from family-story podcasts to chapter
+podcasts because the first shipped companion episode targets `chapter-002` and
+the coverage matrix already uses `chapter-podcasts`, evidence: user-provided
+NotebookLM exports in `/Users/cam/Documents/Projects/onward-to-the-unknown-website/podcast/`
+plus `tests/fixtures/formats/_coverage-matrix.json`, next step: keep the
+workflow docs and output inventory centered on whole-book plus per-chapter
+episodes.

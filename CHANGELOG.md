@@ -1,5 +1,29 @@
 # Changelog
 
+## [2026-04-16-01] - Shipped the first on-site podcast surface (Story 014)
+
+### Added
+- Added a repo-owned podcast manifest plus the current NotebookLM-derived MP3
+  set for the whole-book episode and chapter/supplement companion episodes.
+- Added a dedicated `podcast.html` listening page and page-level podcast
+  panels wherever the manifest maps an episode to a surfaced book entry.
+
+### Changed
+- Split the public shell into `Home`, `The Book`, `Archive Sources`,
+  `Audiobook`, and `Podcast`, with a shared icon-bearing menu and a new
+  `Open the Book PDF` action on the book page hero.
+- Simplified the source-library and supplement PDF actions so readers open the
+  documents directly in the browser instead of choosing between open/download
+  controls first.
+
+### Fixed
+- Fixed the earlier podcast-to-page mapping drift so the later chapter episodes
+  attach to the intended rendered entries instead of unrelated front-matter
+  pages.
+- Fixed redundant navigation noise on the archive/book shell, including the
+  removed archive hero home button and restored menu icons across the shared
+  five-link header.
+
 ## [2026-04-12-04] - Settled the first audiobook distribution lane (Story 008)
 
 ### Added

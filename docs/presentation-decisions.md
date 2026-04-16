@@ -82,25 +82,33 @@ supplements into the `Family Stories` run:
   dedicated archive-copy surface or explicitly relevant page-level attachment
   exists. Raw imported HTML and internal audit affordances should still stay
   off the public page.
-- The homepage may promote the archive-source library as a separate panel and
-  may feature a direct `Open Book PDF` action when `input/Onward to the Unknown.pdf`
-  exists in the local intake. If that file is absent, the source-library panel
-  should still appear without inventing a missing-file promise.
+- The homepage should keep `Book`, `Audiobook`, and `Podcast` as the top-level
+  reader lanes. Archive-source access should stay available from the book lane,
+  and the homepage may still feature a direct `Open Book PDF` action when
+  `input/Onward to the Unknown.pdf` exists in the local intake.
 - When the repo owns reviewed audiobook MP3 files, the first listening surface
   should stay simple: add a dedicated audiobook page plus a page-level
   listening panel on matching chapters or supplements, using native browser
+  audio controls and an explicit download link instead of a custom player.
+- When the repo owns reviewed podcast MP3 files, the first listening surface
+  should follow the same family-friendly pattern: add a dedicated podcast page
+  plus a page-level listening panel on matching chapters, using native browser
   audio controls and an explicit download link instead of a custom player.
 - The site-hosted audiobook surface should remain the primary family listening
   path: older relatives should be able to press play or download an MP3
   without installing an app, creating an account, or going through a purchase
   flow first.
+- The site-hosted podcast surface should remain the primary family listening
+  and discovery path until the repo deliberately chooses an external feed or
+  directory lane. Do not force family listeners through a podcast app or an
+  account wall first.
 - If an external audiobook lane is added later, treat it as a secondary
   convenience duplicate. Do not replace the repo-owned MP3 set with a
   platform-generated narration flow, and do not let an external storefront
   become the only practical way family members can listen.
-- Shared hero headings on the homepage and audiobook page should stay on one
-  line on wide desktop layouts when the available space honestly permits it,
-  while smaller layouts may wrap naturally.
+- Shared hero headings on the homepage, audiobook page, and podcast page should
+  stay on one line on wide desktop layouts when the available space honestly
+  permits it, while smaller layouts may wrap naturally.
 - Landing jump-row icons are secondary cues, not primary artwork: keep them
   small, inline with the label, and visually quieter than the button text.
 - Provenance and omission-audit artifacts remain internal maintenance surfaces,
@@ -121,8 +129,8 @@ supplements into the `Family Stories` run:
 - Rich front matter redesign beyond whole-entry reachability
 - Rich standalone image-page redesign beyond whole-entry reachability
 - Final full-book information-architecture polish
-- Podcast, video, and richer companion-media embeds beyond the first on-site
-  audiobook surface
+- Video companions and richer companion-media embeds beyond the first on-site
+  audiobook and podcast surfaces
 - A generalized public supplement gallery beyond the current `Archive Sources`
   page plus the bounded memoir wrapper/source link
 - Breaking family pages into smaller fragments

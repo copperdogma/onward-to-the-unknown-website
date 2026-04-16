@@ -33,19 +33,19 @@
       "id": "chapter-podcasts",
       "label": "Chapter podcast episodes",
       "kind": "companion-media",
-      "upstream": "curated external links",
-      "status": "planned",
+      "upstream": "repo-owned podcast manifest and MP3 files under podcast/",
+      "status": "partial",
       "target_surface": "chapter-level companion metadata",
-      "notes": "Podcast material connected to individual chapters."
+      "notes": "The local whole-book builder now maps reviewed MP3 episodes from `podcast/manifest.json` onto matching chapter pages and adds a page-level podcast panel where a chapter episode exists. The current recommended family listening lane is this site-hosted MP3 flow, while any future external feed or directory duplicate remains optional follow-up work."
     },
     {
       "id": "full-book-podcast",
       "label": "Full book podcast",
       "kind": "companion-media",
-      "upstream": "curated external links",
-      "status": "planned",
+      "upstream": "repo-owned podcast manifest and MP3 files under podcast/",
+      "status": "partial",
       "target_surface": "global companion surface",
-      "notes": "Long-form podcast coverage for the whole book."
+      "notes": "The local builder now emits a dedicated `podcast.html` page, publishes the whole-book podcast MP3 declared in `podcast/manifest.json`, and exposes direct browser play/download controls. The current recommended first distribution lane is this site-hosted surface, with any off-site duplicate remaining optional follow-up work."
     },
     {
       "id": "scanned-supplements",

@@ -55,7 +55,7 @@ legacy_system: "manual podcast link placement plus off-site podcast-hosting and 
 Scout the current podcast-distribution options for this family project,
 covering both on-site listening paths and off-site podcast publishing lanes, so
 the repo has a date-stamped plan for how a family member can easily find, play,
-or subscribe to a whole-book podcast and any family-story podcast episodes
+or subscribe to a whole-book podcast and any chapter podcast episodes
 without paywalls, commercial friction, or avoidable account setup.
 
 ## Acceptance Criteria
@@ -67,20 +67,21 @@ without paywalls, commercial friction, or avoidable account setup.
       listening/discovery pattern, with explicit older-reader guidance and the
       asset, feed, or metadata requirements for each option.
 - [ ] The repo records a clear follow-up implementation slice for feed hosting,
-      external linking, or page-level episode placement without pretending the
-      current site already supports those surfaces.
+      external linking, or richer episode placement beyond the current on-site
+      baseline without pretending the scout alone ships those surfaces.
 
 ## Out of Scope
 
 - Generating the podcast audio itself.
 - Submitting the show to directories or publishing a feed during this story.
-- Implementing the final podcast player, feed generator, or site episode UI.
+- Implementing the final feed generator, off-site publishing lane, or richer
+  site episode UI beyond the already-shipped simple on-site player surface.
 - Paid podcast monetization or commercial audience-growth strategy.
 
 ## Approach Evaluation
 
 - **Simplification baseline**: A clear on-site page with large play/download
-  actions for a whole-book episode and a simple family-story episode list may
+  actions for a whole-book episode and a simple chapter episode list may
   already outperform more complex syndication for the intended audience, so use
   that as the comparison baseline.
 - **AI-only**: Weak fit. Feed rules, hosting constraints, and directory
@@ -90,9 +91,10 @@ without paywalls, commercial friction, or avoidable account setup.
 - **Pure code**: Not relevant for the scout itself beyond inspecting the
   current static-site constraints.
 - **Repo constraints / prior decisions**: The repo has a static deploy path, a
-  whole-book reading surface, and no current feed or player substrate.
-  Presentation decisions still defer podcast embeds and companion-media UI, and
-  the user has decided this lane is for family use with no charging.
+  whole-book reading surface, and a first on-site podcast player surface built
+  from repo-owned MP3 assets, but it still has no current feed or external
+  directory substrate. The user has decided this lane is for family use with
+  no charging.
 - **Existing patterns to reuse**: Use the scout index, infrastructure truth,
   and the current whole-book surface. Story 002 owns generation, not
   distribution.
@@ -105,7 +107,7 @@ without paywalls, commercial friction, or avoidable account setup.
       official or primary sources and date-stamp the findings.
 - [ ] Compare on-site podcast listening patterns for the current site,
       including large play/download actions, a whole-book podcast surface, and
-      episode-level discovery for chapter or family-story podcasts.
+      episode-level discovery for chapter podcasts.
 - [ ] Evaluate off-site podcast lanes, including free or low-cost hosting,
       directory visibility, subscription friction, and how the site would link
       or explain those experiences to older readers without sending them into a
@@ -163,13 +165,13 @@ N/A
 - **Owning module / area**: Scout documentation, listening-surface planning,
   and infrastructure-aware podcast delivery guidance.
 - **Methodology reality**: `spec:3` through `spec:7` are `partial`; the
-  whole-book site exists, but podcast surfaces remain `planned` and no feed or
-  external lane has been chosen.
+  whole-book site and the first on-site podcast surface now exist, but no feed
+  or external lane has been chosen.
 - **Substrate evidence**: `docs/infrastructure.md` documents a static DreamHost
-  path, `docs/presentation-decisions.md` explicitly defers podcast embeds, and
-  the coverage matrix still marks chapter/full-book podcast surfaces as
-  planned. User direction in this thread narrows the target to family-first,
-  no-charge delivery.
+  path, Story 014 now adds a repo-owned `podcast/manifest.json` plus
+  `podcast.html` and page-level episode panels, and the coverage matrix now
+  marks chapter/full-book podcast surfaces as `partial`. User direction in this
+  thread narrows the target to family-first, no-charge delivery.
 - **Data contracts / schemas**: The likely follow-on need is companion-media
   metadata for episode labels, feed URLs, and off-site references, but this
   story should only define the requirement matrix, not implement the schema.
@@ -210,6 +212,9 @@ N/A
 - This is a new story rather than a reopen of Story 002 because generation and
   distribution are distinct validation boundaries. NotebookLM output can exist
   before the project decides where or how to publish it.
+- Story 014 now supplies the on-site listening baseline this scout should
+  evaluate against external feed or directory options, rather than inventing a
+  hypothetical local player surface.
 - Any recommendation that depends on current third-party hosting or directory
   rules must be date-stamped and sourced, because those surfaces change often.
 - The decision boundary is now narrower: optimize for family access, no charge,

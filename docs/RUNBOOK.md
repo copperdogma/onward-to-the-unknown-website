@@ -31,6 +31,7 @@ make doc-web-contract
 - the current whole-book omission-audit snapshot lives at
   `docs/omission-audit.json`
 - the current audiobook asset manifest lives at `audiobook/manifest.json`
+- the current podcast asset manifest lives at `podcast/manifest.json`
 - the active presentation choices are documented in
   `docs/presentation-decisions.md`
 - UI product-truth scouting now lives in `docs/ui-scout.md` and
@@ -163,6 +164,7 @@ For a quick manual inspection after the build, check:
 
 - `build/family-site/index.html`
 - `build/family-site/audiobook.html`
+- `build/family-site/podcast.html`
 - a representative chapter page such as `build/family-site/chapter-009.html`
 - the memoir supplement page when present:
   `build/family-site/rolland-alain-memoir-family-story.html`
@@ -172,6 +174,36 @@ the canonical audiobook lane. The expected reader path is simple browser play
 or direct MP3 download with no app or account requirement. External platforms
 such as Spotify, ElevenReader, or Voices by INaudio are optional follow-up
 lanes, not prerequisites for shipping the current audiobook surface.
+
+## On-Site Podcast Surface
+
+The whole-book site build now also reads `podcast/manifest.json` when it
+exists. That manifest points at the reviewed MP3 files under `podcast/` and
+lets the builder:
+
+- copy the referenced MP3 files into `build/family-site/podcast/`
+- emit `build/family-site/podcast.html`
+- expose the full-book episode for direct browser play and download when it
+  exists
+- add a page-level podcast panel to matching chapters
+
+To refresh that surface locally:
+
+```bash
+make build-family-site
+```
+
+For a quick manual inspection after the build, check:
+
+- `build/family-site/index.html`
+- `build/family-site/podcast.html`
+- a matching chapter page such as `build/family-site/chapter-002.html`
+
+For the current family-facing launch plan, treat this site-hosted surface as
+the canonical podcast lane. The expected reader path is simple browser play or
+direct MP3 download with no app or account requirement. External podcast feeds
+or directory listings remain optional follow-up lanes, not prerequisites for
+shipping the current podcast surface.
 
 ## UI Scout Lane
 
