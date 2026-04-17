@@ -1,5 +1,12 @@
 # Changelog
 
+## [2026-04-17-01] - Added AI source notes to listening pages
+
+### Added
+- Added explicit AI-generation notes to the audiobook and podcast hero areas,
+  with direct links to ElevenLabs and NotebookLM so readers can tell how those
+  companion recordings were made.
+
 ## [2026-04-16-01] - Shipped the first on-site podcast surface (Story 014)
 
 ### Added
