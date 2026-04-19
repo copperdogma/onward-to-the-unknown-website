@@ -1,5 +1,12 @@
 # Changelog
 
+## [2026-04-18-02] - Added family site announcement copy
+
+### Added
+- Added a short family-facing `docs/facebook-post.md` announcement that points
+  relatives to the website, audiobook, and story-by-story podcast listening
+  surfaces.
+
 ## [2026-04-18-01] - Settled combined audio distribution plan (Story 009)
 
 ### Added
