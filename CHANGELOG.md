@@ -1,5 +1,23 @@
 # Changelog
 
+## [2026-04-18-01] - Settled combined audio distribution plan (Story 009)
+
+### Added
+- Added a dated combined audiobook-and-podcast distribution scout that keeps
+  the website as the canonical listening home and records the strongest
+  external listening lanes that still fit the family-first, no-fee
+  constraints.
+- Added Story 015 as the concrete follow-up for a self-hosted podcast RSS feed
+  and optional app-link handoff without changing the audiobook recommendation.
+
+### Changed
+- Replaced the older podcast-only Story 009 shell with one combined
+  audiobook-and-podcast distribution story and refreshed the generated story
+  index and methodology graph to match.
+- Updated the presentation decisions, infrastructure truth, and runbook so they
+  now consistently recommend a self-hosted podcast RSS feed submitted to Apple
+  Podcasts first and Spotify second if an external duplicate is added later.
+
 ## [2026-04-17-01] - Added AI source notes to listening pages
 
 ### Added

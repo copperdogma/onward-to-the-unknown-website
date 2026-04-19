@@ -16,9 +16,10 @@ Current priority: refine the existing whole-book reading surface into a site tha
 - **Done** — `docs/stories/story-006-whole-book-landing-scannability-and-page-label-clarity.md` — Whole-Book Landing Scannability And Page Label Clarity
 - **Done** — `docs/stories/story-007-rolland-alain-memoir-family-story.md` — Rolland Alain Memoir Family Story
 - **Done** — `docs/stories/story-008-audiobook-distribution-scout-and-elder-friendly-listening.md` — Audiobook Distribution Scout And Elder-Friendly Listening
-- **Pending** — `docs/stories/story-009-podcast-distribution-scout-and-elder-friendly-listening.md` — Podcast Distribution Scout And Elder-Friendly Listening
+- **Done** — `docs/stories/story-009-audiobook-and-podcast-distribution-scout-and-elder-friendly-listening.md` — Audiobook And Podcast Distribution Scout And Elder-Friendly Listening
 - **Draft** — `docs/stories/story-010-notebooklm-video-companions.md` — NotebookLM Whole-Book And Chapter Video Companions
 - **Done** — `docs/stories/story-011-first-on-site-audiobook-listening-surface.md` — First On-Site Audiobook Listening Surface
 - **Done** — `docs/stories/story-012-cross-page-shell-review-and-polish.md` — Cross-Page Shell Review And Polish
 - **Done** — `docs/stories/story-013-archive-source-library-and-download-links.md` — Archive Source Library And Download Links
 - **Done** — `docs/stories/story-014-first-on-site-podcast-listening-surface.md` — First On-Site Podcast Listening Surface
+- **Pending** — `docs/stories/story-015-public-podcast-rss-feed-and-app-links.md` — Public Podcast RSS Feed And App Links

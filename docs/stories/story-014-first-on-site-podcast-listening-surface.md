@@ -48,7 +48,7 @@ legacy_system: "no on-site podcast surface; NotebookLM exports exist outside the
 
 **Priority**: Medium
 **Status**: Done
-**Decision Refs**: `docs/presentation-decisions.md`, `docs/infrastructure.md`, `docs/RUNBOOK.md`, `tests/fixtures/formats/_coverage-matrix.json`, `docs/stories/story-002-notebooklm-family-story-podcasts.md`, `docs/stories/story-009-podcast-distribution-scout-and-elder-friendly-listening.md`, `docs/stories/story-011-first-on-site-audiobook-listening-surface.md`, none found after search for repo-local ADRs or prior on-site podcast implementation docs
+**Decision Refs**: `docs/presentation-decisions.md`, `docs/infrastructure.md`, `docs/RUNBOOK.md`, `tests/fixtures/formats/_coverage-matrix.json`, `docs/stories/story-002-notebooklm-family-story-podcasts.md`, `docs/stories/story-009-audiobook-and-podcast-distribution-scout-and-elder-friendly-listening.md`, `docs/stories/story-011-first-on-site-audiobook-listening-surface.md`, none found after search for repo-local ADRs or prior on-site podcast implementation docs
 **Depends On**: Stories 005 and 006
 
 > If this story is `Blocked`, replace `N/A` in `Blocker Summary`, `Blocker
@@ -197,8 +197,8 @@ N/A
 - **File sizes**: `modules/build_family_site.py` (4061 lines),
   `tests/test_build_family_site.py` (1354 lines),
   `docs/stories/story-002-notebooklm-family-story-podcasts.md` (240 lines),
-  `docs/stories/story-009-podcast-distribution-scout-and-elder-friendly-listening.md`
-  (243 lines), `docs/presentation-decisions.md` (154 lines),
+  `docs/stories/story-009-audiobook-and-podcast-distribution-scout-and-elder-friendly-listening.md`
+  (444 lines), `docs/presentation-decisions.md` (154 lines),
   `docs/infrastructure.md` (114 lines), `docs/RUNBOOK.md` (235 lines),
   `tests/fixtures/formats/_coverage-matrix.json` (60 lines), and
   `docs/methodology/state.yaml` (135 lines).
@@ -229,8 +229,8 @@ N/A
 - `docs/infrastructure.md` — record the deploy impact of generated podcast
   assets (113 lines)
 - `docs/RUNBOOK.md` — record the podcast-aware build/inspection flow (203 lines)
-- `docs/stories/story-009-podcast-distribution-scout-and-elder-friendly-listening.md`
-  — keep the distribution scout aligned with the new on-site baseline (238 lines)
+- `docs/stories/story-009-audiobook-and-podcast-distribution-scout-and-elder-friendly-listening.md`
+  — keep the distribution scout aligned with the new on-site baseline (444 lines)
 - `tests/fixtures/formats/_coverage-matrix.json` — update podcast-surface truth
   (60 lines)
 

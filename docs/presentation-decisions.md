@@ -102,10 +102,28 @@ supplements into the `Family Stories` run:
   and discovery path until the repo deliberately chooses an external feed or
   directory lane. Do not force family listeners through a podcast app or an
   account wall first.
+- If an external podcast lane is added later, the first honest duplicate should
+  be a public podcast RSS feed hosted on the same site and submitted to Apple
+  Podcasts first, then Spotify. This keeps the repo-owned website canonical
+  while covering the most likely familiar podcast apps without adding paid
+  hosting.
+- Pocket Casts, Overcast, and YouTube Music should be treated as optional
+  follow-on conveniences once a public RSS feed exists, not as separate launch
+  prerequisites. Overcast search depends on Apple Podcasts inclusion, and both
+  Overcast and Pocket Casts still remain reachable by direct feed URL for
+  listeners who already know those apps.
 - If an external audiobook lane is added later, treat it as a secondary
   convenience duplicate. Do not replace the repo-owned MP3 set with a
   platform-generated narration flow, and do not let an external storefront
   become the only practical way family members can listen.
+- Do not make audiobook-platform duplication the next audio-distribution move.
+  Under the current no-charge constraint, podcast-style RSS distribution is the
+  better fit for relatives who already use an app, while the audiobook page and
+  MP3 downloads remain the plainest family-default path.
+- If YouTube or YouTube Music is added later, treat it as a separate optional
+  lane rather than the primary external duplicate. RSS delivery there creates a
+  YouTube-specific static-video surface and should not replace the simpler
+  podcast-app and direct-download paths.
 - Shared hero headings on the homepage, audiobook page, and podcast page should
   stay on one line on wide desktop layouts when the available space honestly
   permits it, while smaller layouts may wrap naturally.

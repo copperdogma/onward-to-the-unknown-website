@@ -205,6 +205,26 @@ direct MP3 download with no app or account requirement. External podcast feeds
 or directory listings remain optional follow-up lanes, not prerequisites for
 shipping the current podcast surface.
 
+## External Audio Distribution Guidance
+
+Scout 003 keeps the website as the canonical home for both audio surfaces and
+recommends this external order only if a duplicate lane is later added:
+
+1. emit one public podcast RSS feed from the repo-owned site
+2. submit that feed to Apple Podcasts
+3. claim that same feed on Spotify
+4. treat Pocket Casts, Overcast, and YouTube Music as optional follow-on
+   conveniences for listeners who already use those apps
+
+No public podcast RSS feed exists in repo output yet. If that feed is built
+later, prefer keeping it on `onward.copper-dog.com` beside the current MP3
+assets rather than moving the project to a paid podcast host.
+
+Dedicated audiobook-platform duplication is still optional later work. Under
+the current no-charge family constraint, the direct website flow and any future
+podcast-feed duplicate remain better first fits than audiobook storefronts or
+retail networks.
+
 ## UI Scout Lane
 
 Use the dedicated internal UI-scout lane when walking the current website like

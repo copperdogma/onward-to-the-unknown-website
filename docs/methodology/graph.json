@@ -412,9 +412,9 @@
         "status": "Done"
       },
       {
-        "path": "docs/stories/story-009-podcast-distribution-scout-and-elder-friendly-listening.md",
-        "title": "Podcast Distribution Scout And Elder-Friendly Listening",
-        "status": "Pending"
+        "path": "docs/stories/story-009-audiobook-and-podcast-distribution-scout-and-elder-friendly-listening.md",
+        "title": "Audiobook And Podcast Distribution Scout And Elder-Friendly Listening",
+        "status": "Done"
       },
       {
         "path": "docs/stories/story-010-notebooklm-video-companions.md",
@@ -440,10 +440,15 @@
         "path": "docs/stories/story-014-first-on-site-podcast-listening-surface.md",
         "title": "First On-Site Podcast Listening Surface",
         "status": "Done"
+      },
+      {
+        "path": "docs/stories/story-015-public-podcast-rss-feed-and-app-links.md",
+        "title": "Public Podcast RSS Feed And App Links",
+        "status": "Pending"
       }
     ],
     "counts_by_status": {
-      "Done": 11,
+      "Done": 12,
       "Draft": 2,
       "Pending": 1
     }
