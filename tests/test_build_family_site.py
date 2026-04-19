@@ -3,7 +3,13 @@ from __future__ import annotations
 from html import unescape
 import json
 from pathlib import Path
+import re
 import shutil
+import struct
+import xml.etree.ElementTree as ET
+import zlib
+
+import pytest
 
 from modules.build_family_site import (
     BundleEntry,
@@ -15,6 +21,7 @@ from modules.build_family_site import (
     enhance_article_html,
     expand_entry_fragments,
     merge_absorbed_article_html,
+    probe_raster_image_dimensions,
 )
 
 
@@ -58,19 +65,86 @@ def write_fixture_audiobook_manifest(
     return manifest_path
 
 
+def write_rgb_png(
+    path: Path,
+    *,
+    width: int = 1400,
+    height: int = 1400,
+    color: tuple[int, int, int] = (244, 236, 223),
+) -> None:
+    def chunk(tag: bytes, data: bytes) -> bytes:
+        return (
+            len(data).to_bytes(4, "big")
+            + tag
+            + data
+            + zlib.crc32(tag + data).to_bytes(4, "big")
+        )
+
+    row = b"\x00" + bytes(color) * width
+    raw = row * height
+    ihdr = struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0)
+    png_bytes = (
+        b"\x89PNG\r\n\x1a\n"
+        + chunk(b"IHDR", ihdr)
+        + chunk(b"IDAT", zlib.compress(raw, level=9))
+        + chunk(b"IEND", b"")
+    )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(png_bytes)
+
+
 def write_fixture_podcast_manifest(
     tmp_path: Path,
     *,
     episodes: list[dict[str, object]],
     full_book_episode: dict[str, object] | None = None,
     title: str = "Fixture Podcast",
+    description: str = "A family podcast companion for the Onward to the Unknown archive.",
+    subtitle: str = "Whole-book and chapter episodes for relatives who already use podcast apps.",
+    site_url: str = "https://fixture.example.com",
+    public_contact_email: str = "podcast@example.com",
+    apple_podcasts_url: str | None = None,
+    spotify_url: str | None = None,
+    categories: list[object] | None = None,
 ) -> Path:
     podcast_root = tmp_path / "podcast-fixture"
     prompt_path = podcast_root / "notebooklm-prompt.md"
     prompt_path.parent.mkdir(parents=True, exist_ok=True)
     prompt_path.write_text("# Fixture prompt\n", encoding="utf-8")
+    artwork_path = podcast_root / "feed-art.png"
+    write_rgb_png(artwork_path)
 
+    normalized_episodes: list[dict[str, object]] = []
     for episode in episodes:
+        normalized_episode = dict(episode)
+        normalized_episode.setdefault(
+            "summary",
+            f"Companion podcast episode for {normalized_episode['title']}.",
+        )
+        normalized_episode.setdefault(
+            "published_at",
+            f"2026-04-{int(normalized_episode['episode_number']):02d}",
+        )
+        normalized_episode.setdefault(
+            "public_audio_path",
+            f"podcast/tracks/episode-{int(normalized_episode['episode_number']):02d}.mp3",
+        )
+        normalized_episodes.append(normalized_episode)
+
+    normalized_full_book_episode = None
+    if full_book_episode:
+        normalized_full_book_episode = dict(full_book_episode)
+        normalized_full_book_episode.setdefault(
+            "summary",
+            f"Whole-book companion episode for {title}.",
+        )
+        normalized_full_book_episode.setdefault("published_at", "2026-03-31")
+        normalized_full_book_episode.setdefault(
+            "public_audio_path",
+            "podcast/tracks/full-book-episode.mp3",
+        )
+
+    for episode in normalized_episodes:
         audio_relative_path = Path(str(episode["audio_path"]))
         source_relative_path = Path(str(episode["source_path"]))
         audio_path = podcast_root / audio_relative_path
@@ -80,13 +154,13 @@ def write_fixture_podcast_manifest(
         audio_path.write_bytes(b"ID3 fixture mp3")
         source_path.write_text(f"# {episode['title']}\n", encoding="utf-8")
 
-    if full_book_episode:
-        full_audio_path = podcast_root / Path(str(full_book_episode["audio_path"]))
-        full_source_path = podcast_root / Path(str(full_book_episode["source_path"]))
+    if normalized_full_book_episode:
+        full_audio_path = podcast_root / Path(str(normalized_full_book_episode["audio_path"]))
+        full_source_path = podcast_root / Path(str(normalized_full_book_episode["source_path"]))
         full_audio_path.parent.mkdir(parents=True, exist_ok=True)
         full_source_path.parent.mkdir(parents=True, exist_ok=True)
         full_audio_path.write_bytes(b"ID3 fixture full podcast")
-        full_source_path.write_text(f"# {full_book_episode['title']}\n", encoding="utf-8")
+        full_source_path.write_text(f"# {normalized_full_book_episode['title']}\n", encoding="utf-8")
 
     manifest_path = podcast_root / "manifest.json"
     manifest_path.write_text(
@@ -94,9 +168,23 @@ def write_fixture_podcast_manifest(
             {
                 "schema_version": "onward_podcast_manifest_v1",
                 "title": title,
+                "description": description,
+                "subtitle": subtitle,
+                "site_url": site_url,
+                "page_path": "podcast.html",
+                "feed_path": "podcast/feed.xml",
+                "categories": categories or ["Society & Culture"],
+                "public_contact_email": public_contact_email,
+                "author_name": title,
+                "owner_name": title,
+                "language": "en-CA",
+                "artwork_path": "feed-art.png",
+                "artwork_output_path": "podcast/feed-art.png",
+                "apple_podcasts_url": apple_podcasts_url,
+                "spotify_url": spotify_url,
                 "prompt_path": "notebooklm-prompt.md",
-                "full_book_episode": full_book_episode,
-                "episodes": episodes,
+                "full_book_episode": normalized_full_book_episode,
+                "episodes": normalized_episodes,
             },
             indent=2,
         )
@@ -575,7 +663,8 @@ def test_build_family_site_surfaces_podcast_page_and_entry_panel(tmp_path):
             {
                 "episode_number": 5,
                 "title": "Alma Marie (L'Heureux) Alain",
-                "audio_path": "tracks/05-alma-marie-podcast.mp3",
+                "audio_path": "source audio/05 Alma Marie's Podcast.mp3",
+                "public_audio_path": "podcast/tracks/05-alma-marie-podcast.mp3",
                 "source_path": "sources/05-alma-marie.md",
                 "target_entry_id": "chapter-009",
                 "notes": "Companion episode for this chapter.",
@@ -584,11 +673,14 @@ def test_build_family_site_surfaces_podcast_page_and_entry_panel(tmp_path):
         ],
         full_book_episode={
             "title": "Whole-Book Episode",
-            "audio_path": "tracks/full-book-podcast.mp3",
+            "audio_path": "source audio/Whole Book Overview's Episode.mp3",
+            "public_audio_path": "podcast/tracks/full-book-podcast.mp3",
             "source_path": "sources/whole-book.md",
             "notes": "A whole-book conversation across the family history.",
             "duration_seconds": 354,
         },
+        apple_podcasts_url="https://podcasts.apple.com/ca/podcast/fixture-podcast/id1234567890",
+        spotify_url="https://open.spotify.com/show/fixturepodcast",
     )
 
     build_family_site(
@@ -602,8 +694,22 @@ def test_build_family_site_surfaces_podcast_page_and_entry_panel(tmp_path):
     landing_html = (output_dir / "index.html").read_text(encoding="utf-8")
     podcast_html = (output_dir / "podcast.html").read_text(encoding="utf-8")
     chapter_html = (output_dir / "chapter-009.html").read_text(encoding="utf-8")
+    podcast_feed_xml = (output_dir / "podcast" / "feed.xml").read_text(encoding="utf-8")
+    podcast_feed_root = ET.fromstring(podcast_feed_xml)
+    namespaces = {
+        "atom": "http://www.w3.org/2005/Atom",
+        "itunes": "http://www.itunes.com/dtds/podcast-1.0.dtd",
+    }
+    channel = podcast_feed_root.find("channel")
+    assert channel is not None
+    feed_items_by_title = {
+        item.findtext("title"): item
+        for item in channel.findall("item")
+    }
 
     assert (output_dir / "podcast.html").exists()
+    assert (output_dir / "podcast" / "feed.xml").exists()
+    assert (output_dir / "podcast" / "feed-art.png").exists()
     assert (output_dir / "podcast" / "tracks" / "05-alma-marie-podcast.mp3").exists()
     assert (output_dir / "podcast" / "tracks" / "full-book-podcast.mp3").exists()
     assert (output_dir / "_internal" / "podcast" / "manifest.json").exists()
@@ -630,6 +736,14 @@ def test_build_family_site_surfaces_podcast_page_and_entry_panel(tmp_path):
     assert "These recordings were generated by AI using" in podcast_html
     assert 'href="https://notebooklm.google.com/"' in podcast_html
     assert ">NotebookLM</a>" in podcast_html
+    assert "Use a Podcast App" in podcast_html
+    assert "This page stays the easiest place to listen here." in podcast_html
+    assert "Podcast RSS Feed" in podcast_html
+    assert 'href="podcast/feed.xml"' in podcast_html
+    assert "Listen in Apple Podcasts" in podcast_html
+    assert 'href="https://podcasts.apple.com/ca/podcast/fixture-podcast/id1234567890"' in podcast_html
+    assert "Listen in Spotify" in podcast_html
+    assert 'href="https://open.spotify.com/show/fixturepodcast"' in podcast_html
     assert 'src="podcast/tracks/full-book-podcast.mp3"' in podcast_html
     assert "Whole-Book Episode" in podcast_html
     assert "Episode 05" in podcast_html
@@ -644,6 +758,121 @@ def test_build_family_site_surfaces_podcast_page_and_entry_panel(tmp_path):
     assert "Companion episode for this chapter." in chapter_html
     assert "Run time 3:31" in podcast_html
     assert "Run time 5:54" in podcast_html
+    assert podcast_feed_root.tag == "rss"
+    assert 'xmlns:content="http://purl.org/rss/1.0/modules/content/"' in podcast_feed_xml
+    assert channel.findtext("title") == "Fixture Podcast"
+    assert channel.findtext("link") == "https://fixture.example.com/podcast.html"
+    assert channel.findtext("description") == "A family podcast companion for the Onward to the Unknown archive."
+    assert channel.findtext("language") == "en-CA"
+    assert channel.findtext("managingEditor") == "podcast@example.com"
+    assert channel.findtext("webMaster") == "podcast@example.com"
+    assert channel.findtext("generator") == "Onward to the Unknown family-site builder"
+    assert channel.findtext("itunes:author", namespaces=namespaces) == "Fixture Podcast"
+    assert (
+        channel.findtext("itunes:subtitle", namespaces=namespaces)
+        == "Whole-book and chapter episodes for relatives who already use podcast apps."
+    )
+    assert (
+        channel.findtext("itunes:summary", namespaces=namespaces)
+        == "A family podcast companion for the Onward to the Unknown archive."
+    )
+    atom_link = channel.find("atom:link", namespaces)
+    assert atom_link is not None
+    assert atom_link.attrib["href"] == "https://fixture.example.com/podcast/feed.xml"
+    assert atom_link.attrib["rel"] == "self"
+    categories = channel.findall("itunes:category", namespaces)
+    assert [category.attrib["text"] for category in categories] == ["Society & Culture"]
+    itunes_image = channel.find("itunes:image", namespaces)
+    assert itunes_image is not None
+    assert itunes_image.attrib["href"] == "https://fixture.example.com/podcast/feed-art.png"
+    full_book_item = feed_items_by_title["Whole-Book Episode"]
+    full_book_enclosure = full_book_item.find("enclosure")
+    assert full_book_enclosure is not None
+    assert full_book_item.findtext("guid") == "https://fixture.example.com/podcast.html#full-book-podcast"
+    assert full_book_item.findtext("link") == "https://fixture.example.com/podcast.html#full-book-podcast"
+    assert full_book_item.findtext("description") == "Whole-book companion episode for Fixture Podcast."
+    assert full_book_enclosure.attrib["url"] == "https://fixture.example.com/podcast/tracks/full-book-podcast.mp3"
+    chapter_item = feed_items_by_title["Alma Marie (L'Heureux) Alain"]
+    chapter_enclosure = chapter_item.find("enclosure")
+    assert chapter_enclosure is not None
+    assert chapter_item.findtext("guid") == "https://fixture.example.com/podcast.html#episode-05"
+    assert chapter_item.findtext("link") == "https://fixture.example.com/podcast.html#episode-05"
+    assert chapter_item.findtext("description") == "Companion podcast episode for Alma Marie (L'Heureux) Alain."
+    assert chapter_item.findtext("itunes:episode", namespaces=namespaces) == "5"
+    assert chapter_enclosure.attrib["url"] == "https://fixture.example.com/podcast/tracks/05-alma-marie-podcast.mp3"
+    assert "source audio/05 Alma Marie" not in podcast_html
+    assert "source%20audio" not in podcast_feed_xml
+
+
+def test_build_family_site_omits_platform_buttons_when_manifest_urls_are_missing(tmp_path):
+    fixture_dir = (
+        Path(__file__).resolve().parent
+        / "fixtures"
+        / "family_site_minimal"
+        / "input"
+        / "story206-onward-proof-r10"
+    )
+    output_dir = tmp_path / "family-site"
+    podcast_manifest_path = write_fixture_podcast_manifest(
+        tmp_path,
+        episodes=[
+            {
+                "episode_number": 5,
+                "title": "Alma Marie (L'Heureux) Alain",
+                "audio_path": "tracks/05-alma-marie-podcast.mp3",
+                "source_path": "sources/05-alma-marie.md",
+                "target_entry_id": "chapter-009",
+            },
+        ],
+    )
+
+    build_family_site(
+        source_dir=fixture_dir,
+        output_dir=output_dir,
+        site_title="Fixture Reading Surface",
+        audiobook_manifest_path=None,
+        podcast_manifest_path=podcast_manifest_path,
+    )
+
+    podcast_html = (output_dir / "podcast.html").read_text(encoding="utf-8")
+
+    assert "Podcast RSS Feed" in podcast_html
+    assert 'href="podcast/feed.xml"' in podcast_html
+    assert "Listen in Apple Podcasts" not in podcast_html
+    assert "Listen in Spotify" not in podcast_html
+
+
+def test_build_family_site_rejects_non_square_podcast_artwork(tmp_path):
+    fixture_dir = (
+        Path(__file__).resolve().parent
+        / "fixtures"
+        / "family_site_minimal"
+        / "input"
+        / "story206-onward-proof-r10"
+    )
+    output_dir = tmp_path / "family-site"
+    podcast_manifest_path = write_fixture_podcast_manifest(
+        tmp_path,
+        episodes=[
+            {
+                "episode_number": 5,
+                "title": "Alma Marie (L'Heureux) Alain",
+                "audio_path": "tracks/05-alma-marie-podcast.mp3",
+                "source_path": "sources/05-alma-marie.md",
+                "target_entry_id": "chapter-009",
+            },
+        ],
+    )
+    write_rgb_png(podcast_manifest_path.parent / "feed-art.png", width=1400, height=1600)
+
+    with pytest.raises(SystemExit, match="square show-cover artwork"):
+        build_family_site(
+            source_dir=fixture_dir,
+            output_dir=output_dir,
+            site_title="Fixture Reading Surface",
+            audiobook_manifest_path=None,
+            podcast_manifest_path=podcast_manifest_path,
+        )
 
 
 def test_repo_podcast_manifest_tracks_audiobook_entry_targets():
@@ -673,6 +902,40 @@ def test_repo_podcast_manifest_tracks_audiobook_entry_targets():
         matched_episode_count += 1
 
     assert matched_episode_count >= 1
+
+
+def test_repo_podcast_manifest_includes_feed_metadata():
+    repo_root = Path(__file__).resolve().parent.parent
+    podcast_manifest_path = repo_root / "podcast" / "manifest.json"
+    podcast_manifest = json.loads(podcast_manifest_path.read_text(encoding="utf-8"))
+    safe_path_pattern = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+
+    assert podcast_manifest["site_url"] == "https://onward.copper-dog.com"
+    assert podcast_manifest["feed_path"] == "podcast/feed.xml"
+    assert podcast_manifest["page_path"] == "podcast.html"
+    assert podcast_manifest["categories"] == ["Society & Culture"]
+    assert "@" in podcast_manifest["public_contact_email"]
+    assert podcast_manifest["description"]
+    assert podcast_manifest["subtitle"]
+    artwork_path = (podcast_manifest_path.parent / podcast_manifest["artwork_path"]).resolve()
+    assert artwork_path.exists()
+    assert probe_raster_image_dimensions(artwork_path) == (3000, 3000)
+    assert podcast_manifest["artwork_output_path"] == "podcast/feed-art.png"
+    assert podcast_manifest["full_book_episode"]["public_audio_path"].startswith("podcast/")
+    podcast_manifest["full_book_episode"]["public_audio_path"].encode("ascii")
+    assert all(
+        safe_path_pattern.fullmatch(part)
+        for part in podcast_manifest["full_book_episode"]["public_audio_path"].split("/")
+    )
+    assert podcast_manifest["full_book_episode"]["published_at"]
+    for episode in podcast_manifest["episodes"]:
+        assert episode["public_audio_path"].startswith("podcast/")
+        episode["public_audio_path"].encode("ascii")
+        assert all(
+            safe_path_pattern.fullmatch(part)
+            for part in episode["public_audio_path"].split("/")
+        )
+        assert episode["published_at"], f"Missing published_at for episode {episode['episode_number']}."
 
 
 def test_merge_absorbed_article_html_skips_duplicate_cover_blocks():

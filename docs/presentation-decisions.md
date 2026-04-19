@@ -102,11 +102,14 @@ supplements into the `Family Stories` run:
   and discovery path until the repo deliberately chooses an external feed or
   directory lane. Do not force family listeners through a podcast app or an
   account wall first.
-- If an external podcast lane is added later, the first honest duplicate should
-  be a public podcast RSS feed hosted on the same site and submitted to Apple
-  Podcasts first, then Spotify. This keeps the repo-owned website canonical
-  while covering the most likely familiar podcast apps without adding paid
-  hosting.
+- The first honest external podcast duplicate is now a public podcast RSS feed
+  hosted on the same site at `podcast/feed.xml`. Keep the repo-owned website
+  canonical, expose the feed from the podcast page in plain language, and only
+  add Apple Podcasts or Spotify buttons once real listing URLs exist. Keep the
+  feed metadata in `podcast/manifest.json`, including at least one Apple-safe
+  category, a square show-cover asset, and stable ASCII public audio paths, so
+  the published RSS lane does not leak raw generator filenames or rely on an
+  incompatible book-page image.
 - Pocket Casts, Overcast, and YouTube Music should be treated as optional
   follow-on conveniences once a public RSS feed exists, not as separate launch
   prerequisites. Overcast search depends on Apple Podcasts inclusion, and both

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-04-12",
+  "updated_at": "2026-04-18",
   "surfaces": [
     {
       "id": "book-core-html",
@@ -36,7 +36,7 @@
       "upstream": "repo-owned podcast manifest and MP3 files under podcast/",
       "status": "partial",
       "target_surface": "chapter-level companion metadata",
-      "notes": "The local whole-book builder now maps reviewed MP3 episodes from `podcast/manifest.json` onto matching chapter pages and adds a page-level podcast panel where a chapter episode exists. The current recommended family listening lane is this site-hosted MP3 flow, while any future external feed or directory duplicate remains optional follow-up work."
+      "notes": "The local whole-book builder now maps reviewed MP3 episodes from `podcast/manifest.json` onto matching chapter pages, adds a page-level podcast panel where a chapter episode exists, and keeps a public RSS duplicate available from the main podcast page with manifest-driven category metadata, square show-cover art, and stable ASCII public audio URLs. The current recommended family listening lane still remains the site-hosted MP3 flow, while directory listings remain optional follow-up work."
     },
     {
       "id": "full-book-podcast",
@@ -45,7 +45,7 @@
       "upstream": "repo-owned podcast manifest and MP3 files under podcast/",
       "status": "partial",
       "target_surface": "global companion surface",
-      "notes": "The local builder now emits a dedicated `podcast.html` page, publishes the whole-book podcast MP3 declared in `podcast/manifest.json`, and exposes direct browser play/download controls. The current recommended first distribution lane is this site-hosted surface, with any off-site duplicate remaining optional follow-up work."
+      "notes": "The local builder now emits a dedicated `podcast.html` page, publishes the whole-book podcast MP3 declared in `podcast/manifest.json`, exposes direct browser play/download controls, and ships one public RSS feed at `podcast/feed.xml` with repo-owned square show-cover art, category metadata, and stable ASCII public enclosure URLs. The website remains canonical, while Apple Podcasts and Spotify listings remain optional follow-up work."
     },
     {
       "id": "scanned-supplements",

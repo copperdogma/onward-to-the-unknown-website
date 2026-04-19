@@ -9,10 +9,13 @@ import subprocess
 import unicodedata
 from collections import Counter, defaultdict
 from dataclasses import dataclass
+from datetime import date, datetime, time, timezone
+from email.utils import format_datetime
 from html import escape, unescape
 from pathlib import Path
 from textwrap import dedent
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
+import xml.etree.ElementTree as ET
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SOURCE_DIR = REPO_ROOT / "input" / "doc-web-html" / "story206-onward-proof-r10"
@@ -25,6 +28,7 @@ DEFAULT_AUDIOBOOK_MANIFEST_PATH = REPO_ROOT / "audiobook" / "manifest.json"
 DEFAULT_AUDIOBOOK_PAGE_PATH = "audiobook.html"
 DEFAULT_PODCAST_MANIFEST_PATH = REPO_ROOT / "podcast" / "manifest.json"
 DEFAULT_PODCAST_PAGE_PATH = "podcast.html"
+DEFAULT_PODCAST_FEED_PATH = "podcast/feed.xml"
 DEFAULT_SOURCE_LIBRARY_PAGE_PATH = "archive-sources.html"
 AUDIOBOOK_PUBLIC_ROOT = "audiobook"
 PODCAST_PUBLIC_ROOT = "podcast"
@@ -152,6 +156,13 @@ DOWNLOAD_ICON_SVG = (
     '<path d="M5.25 15.75a.75.75 0 0 0-.75.75v1.5A2.25 2.25 0 0 0 6.75 20.25h10.5A2.25 2.25 0 0 0 19.5 18v-1.5a.75.75 0 0 0-1.5 0V18a.75.75 0 0 1-.75.75H6.75A.75.75 0 0 1 6 18v-1.5a.75.75 0 0 0-.75-.75Z" fill="currentColor"/>'
     "</svg>"
 )
+ATOM_XML_NAMESPACE = "http://www.w3.org/2005/Atom"
+CONTENT_XML_NAMESPACE = "http://purl.org/rss/1.0/modules/content/"
+ITUNES_XML_NAMESPACE = "http://www.itunes.com/dtds/podcast-1.0.dtd"
+ASCII_PUBLIC_PATH_SEGMENT_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+PODCAST_SHOW_COVER_MIN_PIXELS = 1400
+PODCAST_SHOW_COVER_MAX_PIXELS = 3000
+JPEG_SOF_MARKERS = frozenset({0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF})
 AI_ICON_SVG = (
     '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
     '<path d="M12 3.75a.75.75 0 0 1 .731.582l.555 2.426a2.25 2.25 0 0 0 1.706 1.706l2.426.555a.75.75 0 0 1 0 1.462l-2.426.555a2.25 2.25 0 0 0-1.706 1.706l-.555 2.426a.75.75 0 0 1-1.462 0l-.555-2.426a2.25 2.25 0 0 0-1.706-1.706l-2.426-.555a.75.75 0 0 1 0-1.462l2.426-.555a2.25 2.25 0 0 0 1.706-1.706l.555-2.426A.75.75 0 0 1 12 3.75Z" fill="currentColor"/>'
@@ -1521,6 +1532,31 @@ class AudiobookCatalog:
 
 
 @dataclass(frozen=True)
+class PodcastCategory:
+    name: str
+    subcategory: str | None
+
+
+@dataclass(frozen=True)
+class PodcastFeedMetadata:
+    description: str
+    subtitle: str | None
+    site_url: str
+    page_path: str
+    feed_path: str
+    categories: tuple[PodcastCategory, ...]
+    public_contact_email: str
+    author_name: str
+    owner_name: str
+    language: str
+    artwork_source_path: Path
+    artwork_manifest_path: str
+    artwork_output_path: str
+    apple_podcasts_url: str | None
+    spotify_url: str | None
+
+
+@dataclass(frozen=True)
 class PodcastEpisode:
     episode_number: int
     title: str
@@ -1530,6 +1566,8 @@ class PodcastEpisode:
     source_manifest_path: str
     target_entry_id: str | None
     notes: str | None
+    summary: str
+    published_at: date
     duration_seconds: float | None
 
 
@@ -1541,6 +1579,8 @@ class FullBookPodcastEpisode:
     source_path: Path
     source_manifest_path: str
     notes: str | None
+    summary: str
+    published_at: date
     duration_seconds: float | None
 
 
@@ -1550,6 +1590,7 @@ class PodcastCatalog:
     manifest_path: Path
     prompt_source_path: Path
     prompt_manifest_path: str
+    feed: PodcastFeedMetadata
     episodes: tuple[PodcastEpisode, ...]
     full_book_episode: FullBookPodcastEpisode | None
 
@@ -1597,6 +1638,165 @@ def load_manifest(source_dir: Path) -> dict:
     if not manifest_path.exists():
         raise SystemExit(f"Missing manifest.json in source bundle: {source_dir}")
     return json.loads(manifest_path.read_text(encoding="utf-8"))
+
+
+def parse_non_empty_string(value: object, field_name: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise SystemExit(f"Podcast manifest `{field_name}` must be a non-empty string.")
+    return value.strip()
+
+
+def parse_optional_string(value: object, field_name: str) -> str | None:
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        raise SystemExit(f"Podcast manifest `{field_name}` must be a string when present.")
+    normalized = value.strip()
+    return normalized or None
+
+
+def parse_iso_date(value: object, field_name: str) -> date:
+    normalized = parse_non_empty_string(value, field_name)
+    try:
+        return date.fromisoformat(normalized)
+    except ValueError as exc:
+        raise SystemExit(f"Podcast manifest `{field_name}` must use YYYY-MM-DD.") from exc
+
+
+def validate_absolute_url(value: object, field_name: str) -> str:
+    normalized = parse_non_empty_string(value, field_name)
+    parsed = urlsplit(normalized)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        raise SystemExit(f"Podcast manifest `{field_name}` must be an absolute http(s) URL.")
+    return normalized.rstrip("/")
+
+
+def normalize_public_path(value: object, field_name: str) -> str:
+    normalized = parse_non_empty_string(value, field_name).lstrip("/")
+    parsed = urlsplit(normalized)
+    if parsed.scheme or parsed.netloc:
+        raise SystemExit(f"Podcast manifest `{field_name}` must be a site-relative output path.")
+    return normalized
+
+
+def validate_ascii_public_path(
+    value: object,
+    field_name: str,
+    *,
+    required_prefix: str | None = None,
+) -> str:
+    normalized = normalize_public_path(value, field_name)
+    segments = normalized.split("/")
+    if any(not ASCII_PUBLIC_PATH_SEGMENT_PATTERN.fullmatch(segment) for segment in segments):
+        raise SystemExit(
+            f"Podcast manifest `{field_name}` must use stable ASCII-only path segments "
+            "with letters, numbers, dots, underscores, or hyphens."
+        )
+    if required_prefix and not (
+        normalized == required_prefix or normalized.startswith(f"{required_prefix}/")
+    ):
+        raise SystemExit(f"Podcast manifest `{field_name}` must stay within `{required_prefix}/`.")
+    return normalized
+
+
+def parse_podcast_categories(value: object) -> tuple[PodcastCategory, ...]:
+    if not isinstance(value, list) or not value:
+        raise SystemExit("Podcast manifest `categories` must be a non-empty array.")
+
+    categories: list[PodcastCategory] = []
+    for index, item in enumerate(value):
+        if isinstance(item, str):
+            name = parse_non_empty_string(item, f"categories[{index}]")
+            subcategory = None
+        elif isinstance(item, dict):
+            name = parse_non_empty_string(item.get("name"), f"categories[{index}].name")
+            subcategory = parse_optional_string(
+                item.get("subcategory"),
+                f"categories[{index}].subcategory",
+            )
+        else:
+            raise SystemExit(
+                f"Podcast manifest `categories[{index}]` must be a string or object."
+            )
+        categories.append(PodcastCategory(name=name, subcategory=subcategory))
+
+    return tuple(categories)
+
+
+def probe_png_dimensions(image_path: Path) -> tuple[int, int] | None:
+    try:
+        with image_path.open("rb") as handle:
+            header = handle.read(24)
+    except OSError:
+        return None
+    if len(header) < 24 or header[:8] != b"\x89PNG\r\n\x1a\n" or header[12:16] != b"IHDR":
+        return None
+    width = int.from_bytes(header[16:20], "big")
+    height = int.from_bytes(header[20:24], "big")
+    return width, height
+
+
+def probe_jpeg_dimensions(image_path: Path) -> tuple[int, int] | None:
+    try:
+        with image_path.open("rb") as handle:
+            data = handle.read()
+    except OSError:
+        return None
+    if not data.startswith(b"\xff\xd8"):
+        return None
+
+    offset = 2
+    data_length = len(data)
+    while offset + 9 < data_length:
+        if data[offset] != 0xFF:
+            offset += 1
+            continue
+        marker = data[offset + 1]
+        offset += 2
+        if marker == 0xD9:
+            break
+        if marker in {0xD8, 0x01} or 0xD0 <= marker <= 0xD7:
+            continue
+        if offset + 2 > data_length:
+            break
+        segment_length = int.from_bytes(data[offset : offset + 2], "big")
+        if segment_length < 2 or offset + segment_length > data_length:
+            break
+        if marker in JPEG_SOF_MARKERS:
+            if offset + 7 > data_length:
+                break
+            height = int.from_bytes(data[offset + 3 : offset + 5], "big")
+            width = int.from_bytes(data[offset + 5 : offset + 7], "big")
+            return width, height
+        offset += segment_length
+    return None
+
+
+def probe_raster_image_dimensions(image_path: Path) -> tuple[int, int] | None:
+    suffix = image_path.suffix.lower()
+    if suffix == ".png":
+        return probe_png_dimensions(image_path)
+    if suffix in {".jpg", ".jpeg"}:
+        return probe_jpeg_dimensions(image_path)
+    return None
+
+
+def validate_podcast_show_cover_artwork(image_path: Path) -> tuple[int, int]:
+    dimensions = probe_raster_image_dimensions(image_path)
+    if dimensions is None:
+        raise SystemExit(
+            "Podcast manifest `artwork_path` must point to a readable PNG or JPEG show-cover asset."
+        )
+    width, height = dimensions
+    if width != height:
+        raise SystemExit(
+            "Podcast manifest `artwork_path` must point to square show-cover artwork for podcast directories."
+        )
+    if not (PODCAST_SHOW_COVER_MIN_PIXELS <= width <= PODCAST_SHOW_COVER_MAX_PIXELS):
+        raise SystemExit(
+            "Podcast manifest `artwork_path` must be between 1400x1400 and 3000x3000 pixels."
+        )
+    return width, height
 
 
 def parse_optional_duration_seconds(value: object, field_name: str) -> float | None:
@@ -1782,16 +1982,69 @@ def load_podcast_catalog(manifest_path: Path | None = DEFAULT_PODCAST_MANIFEST_P
     if payload.get("schema_version") != "onward_podcast_manifest_v1":
         raise SystemExit("Podcast manifest must use schema_version `onward_podcast_manifest_v1`.")
 
-    title = payload.get("title")
-    prompt_path = payload.get("prompt_path")
-    if not isinstance(title, str) or not title.strip():
-        raise SystemExit("Podcast manifest requires a non-empty `title` string.")
-    if not isinstance(prompt_path, str) or not prompt_path.strip():
-        raise SystemExit("Podcast manifest requires a non-empty `prompt_path` string.")
+    title = parse_non_empty_string(payload.get("title"), "title")
+    prompt_path = parse_non_empty_string(payload.get("prompt_path"), "prompt_path")
+    description = parse_non_empty_string(payload.get("description"), "description")
+    subtitle = parse_optional_string(payload.get("subtitle"), "subtitle")
+    site_url = validate_absolute_url(payload.get("site_url"), "site_url")
+    page_path = validate_ascii_public_path(
+        payload.get("page_path", DEFAULT_PODCAST_PAGE_PATH),
+        "page_path",
+    )
+    if page_path != DEFAULT_PODCAST_PAGE_PATH:
+        raise SystemExit(
+            f"Podcast manifest `page_path` must currently remain `{DEFAULT_PODCAST_PAGE_PATH}`."
+        )
+    feed_path = validate_ascii_public_path(
+        payload.get("feed_path", DEFAULT_PODCAST_FEED_PATH),
+        "feed_path",
+        required_prefix=PODCAST_PUBLIC_ROOT,
+    )
+    categories = parse_podcast_categories(payload.get("categories"))
+    public_contact_email = parse_non_empty_string(payload.get("public_contact_email"), "public_contact_email")
+    if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", public_contact_email):
+        raise SystemExit("Podcast manifest `public_contact_email` must look like an email address.")
+    author_name = parse_optional_string(payload.get("author_name"), "author_name") or title
+    owner_name = parse_optional_string(payload.get("owner_name"), "owner_name") or author_name
+    language = parse_optional_string(payload.get("language"), "language") or "en-CA"
+    artwork_path = parse_non_empty_string(payload.get("artwork_path"), "artwork_path")
+    artwork_output_path = validate_ascii_public_path(
+        payload.get("artwork_output_path", f"{PODCAST_PUBLIC_ROOT}/{Path(artwork_path).name}"),
+        "artwork_output_path",
+        required_prefix=PODCAST_PUBLIC_ROOT,
+    )
+    apple_podcasts_url = parse_optional_string(payload.get("apple_podcasts_url"), "apple_podcasts_url")
+    if apple_podcasts_url is not None:
+        apple_podcasts_url = validate_absolute_url(apple_podcasts_url, "apple_podcasts_url")
+    spotify_url = parse_optional_string(payload.get("spotify_url"), "spotify_url")
+    if spotify_url is not None:
+        spotify_url = validate_absolute_url(spotify_url, "spotify_url")
 
     resolved_prompt_path = (resolved_manifest_path.parent / prompt_path).resolve()
     if not resolved_prompt_path.exists():
         raise SystemExit(f"Podcast prompt file not found: {resolved_prompt_path}")
+    resolved_artwork_path = (resolved_manifest_path.parent / artwork_path).resolve()
+    if not resolved_artwork_path.exists():
+        raise SystemExit(f"Podcast artwork file not found: {resolved_artwork_path}")
+    validate_podcast_show_cover_artwork(resolved_artwork_path)
+
+    feed = PodcastFeedMetadata(
+        description=description,
+        subtitle=subtitle,
+        site_url=site_url,
+        page_path=page_path,
+        feed_path=feed_path,
+        categories=categories,
+        public_contact_email=public_contact_email,
+        author_name=author_name,
+        owner_name=owner_name,
+        language=language,
+        artwork_source_path=resolved_artwork_path,
+        artwork_manifest_path=Path(artwork_path).as_posix(),
+        artwork_output_path=artwork_output_path,
+        apple_podcasts_url=apple_podcasts_url,
+        spotify_url=spotify_url,
+    )
 
     full_book_payload = payload.get("full_book_episode")
     full_book_episode: FullBookPodcastEpisode | None = None
@@ -1802,6 +2055,13 @@ def load_podcast_catalog(manifest_path: Path | None = DEFAULT_PODCAST_MANIFEST_P
         full_audio_path = full_book_payload.get("audio_path")
         full_source_path = full_book_payload.get("source_path")
         full_notes = full_book_payload.get("notes")
+        full_summary = parse_optional_string(full_book_payload.get("summary"), "full_book_episode.summary")
+        full_published_at = parse_iso_date(full_book_payload.get("published_at"), "full_book_episode.published_at")
+        full_public_audio_path = validate_ascii_public_path(
+            full_book_payload.get("public_audio_path"),
+            "full_book_episode.public_audio_path",
+            required_prefix=PODCAST_PUBLIC_ROOT,
+        )
         full_duration_seconds = parse_optional_duration_seconds(
             full_book_payload.get("duration_seconds"),
             "full_book_episode.duration_seconds",
@@ -1823,10 +2083,17 @@ def load_podcast_catalog(manifest_path: Path | None = DEFAULT_PODCAST_MANIFEST_P
         full_book_episode = FullBookPodcastEpisode(
             title=full_title.strip(),
             audio_source_path=resolved_full_audio_path,
-            audio_output_path=f"{PODCAST_PUBLIC_ROOT}/{Path(full_audio_path).as_posix()}",
+            audio_output_path=full_public_audio_path,
             source_path=resolved_full_source_path,
             source_manifest_path=Path(full_source_path).as_posix(),
             notes=full_notes.strip() if isinstance(full_notes, str) and full_notes.strip() else None,
+            summary=full_summary
+            or (
+                full_notes.strip()
+                if isinstance(full_notes, str) and full_notes.strip()
+                else f"Whole-book companion episode for {title}."
+            ),
+            published_at=full_published_at,
             duration_seconds=resolve_audio_duration_seconds(resolved_full_audio_path, full_duration_seconds),
         )
 
@@ -1847,6 +2114,31 @@ def load_podcast_catalog(manifest_path: Path | None = DEFAULT_PODCAST_MANIFEST_P
         source_path = raw_episode.get("source_path")
         target_entry_id = raw_episode.get("target_entry_id")
         notes = raw_episode.get("notes")
+        summary = parse_optional_string(
+            raw_episode.get("summary"),
+            (
+                f"episodes[{episode_number}].summary"
+                if isinstance(episode_number, int)
+                else "episodes[].summary"
+            ),
+        )
+        public_audio_path = validate_ascii_public_path(
+            raw_episode.get("public_audio_path"),
+            (
+                f"episodes[{episode_number}].public_audio_path"
+                if isinstance(episode_number, int)
+                else "episodes[].public_audio_path"
+            ),
+            required_prefix=PODCAST_PUBLIC_ROOT,
+        )
+        published_at = parse_iso_date(
+            raw_episode.get("published_at"),
+            (
+                f"episodes[{episode_number}].published_at"
+                if isinstance(episode_number, int)
+                else "episodes[].published_at"
+            ),
+        )
         duration_seconds = parse_optional_duration_seconds(
             raw_episode.get("duration_seconds"),
             (
@@ -1890,11 +2182,18 @@ def load_podcast_catalog(manifest_path: Path | None = DEFAULT_PODCAST_MANIFEST_P
                 episode_number=episode_number,
                 title=title_value.strip(),
                 audio_source_path=resolved_audio_path,
-                audio_output_path=f"{PODCAST_PUBLIC_ROOT}/{Path(audio_path).as_posix()}",
+                audio_output_path=public_audio_path,
                 source_path=resolved_source_path,
                 source_manifest_path=Path(source_path).as_posix(),
                 target_entry_id=normalized_target_entry_id or None,
                 notes=notes.strip() if isinstance(notes, str) and notes.strip() else None,
+                summary=summary
+                or (
+                    notes.strip()
+                    if isinstance(notes, str) and notes.strip()
+                    else f"Companion podcast episode for {title_value.strip()}."
+                ),
+                published_at=published_at,
                 duration_seconds=resolve_audio_duration_seconds(resolved_audio_path, duration_seconds),
             )
         )
@@ -1908,6 +2207,7 @@ def load_podcast_catalog(manifest_path: Path | None = DEFAULT_PODCAST_MANIFEST_P
         manifest_path=resolved_manifest_path,
         prompt_source_path=resolved_prompt_path,
         prompt_manifest_path=Path(prompt_path).as_posix(),
+        feed=feed,
         episodes=tuple(ordered_episodes),
         full_book_episode=full_book_episode,
     )
@@ -2496,6 +2796,145 @@ def public_href(path: str) -> str:
     return "/".join(quote(part) for part in path.split("/"))
 
 
+def absolute_public_url(site_url: str, path: str) -> str:
+    return f"{site_url.rstrip('/')}/{public_href(path.lstrip('/'))}"
+
+
+def format_rss_pub_date(published_at: date) -> str:
+    return format_datetime(datetime.combine(published_at, time(12, 0, tzinfo=timezone.utc)))
+
+
+def append_xml_text(parent: ET.Element, tag: str, text: str) -> ET.Element:
+    child = ET.SubElement(parent, tag)
+    child.text = text
+    return child
+
+
+def render_podcast_feed_item(
+    channel: ET.Element,
+    *,
+    catalog: PodcastCatalog,
+    title: str,
+    summary: str,
+    published_at: date,
+    audio_source_path: Path,
+    audio_output_path: str,
+    item_url: str,
+    episode_number: int | None = None,
+) -> None:
+    item = ET.SubElement(channel, "item")
+    append_xml_text(item, "title", title)
+    append_xml_text(item, "description", summary)
+    append_xml_text(item, "link", item_url)
+    guid = append_xml_text(item, "guid", item_url)
+    guid.set("isPermaLink", "true")
+    append_xml_text(item, "pubDate", format_rss_pub_date(published_at))
+    ET.SubElement(
+        item,
+        "enclosure",
+        {
+            "url": absolute_public_url(catalog.feed.site_url, audio_output_path),
+            "length": str(audio_source_path.stat().st_size),
+            "type": "audio/mpeg",
+        },
+    )
+    append_xml_text(item, f"{{{ITUNES_XML_NAMESPACE}}}author", catalog.feed.author_name)
+    append_xml_text(item, f"{{{ITUNES_XML_NAMESPACE}}}summary", summary)
+    append_xml_text(item, f"{{{ITUNES_XML_NAMESPACE}}}explicit", "false")
+    if episode_number is not None:
+        append_xml_text(item, f"{{{ITUNES_XML_NAMESPACE}}}episode", str(episode_number))
+
+
+def render_podcast_feed(catalog: PodcastCatalog) -> str:
+    ET.register_namespace("atom", ATOM_XML_NAMESPACE)
+    ET.register_namespace("content", CONTENT_XML_NAMESPACE)
+    ET.register_namespace("itunes", ITUNES_XML_NAMESPACE)
+
+    feed_url = absolute_public_url(catalog.feed.site_url, catalog.feed.feed_path)
+    page_url = absolute_public_url(catalog.feed.site_url, catalog.feed.page_path)
+    artwork_url = absolute_public_url(catalog.feed.site_url, catalog.feed.artwork_output_path)
+    all_published_dates = [episode.published_at for episode in catalog.episodes]
+    if catalog.full_book_episode:
+        all_published_dates.append(catalog.full_book_episode.published_at)
+    last_build_date = format_rss_pub_date(max(all_published_dates)) if all_published_dates else format_rss_pub_date(date.today())
+
+    rss = ET.Element(
+        "rss",
+        {
+            "version": "2.0",
+            "xmlns:content": CONTENT_XML_NAMESPACE,
+        },
+    )
+    channel = ET.SubElement(rss, "channel")
+    ET.SubElement(
+        channel,
+        f"{{{ATOM_XML_NAMESPACE}}}link",
+        {"href": feed_url, "rel": "self", "type": "application/rss+xml"},
+    )
+    append_xml_text(channel, "title", catalog.title)
+    append_xml_text(channel, "link", page_url)
+    append_xml_text(channel, "description", catalog.feed.description)
+    append_xml_text(channel, "language", catalog.feed.language)
+    append_xml_text(channel, "managingEditor", catalog.feed.public_contact_email)
+    append_xml_text(channel, "webMaster", catalog.feed.public_contact_email)
+    append_xml_text(channel, "lastBuildDate", last_build_date)
+    append_xml_text(channel, "generator", "Onward to the Unknown family-site builder")
+    append_xml_text(channel, f"{{{ITUNES_XML_NAMESPACE}}}author", catalog.feed.author_name)
+    if catalog.feed.subtitle:
+        append_xml_text(channel, f"{{{ITUNES_XML_NAMESPACE}}}subtitle", catalog.feed.subtitle)
+    append_xml_text(channel, f"{{{ITUNES_XML_NAMESPACE}}}summary", catalog.feed.description)
+    append_xml_text(channel, f"{{{ITUNES_XML_NAMESPACE}}}explicit", "false")
+    for category in catalog.feed.categories:
+        category_element = ET.SubElement(
+            channel,
+            f"{{{ITUNES_XML_NAMESPACE}}}category",
+            {"text": category.name},
+        )
+        if category.subcategory:
+            ET.SubElement(
+                category_element,
+                f"{{{ITUNES_XML_NAMESPACE}}}category",
+                {"text": category.subcategory},
+            )
+    ET.SubElement(channel, f"{{{ITUNES_XML_NAMESPACE}}}image", {"href": artwork_url})
+    owner = ET.SubElement(channel, f"{{{ITUNES_XML_NAMESPACE}}}owner")
+    append_xml_text(owner, f"{{{ITUNES_XML_NAMESPACE}}}name", catalog.feed.owner_name)
+    append_xml_text(owner, f"{{{ITUNES_XML_NAMESPACE}}}email", catalog.feed.public_contact_email)
+    image = ET.SubElement(channel, "image")
+    append_xml_text(image, "url", artwork_url)
+    append_xml_text(image, "title", catalog.title)
+    append_xml_text(image, "link", page_url)
+
+    if catalog.full_book_episode:
+        render_podcast_feed_item(
+            channel,
+            catalog=catalog,
+            title=catalog.full_book_episode.title,
+            summary=catalog.full_book_episode.summary,
+            published_at=catalog.full_book_episode.published_at,
+            audio_source_path=catalog.full_book_episode.audio_source_path,
+            audio_output_path=catalog.full_book_episode.audio_output_path,
+            item_url=f"{page_url}#full-book-podcast",
+        )
+
+    for episode in catalog.episodes:
+        render_podcast_feed_item(
+            channel,
+            catalog=catalog,
+            title=episode.title,
+            summary=episode.summary,
+            published_at=episode.published_at,
+            audio_source_path=episode.audio_source_path,
+            audio_output_path=episode.audio_output_path,
+            item_url=f"{page_url}#{episode_fragment_id(episode)}",
+            episode_number=episode.episode_number,
+        )
+
+    tree = ET.ElementTree(rss)
+    ET.indent(tree, space="  ")
+    return ET.tostring(rss, encoding="utf-8", xml_declaration=True).decode("utf-8")
+
+
 def source_library_input_root(source_dir: Path) -> Path:
     if source_dir.parent.name == "doc-web-html":
         return source_dir.parent.parent
@@ -2630,6 +3069,9 @@ def copy_podcast_public_assets(catalog: PodcastCatalog, output_dir: Path) -> Non
         destination_path = output_dir / catalog.full_book_episode.audio_output_path
         destination_path.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(catalog.full_book_episode.audio_source_path, destination_path)
+    artwork_destination_path = output_dir / catalog.feed.artwork_output_path
+    artwork_destination_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(catalog.feed.artwork_source_path, artwork_destination_path)
 
 
 def load_family_story_supplements(source_dir: Path) -> list[FamilyStorySupplement]:
@@ -3471,6 +3913,31 @@ def render_podcast_episode_card(
     ).strip()
 
 
+def render_podcast_app_handoff(catalog: PodcastCatalog) -> str:
+    app_links = [render_nav_link("Podcast RSS Feed", catalog.feed.feed_path, icon_svg=PODCAST_ICON_SVG)]
+    if catalog.feed.apple_podcasts_url:
+        app_links.append(render_nav_link("Listen in Apple Podcasts", catalog.feed.apple_podcasts_url))
+    if catalog.feed.spotify_url:
+        app_links.append(render_nav_link("Listen in Spotify", catalog.feed.spotify_url))
+    subtitle_html = (
+        f'<p class="audio-note">{escape(catalog.feed.subtitle)}</p>'
+        if catalog.feed.subtitle
+        else ""
+    )
+    return dedent(
+        f"""\
+        <section class="panel section-panel audio-feature-card">
+          <div class="section-header">
+            {render_section_title("Use a Podcast App", icon_svg=PODCAST_ICON_SVG)}
+          </div>
+          <p class="audio-summary">This page stays the easiest place to listen here. If you already use a podcast app, use the feed or app links below and the same episodes will still point back to this site.</p>
+          {subtitle_html}
+          {render_action_row(app_links)}
+        </section>
+        """
+    ).strip()
+
+
 def render_audiobook_page(
     site_title: str,
     catalog: AudiobookCatalog,
@@ -3594,6 +4061,8 @@ def render_podcast_page(
             <p class="audio-summary">Press play on the whole-book episode or any chapter episode below, or download an MP3 to listen later on your phone, tablet, or computer.</p>
             {render_ai_attribution("NotebookLM", "https://notebooklm.google.com/")}
           </section>
+
+          {render_podcast_app_handoff(catalog)}
 
           <section class="audio-track-grid">
             {full_book_html}
@@ -4159,6 +4628,10 @@ def build_family_site(
             internal_dir / "podcast" / Path(podcast_catalog.prompt_manifest_path).name,
             podcast_catalog.prompt_source_path.read_text(encoding="utf-8"),
         )
+        write_text(
+            output_dir / podcast_catalog.feed.feed_path,
+            render_podcast_feed(podcast_catalog),
+        )
     supplement_audit_rows = [audit_row for _supplement, _rendered_entry, audit_row in supplement_rendered_rows]
     omission_audit_path = internal_dir / "omission-audit.json"
 
@@ -4221,7 +4694,7 @@ def build_family_site(
 
     if podcast_catalog:
         write_text(
-            output_dir / DEFAULT_PODCAST_PAGE_PATH,
+            output_dir / podcast_catalog.feed.page_path,
             render_podcast_page(
                 site_title=site_title,
                 catalog=podcast_catalog,

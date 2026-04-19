@@ -7,6 +7,24 @@
   relatives to the website, audiobook, and story-by-story podcast listening
   surfaces.
 
+## [2026-04-18-03] - Shipped public podcast RSS feed and app handoff (Story 015)
+
+### Added
+- Added a repo-owned public podcast RSS feed at `podcast/feed.xml`, backed by
+  manifest-driven episode metadata, stable ASCII public audio URLs, and a
+  square `podcast/feed-art.png` show-cover asset.
+- Added a dedicated runbook for manually submitting the shipped podcast feed to
+  Apple Podcasts and claiming it on Spotify, then wiring the resulting listing
+  URLs back into the repo.
+
+### Changed
+- Updated the podcast page to expose a plain-language `Podcast RSS Feed`
+  action, while keeping browser play and direct MP3 download as the primary
+  family listening path.
+- Updated the builder, regression tests, and repo truth docs so Apple-safe
+  category metadata, show-cover validation, and optional future Apple/Spotify
+  listing seams are now shipped behavior rather than planned work.
+
 ## [2026-04-18-01] - Settled combined audio distribution plan (Story 009)
 
 ### Added

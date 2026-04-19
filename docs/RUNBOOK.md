@@ -183,9 +183,15 @@ lets the builder:
 
 - copy the referenced MP3 files into `build/family-site/podcast/`
 - emit `build/family-site/podcast.html`
+- emit `build/family-site/podcast/feed.xml`
+- copy the repo-owned square show-cover asset into `build/family-site/podcast/`
+- publish manifest-driven Apple category metadata and stable ASCII enclosure
+  URLs for the feed, even when the source MP3 filenames are messier locally
 - expose the full-book episode for direct browser play and download when it
   exists
 - add a page-level podcast panel to matching chapters
+- expose a plain-language `Podcast RSS Feed` action on the podcast page, while
+  leaving browser play and MP3 download as the default listening path
 
 To refresh that surface locally:
 
@@ -197,28 +203,40 @@ For a quick manual inspection after the build, check:
 
 - `build/family-site/index.html`
 - `build/family-site/podcast.html`
+- `build/family-site/podcast/feed.xml`
 - a matching chapter page such as `build/family-site/chapter-002.html`
 
 For the current family-facing launch plan, treat this site-hosted surface as
 the canonical podcast lane. The expected reader path is simple browser play or
-direct MP3 download with no app or account requirement. External podcast feeds
-or directory listings remain optional follow-up lanes, not prerequisites for
-shipping the current podcast surface.
+direct MP3 download with no app or account requirement. The public RSS feed is
+now a convenience duplicate for relatives who already use a podcast app, not a
+replacement for the website.
 
 ## External Audio Distribution Guidance
 
 Scout 003 keeps the website as the canonical home for both audio surfaces and
 recommends this external order only if a duplicate lane is later added:
 
-1. emit one public podcast RSS feed from the repo-owned site
+1. publish or refresh the repo-owned podcast RSS feed at `podcast/feed.xml`
 2. submit that feed to Apple Podcasts
 3. claim that same feed on Spotify
 4. treat Pocket Casts, Overcast, and YouTube Music as optional follow-on
    conveniences for listeners who already use those apps
 
-No public podcast RSS feed exists in repo output yet. If that feed is built
-later, prefer keeping it on `onward.copper-dog.com` beside the current MP3
-assets rather than moving the project to a paid podcast host.
+The repo now emits one public podcast RSS feed from the same site as the MP3
+assets. Keep that feed on `onward.copper-dog.com` beside the current podcast
+files rather than moving the project to a paid podcast host.
+
+`podcast/manifest.json` is now the repo-owned seam for Apple-facing category
+metadata, square show-cover art, and stable public audio output paths. Keep
+the public paths ASCII safe so feed validators and older devices do not have
+to follow percent-escaped NotebookLM filenames.
+
+Apple Podcasts and Spotify listing URLs remain future metadata. Do not add
+those buttons to the site until the listing URLs are real and verified.
+
+For the exact manual account-side submission steps, use
+`docs/runbooks/podcast-apple-and-spotify-submission.md`.
 
 Dedicated audiobook-platform duplication is still optional later work. Under
 the current no-charge family constraint, the direct website flow and any future

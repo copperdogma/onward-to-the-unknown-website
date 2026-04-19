@@ -88,10 +88,14 @@ the real environment changes.
     the repo-owned website is the current recommended first listening lane for
     both audiobook and podcast delivery; no extra platform is required to
     launch either family-facing surface
-  - if the repo later emits a public podcast RSS feed, the current DreamHost
-    static deploy path is also sufficient to publish that XML feed and point it
-    at the same repo-owned MP3 files, so a paid podcast host is not required
-    for the first external directory lane
+  - the current whole-book build now also emits a public podcast RSS feed at
+    `podcast/feed.xml` plus a repo-owned square show-cover image under
+    `podcast/`, and
+    the same DreamHost static deploy path publishes that XML beside the MP3
+    files, so a paid podcast host is not required for the first external
+    directory lane; the published feed now uses manifest-driven category
+    metadata and stable ASCII public audio paths even when the source MP3 files
+    have messier local generator names
   - the current live payload is the staged export bundle
     `input/doc-web-html/story206-onward-proof-r10`
 
