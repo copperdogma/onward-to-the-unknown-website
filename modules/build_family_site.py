@@ -145,6 +145,19 @@ PODCAST_ICON_SVG = (
     '<path d="M5.25 11.25a.75.75 0 0 0-1.5 0 8.25 8.25 0 0 0 7.5 8.213V21a.75.75 0 0 0 1.5 0v-1.537a8.25 8.25 0 0 0 7.5-8.213.75.75 0 0 0-1.5 0 6.75 6.75 0 1 1-13.5 0Z" fill="currentColor"/>'
     "</svg>"
 )
+APPLE_PODCASTS_ICON_SVG = (
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
+    '<path d="M12 4.5a7.5 7.5 0 0 0-7.5 7.5.75.75 0 0 0 1.5 0A6 6 0 1 1 18 12a.75.75 0 0 0 1.5 0A7.5 7.5 0 0 0 12 4.5Z" fill="currentColor"/>'
+    '<path d="M12 7.5a4.5 4.5 0 0 0-4.5 4.5.75.75 0 0 0 1.5 0 3 3 0 1 1 6 0 .75.75 0 0 0 1.5 0A4.5 4.5 0 0 0 12 7.5Z" fill="currentColor"/>'
+    '<path d="M12 10.5a1.5 1.5 0 0 0-1.5 1.5v.938a2.25 2.25 0 1 0 3 0V12a1.5 1.5 0 0 0-1.5-1.5Z" fill="currentColor"/>'
+    '<circle cx="12" cy="17.25" r="1.5" fill="currentColor"/>'
+    "</svg>"
+)
+SPOTIFY_ICON_SVG = (
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
+    '<path d="M12 3.75a8.25 8.25 0 1 0 0 16.5 8.25 8.25 0 0 0 0-16.5Zm-3.2 5.66c2.08-.34 4.48-.13 6.72.7a.75.75 0 1 1-.52 1.4c-1.98-.74-4.08-.95-5.96-.64a.75.75 0 0 1-.24-1.48Zm-.08 2.5c1.72-.28 3.58-.08 5.18.57a.75.75 0 0 1-.56 1.4c-1.34-.54-2.9-.7-4.38-.46a.75.75 0 0 1-.24-1.5Zm.48 2.32c1.18-.2 2.4-.06 3.42.4a.75.75 0 0 1-.62 1.36c-.76-.35-1.7-.45-2.56-.3a.75.75 0 0 1-.24-1.46Z" fill="currentColor"/>'
+    "</svg>"
+)
 ARCHIVE_ICON_SVG = (
     '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
     '<path d="M4.5 6.75A2.25 2.25 0 0 1 6.75 4.5h10.5a2.25 2.25 0 0 1 2.25 2.25v1.5H4.5v-1.5Zm0 3h15v7.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 17.25v-7.5Zm4.5 2.25a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5H9Z" fill="currentColor"/>'
@@ -856,6 +869,34 @@ SITE_STYLESHEET = dedent(
       min-width: 0;
     }
 
+    .nav-button.icon-only {
+      flex: 0 0 auto;
+      width: var(--hit-target);
+      padding: 0;
+      aspect-ratio: 1 / 1;
+    }
+
+    .nav-button-content-icon-only {
+      gap: 0;
+    }
+
+    .nav-button.icon-only .nav-button-icon {
+      width: 1.35rem;
+      height: 1.35rem;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
     .nav-placeholder {
       color: var(--muted);
       background: rgba(255, 255, 255, 0.4);
@@ -1541,6 +1582,7 @@ class PodcastCategory:
 class PodcastFeedMetadata:
     description: str
     subtitle: str | None
+    show_type: str
     site_url: str
     page_path: str
     feed_path: str
@@ -1721,6 +1763,15 @@ def parse_podcast_categories(value: object) -> tuple[PodcastCategory, ...]:
         categories.append(PodcastCategory(name=name, subcategory=subcategory))
 
     return tuple(categories)
+
+
+def parse_podcast_show_type(value: object) -> str:
+    if value is None:
+        return "episodic"
+    normalized = parse_non_empty_string(value, "show_type").lower()
+    if normalized not in {"episodic", "serial"}:
+        raise SystemExit("Podcast manifest `show_type` must be `episodic` or `serial`.")
+    return normalized
 
 
 def probe_png_dimensions(image_path: Path) -> tuple[int, int] | None:
@@ -1986,6 +2037,7 @@ def load_podcast_catalog(manifest_path: Path | None = DEFAULT_PODCAST_MANIFEST_P
     prompt_path = parse_non_empty_string(payload.get("prompt_path"), "prompt_path")
     description = parse_non_empty_string(payload.get("description"), "description")
     subtitle = parse_optional_string(payload.get("subtitle"), "subtitle")
+    show_type = parse_podcast_show_type(payload.get("show_type"))
     site_url = validate_absolute_url(payload.get("site_url"), "site_url")
     page_path = validate_ascii_public_path(
         payload.get("page_path", DEFAULT_PODCAST_PAGE_PATH),
@@ -2031,6 +2083,7 @@ def load_podcast_catalog(manifest_path: Path | None = DEFAULT_PODCAST_MANIFEST_P
     feed = PodcastFeedMetadata(
         description=description,
         subtitle=subtitle,
+        show_type=show_type,
         site_url=site_url,
         page_path=page_path,
         feed_path=feed_path,
@@ -2882,6 +2935,7 @@ def render_podcast_feed(catalog: PodcastCatalog) -> str:
     append_xml_text(channel, f"{{{ITUNES_XML_NAMESPACE}}}author", catalog.feed.author_name)
     if catalog.feed.subtitle:
         append_xml_text(channel, f"{{{ITUNES_XML_NAMESPACE}}}subtitle", catalog.feed.subtitle)
+    append_xml_text(channel, f"{{{ITUNES_XML_NAMESPACE}}}type", catalog.feed.show_type)
     append_xml_text(channel, f"{{{ITUNES_XML_NAMESPACE}}}summary", catalog.feed.description)
     append_xml_text(channel, f"{{{ITUNES_XML_NAMESPACE}}}explicit", "false")
     for category in catalog.feed.categories:
@@ -3538,7 +3592,7 @@ def write_text(path: Path, content: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 
-def render_layout(title: str, body_html: str) -> str:
+def render_layout(title: str, body_html: str, *, head_html: str = "") -> str:
     return dedent(
         f"""\
         <!DOCTYPE html>
@@ -3548,6 +3602,7 @@ def render_layout(title: str, body_html: str) -> str:
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{escape(title)}</title>
         <link rel="stylesheet" href="{SITE_STYLESHEET_HREF}">
+        {head_html}
         </head>
         <body>
         {body_html}
@@ -3913,29 +3968,25 @@ def render_podcast_episode_card(
     ).strip()
 
 
-def render_podcast_app_handoff(catalog: PodcastCatalog) -> str:
-    app_links = [render_nav_link("Podcast RSS Feed", catalog.feed.feed_path, icon_svg=PODCAST_ICON_SVG)]
+def render_podcast_platform_links(catalog: PodcastCatalog) -> list[str]:
+    app_links: list[str] = []
     if catalog.feed.apple_podcasts_url:
-        app_links.append(render_nav_link("Listen in Apple Podcasts", catalog.feed.apple_podcasts_url))
+        app_links.append(
+            render_nav_link(
+                "Apple Podcasts",
+                catalog.feed.apple_podcasts_url,
+                icon_svg=APPLE_PODCASTS_ICON_SVG,
+            )
+        )
     if catalog.feed.spotify_url:
-        app_links.append(render_nav_link("Listen in Spotify", catalog.feed.spotify_url))
-    subtitle_html = (
-        f'<p class="audio-note">{escape(catalog.feed.subtitle)}</p>'
-        if catalog.feed.subtitle
-        else ""
-    )
-    return dedent(
-        f"""\
-        <section class="panel section-panel audio-feature-card">
-          <div class="section-header">
-            {render_section_title("Use a Podcast App", icon_svg=PODCAST_ICON_SVG)}
-          </div>
-          <p class="audio-summary">This page stays the easiest place to listen here. If you already use a podcast app, use the feed or app links below and the same episodes will still point back to this site.</p>
-          {subtitle_html}
-          {render_action_row(app_links)}
-        </section>
-        """
-    ).strip()
+        app_links.append(
+            render_nav_link(
+                "Spotify",
+                catalog.feed.spotify_url,
+                icon_svg=SPOTIFY_ICON_SVG,
+            )
+        )
+    return app_links
 
 
 def render_audiobook_page(
@@ -4025,6 +4076,7 @@ def render_podcast_page(
     rendered_entries: list[RenderedEntry],
 ) -> str:
     rendered_entries_by_id = {rendered.entry.entry_id: rendered for rendered in rendered_entries}
+    platform_links = render_podcast_platform_links(catalog)
     episode_cards = "\n".join(
         render_podcast_episode_card(episode, rendered_entries_by_id)
         for episode in catalog.episodes
@@ -4050,6 +4102,11 @@ def render_podcast_page(
             </section>
             """
         ).strip()
+    hero_actions_html = render_action_row(platform_links) if platform_links else ""
+    head_html = (
+        f'<link rel="alternate" type="application/rss+xml" '
+        f'title="{escape(catalog.title)} podcast feed" href="{escape(catalog.feed.feed_path)}">'
+    )
     body = dedent(
         f"""\
         <main class="site-shell">
@@ -4058,11 +4115,10 @@ def render_podcast_page(
           <section class="hero audio-hero">
             {render_kicker("Family podcast", icon_svg=PODCAST_ICON_SVG)}
             <h1>{escape(catalog.title)}</h1>
-            <p class="audio-summary">Press play on the whole-book episode or any chapter episode below, or download an MP3 to listen later on your phone, tablet, or computer.</p>
+            <p class="audio-summary">Listen here below, or open the same podcast in your preferred app.</p>
             {render_ai_attribution("NotebookLM", "https://notebooklm.google.com/")}
+            {hero_actions_html}
           </section>
-
-          {render_podcast_app_handoff(catalog)}
 
           <section class="audio-track-grid">
             {full_book_html}
@@ -4071,7 +4127,7 @@ def render_podcast_page(
         </main>
         """
     )
-    return render_layout(title=f"Podcast — {site_title}", body_html=body)
+    return render_layout(title=f"Podcast — {site_title}", body_html=body, head_html=head_html)
 
 
 def render_source_library_page(
@@ -4276,20 +4332,34 @@ def render_nav_link(
     primary: bool = False,
     download: bool = False,
     icon_svg: str | None = None,
+    icon_only: bool = False,
 ) -> str:
     if href is None:
         return f'<span class="nav-placeholder">{escape(label)}</span>'
     class_name = "nav-button primary" if primary else "nav-button secondary"
+    if icon_only:
+        class_name += " icon-only"
     download_attr = " download" if download else ""
     label_html = escape(label)
-    if icon_svg:
+    extra_attrs = ""
+    if icon_only:
+        if icon_svg is None:
+            raise ValueError("icon_only navigation links require icon_svg.")
+        extra_attrs = f' aria-label="{label_html}" title="{label_html}"'
+        label_html = (
+            f'<span class="nav-button-content nav-button-content-icon-only">'
+            f'<span class="nav-button-icon">{icon_svg}</span>'
+            f'<span class="sr-only">{label_html}</span>'
+            f"</span>"
+        )
+    elif icon_svg:
         label_html = (
             f'<span class="nav-button-content">'
             f'<span class="nav-button-icon">{icon_svg}</span>'
             f'<span class="nav-button-label">{label_html}</span>'
             f"</span>"
         )
-    return f'<a class="{class_name}" href="{escape(href)}"{download_attr}>{label_html}</a>'
+    return f'<a class="{class_name}" href="{escape(href)}"{download_attr}{extra_attrs}>{label_html}</a>'
 
 
 def render_section_title(label: str, *, icon_svg: str | None = None) -> str:

@@ -1,8 +1,9 @@
 {
   "schema_version": "onward_podcast_manifest_v1",
   "title": "Onward to the Unknown Podcast",
-  "description": "A companion podcast for Onward to the Unknown, with one whole-book episode and chapter episodes that stay tied to the family archive on the website.",
-  "subtitle": "Whole-book and chapter episodes from the family history archive.",
+  "description": "An AI-generated companion podcast created with NotebookLM for Onward to the Unknown, with one whole-book episode and chapter episodes that point back to the family archive at https://onward.copper-dog.com/podcast.html.",
+  "subtitle": "AI-generated with NotebookLM. Whole-book and chapter episodes from the family history archive.",
+  "show_type": "serial",
   "site_url": "https://onward.copper-dog.com",
   "page_path": "podcast.html",
   "feed_path": "podcast/feed.xml",
@@ -12,6 +13,8 @@
   "language": "en-CA",
   "artwork_path": "feed-art.png",
   "artwork_output_path": "podcast/feed-art.png",
+  "apple_podcasts_url": "https://podcasts.apple.com/ca/podcast/onward-to-the-unknown-podcast/id1894682581",
+  "spotify_url": "https://open.spotify.com/show/5PB4LuCnaxbdb41l6M4IWd",
   "generator": "NotebookLM",
   "prompt_path": "notebooklm-prompt.md",
   "full_book_episode": {
@@ -21,7 +24,7 @@
     "source_export_filename": "01_Overview_Three_Centuries_of_L_Heureux_Family_Grit.m4a",
     "source_note": "Whole-book NotebookLM episode generated from the staged main-book bundle.",
     "notes": "A whole-book episode that moves across the full family history.",
-    "published_at": "2026-04-01",
+    "published_at": "2026-04-20",
     "public_audio_path": "podcast/tracks/01-overview-three-centuries-of-lheureux-family-grit.mp3"
   },
   "episodes": [
@@ -34,7 +37,7 @@
       "source_note": "NotebookLM episode generated from the audiobook script for Chapter 02.",
       "target_entry_id": "chapter-002",
       "notes": "A chapter episode following Suzanne Jarousseau and the first L'Heureux family in Canada.",
-      "published_at": "2026-04-02",
+      "published_at": "2026-04-01",
       "public_audio_path": "podcast/tracks/02-the-first-lheureuxs-in-canada.mp3"
     },
     {
@@ -45,7 +48,7 @@
       "source_export_filename": "03-moise-and-sophie_Moïse_and_Sophie_L_Heureux_s_Frontier_Survival.m4a",
       "source_note": "NotebookLM episode generated from the audiobook script for Chapter 03.",
       "target_entry_id": "chapter-005",
-      "published_at": "2026-04-03",
+      "published_at": "2026-04-02",
       "public_audio_path": "podcast/tracks/03-moise-and-sophie.mp3"
     },
     {
@@ -56,7 +59,7 @@
       "source_export_filename": "04-memories_Sophisticated_culture_on_a_rugged_pioneer_farm.m4a",
       "source_note": "NotebookLM episode generated from the audiobook script for Chapter 04.",
       "target_entry_id": "chapter-007",
-      "published_at": "2026-04-04",
+      "published_at": "2026-04-03",
       "public_audio_path": "podcast/tracks/04-memories.mp3"
     },
     {
@@ -67,7 +70,7 @@
       "source_export_filename": "05-alma-marie-lheureux-alain_From_ox_carts_to_steam_engines.m4a",
       "source_note": "NotebookLM episode generated from the audiobook script for Chapter 05.",
       "target_entry_id": "chapter-009",
-      "published_at": "2026-04-05",
+      "published_at": "2026-04-04",
       "public_audio_path": "podcast/tracks/05-alma-marie-lheureux-alain.mp3"
     },
     {
@@ -78,7 +81,7 @@
       "source_export_filename": "06-arthur-lheureux_Arthur_L_Heureux_s_Whistle_and_Fifty-Six_Horses.m4a",
       "source_note": "NotebookLM episode generated from the audiobook script for Chapter 06.",
       "target_entry_id": "chapter-010",
-      "published_at": "2026-04-06",
+      "published_at": "2026-04-05",
       "public_audio_path": "podcast/tracks/06-arthur-lheureux.mp3"
     },
     {
@@ -89,7 +92,7 @@
       "source_export_filename": "07-leonidas-lheureux_The_Brutal_Survival_of_Leonidas_L_Heureux.m4a",
       "source_note": "NotebookLM episode generated from the audiobook script for Chapter 07.",
       "target_entry_id": "chapter-011",
-      "published_at": "2026-04-07",
+      "published_at": "2026-04-06",
       "public_audio_path": "podcast/tracks/07-leonidas-lheureux.mp3"
     },
     {
@@ -100,7 +103,7 @@
       "source_export_filename": "08-josephine-lheureux-alain_How_Josephine_L_Heureux_anchored_her_family.m4a",
       "source_note": "NotebookLM episode generated from the audiobook script for Chapter 08.",
       "target_entry_id": "chapter-012",
-      "published_at": "2026-04-08",
+      "published_at": "2026-04-07",
       "public_audio_path": "podcast/tracks/08-josephine-lheureux-alain.mp3"
     },
     {
@@ -111,7 +114,7 @@
       "source_export_filename": "09-paul-lheureux_Paul_L_Heureux_From_Horseback_to_Bush_Pilot.m4a",
       "source_note": "NotebookLM episode generated from the audiobook script for Chapter 09.",
       "target_entry_id": "chapter-013",
-      "published_at": "2026-04-09",
+      "published_at": "2026-04-08",
       "public_audio_path": "podcast/tracks/09-paul-lheureux.mp3"
     },
     {
@@ -122,7 +125,7 @@
       "source_export_filename": "10-george-lheureux_Dragging_a_House_Across_the_Prairie.m4a",
       "source_note": "NotebookLM episode generated from the audiobook script for Chapter 10.",
       "target_entry_id": "chapter-014",
-      "published_at": "2026-04-10",
+      "published_at": "2026-04-09",
       "public_audio_path": "podcast/tracks/10-george-lheureux.mp3"
     },
     {
@@ -133,7 +136,7 @@
       "source_export_filename": "11-joe-joseph-lheureux_Joe_L_Heureux_Outsmarted_the_Canadian_Prairies.m4a",
       "source_note": "NotebookLM episode generated from the audiobook script for Chapter 11.",
       "target_entry_id": "chapter-015",
-      "published_at": "2026-04-11",
+      "published_at": "2026-04-10",
       "public_audio_path": "podcast/tracks/11-joe-joseph-lheureux.mp3"
     },
     {
@@ -144,7 +147,7 @@
       "source_export_filename": "12-mathilda-lheureux-devlin_Twenty_Five_Years_Of_Devlin_Farm_Survival.m4a",
       "source_note": "NotebookLM episode generated from the audiobook script for Chapter 12.",
       "target_entry_id": "chapter-016",
-      "published_at": "2026-04-12",
+      "published_at": "2026-04-11",
       "public_audio_path": "podcast/tracks/12-mathilda-lheureux-devlin.mp3"
     },
     {
@@ -155,7 +158,7 @@
       "source_export_filename": "13-marie-louise-lheureux-laclare_Cat_hide_shoelaces_and_radical_hospitality.m4a",
       "source_note": "NotebookLM episode generated from the audiobook script for Chapter 13.",
       "target_entry_id": "chapter-017",
-      "published_at": "2026-04-13",
+      "published_at": "2026-04-12",
       "public_audio_path": "podcast/tracks/13-marie-louise-lheureux-laclare.mp3"
     },
     {
@@ -166,7 +169,7 @@
       "source_export_filename": "14-roseanna-lheureux-landreville_Wolves,_Cold_Tea,_and_Tiny_Boots.m4a",
       "source_note": "NotebookLM episode generated from the audiobook script for Chapter 14.",
       "target_entry_id": "chapter-018",
-      "published_at": "2026-04-14",
+      "published_at": "2026-04-13",
       "public_audio_path": "podcast/tracks/14-roseanna-lheureux-landreville.mp3"
     },
     {
@@ -177,7 +180,7 @@
       "source_export_filename": "15-antoinette-lheureux-richard_Feeding_Boxcar_Workers_with_the_Richard_Family.m4a",
       "source_note": "NotebookLM episode generated from the audiobook script for Chapter 15.",
       "target_entry_id": "chapter-019",
-      "published_at": "2026-04-15",
+      "published_at": "2026-04-14",
       "public_audio_path": "podcast/tracks/15-antoinette-lheureux-richard.mp3"
     },
     {
@@ -188,7 +191,7 @@
       "source_export_filename": "16-emilie-lheureux-nolin_The_prairie_survival_of_Emilie_L_Heureux.m4a",
       "source_note": "NotebookLM episode generated from the audiobook script for Chapter 16.",
       "target_entry_id": "chapter-020",
-      "published_at": "2026-04-16",
+      "published_at": "2026-04-15",
       "public_audio_path": "podcast/tracks/16-emilie-lheureux-nolin.mp3"
     },
     {
@@ -199,7 +202,7 @@
       "source_export_filename": "17-wilfrid-lheureux_Wilfrid_L_Heureux_From_Broncos_to_Tanks.m4a",
       "source_note": "NotebookLM episode generated from the audiobook script for Chapter 17.",
       "target_entry_id": "chapter-021",
-      "published_at": "2026-04-17",
+      "published_at": "2026-04-16",
       "public_audio_path": "podcast/tracks/17-wilfrid-lheureux.mp3"
     },
     {
@@ -210,7 +213,7 @@
       "source_export_filename": "18-pierre-lheureux_The_Living_Room_Dentist_of_Jackfish.m4a",
       "source_note": "NotebookLM episode generated from the audiobook script for Chapter 18.",
       "target_entry_id": "chapter-022",
-      "published_at": "2026-04-18",
+      "published_at": "2026-04-17",
       "public_audio_path": "podcast/tracks/18-pierre-lheureux.mp3"
     },
     {
@@ -221,7 +224,7 @@
       "source_export_filename": "19-antoine-lheureux_Antoine_L_Heureux_and_the_Jackfish_Kid.m4a",
       "source_note": "NotebookLM episode generated from the audiobook script for Chapter 19.",
       "target_entry_id": "chapter-023",
-      "published_at": "2026-04-19",
+      "published_at": "2026-04-18",
       "public_audio_path": "podcast/tracks/19-antoine-lheureux.mp3"
     },
     {
@@ -232,7 +235,7 @@
       "source_export_filename": "20-rolland-alain-memoir-family-story.md_Frontier_Justice_and_the_Rolland_Alain_Memoir.m4a",
       "source_note": "NotebookLM episode generated from the audiobook script for the Rolland Alain memoir supplement.",
       "target_entry_id": "supplement-rolland-alain-memoir",
-      "published_at": "2026-04-20",
+      "published_at": "2026-04-19",
       "public_audio_path": "podcast/tracks/20-rolland-alain-memoir-family-story.mp3"
     }
   ],

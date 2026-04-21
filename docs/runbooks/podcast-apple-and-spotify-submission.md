@@ -1,6 +1,7 @@
 # Podcast Submission To Apple And Spotify
 
 Checked against current Apple Podcasts and Spotify support docs on April 18,
+2026. Current repo and live-status notes below were last updated on April 21,
 2026.
 
 This guide is for getting the repo-owned podcast feed onto Apple Podcasts and
@@ -10,6 +11,51 @@ Spotify without changing the project’s current model:
 - the podcast feed is the external duplicate
 - the audiobook stays on the website only
 
+## Current Setup Snapshot
+
+Checked and updated on April 21, 2026.
+
+### Repo-Owned Truth Surfaces
+
+- Podcast manifest: [podcast/manifest.json](/Users/cam/.codex/worktrees/cec2/onward-to-the-unknown-website/podcast/manifest.json:1)
+- Builder: [modules/build_family_site.py](/Users/cam/.codex/worktrees/cec2/onward-to-the-unknown-website/modules/build_family_site.py:3916)
+- Generated public podcast page: [build/family-site/podcast.html](/Users/cam/.codex/worktrees/cec2/onward-to-the-unknown-website/build/family-site/podcast.html:1)
+- Generated public RSS feed: [build/family-site/podcast/feed.xml](/Users/cam/.codex/worktrees/cec2/onward-to-the-unknown-website/build/family-site/podcast/feed.xml:1)
+
+### Live Public URLs
+
+- Website podcast page: `https://onward.copper-dog.com/podcast.html`
+- RSS feed: `https://onward.copper-dog.com/podcast/feed.xml`
+- Feed artwork: `https://onward.copper-dog.com/podcast/feed-art.png`
+- Spotify show URL: `https://open.spotify.com/show/5PB4LuCnaxbdb41l6M4IWd`
+- Apple Podcasts public URL: `https://podcasts.apple.com/ca/podcast/onward-to-the-unknown-podcast/id1894682581`
+
+### Current Platform State
+
+- Apple Podcasts now has a public listing URL and that canonical Canada URL is stored in the manifest.
+- Spotify’s public listing URL is also stored in the manifest.
+- `podcast.html` now renders labeled `Apple Podcasts` and `Spotify` buttons from those manifest URLs.
+- The RSS feed is still advertised for podcast apps via the page’s raw HTML `<link rel="alternate" ...>` tag rather than a reader-facing button.
+
+### Ordering State
+
+- The repo now pushes the intended listening order into the feed:
+  - `show_type` is set to `serial`
+  - the feed emits `<itunes:type>serial</itunes:type>`
+  - chapter episode publish dates run forward from April 1, 2026 through April 19, 2026 in numbered book order
+  - the whole-book episode publishes on April 20, 2026 so it stays distinct from the chapter run
+- If Spotify shows stale ordering after a feed refresh, keep the manifest dates as the repo-owned source of truth and recheck the public page later.
+
+### Setup Log
+
+- April 18, 2026: the repo gained the Apple/Spotify submission runbook and the public RSS submission seam.
+- April 19, 2026: the RSS feed was submitted into Apple Podcasts Connect and imported as `Onward to the Unknown Podcast`.
+- April 19, 2026: the show was claimed on Spotify, producing the canonical show URL `https://open.spotify.com/show/5PB4LuCnaxbdb41l6M4IWd`.
+- April 19, 2026: the feed description and subtitle were updated to say the show is AI-generated, created with NotebookLM, and points back to the site.
+- April 21, 2026: Apple published the public show URL `https://podcasts.apple.com/ca/podcast/onward-to-the-unknown-podcast/id1894682581`, and that URL was stored in the manifest.
+- April 21, 2026: the site handoff changed to labeled `Apple Podcasts` and `Spotify` buttons, while the RSS feed stayed available only through the page head.
+- April 21, 2026: chapter publish dates were moved into forward numbered order so Spotify receives a stronger listening-order signal from the feed.
+
 ## What You Are Submitting
 
 - Public podcast page: `https://onward.copper-dog.com/podcast.html`
@@ -17,9 +63,13 @@ Spotify without changing the project’s current model:
 - Feed artwork URL: `https://onward.copper-dog.com/podcast/feed-art.png`
 - Current public feed email: `cam.marsollier@gmail.com`
 
-The repo currently expects Apple and Spotify listing URLs to be stored later in
-`podcast/manifest.json` as top-level `apple_podcasts_url` and `spotify_url`
-values after the listings exist.
+The repo stores third-party listing URLs in `podcast/manifest.json` as
+top-level `apple_podcasts_url` and `spotify_url` values.
+
+Current repo state:
+
+- `spotify_url` is already set to `https://open.spotify.com/show/5PB4LuCnaxbdb41l6M4IWd`
+- `apple_podcasts_url` is already set to `https://podcasts.apple.com/ca/podcast/onward-to-the-unknown-podcast/id1894682581`
 
 ## Before You Start
 
@@ -76,16 +126,23 @@ Optional direct validation entry:
 
 ### After Apple Approves It
 
-1. Copy the public Apple Podcasts show URL.
-2. Add that URL to `podcast/manifest.json` as `apple_podcasts_url`.
-3. Rebuild and redeploy the site so the `Listen in Apple Podcasts` button
-   appears on `podcast.html`.
+Approval and publication completed on April 21, 2026.
+
+- Public Apple Podcasts show URL: `https://podcasts.apple.com/ca/podcast/onward-to-the-unknown-podcast/id1894682581`
+- Manifest location: [podcast/manifest.json](/Users/cam/.codex/worktrees/cec2/onward-to-the-unknown-website/podcast/manifest.json:1)
+- Site state: `podcast.html` already renders the Apple Podcasts handoff from this URL
+
+If Apple ever changes the canonical public storefront URL:
+
+1. Replace `apple_podcasts_url` in `podcast/manifest.json`.
+2. Rebuild and redeploy the site.
+3. Recheck both the live site and the public Apple Podcasts URL.
 
 Example:
 
 ```json
 {
-  "apple_podcasts_url": "https://podcasts.apple.com/ca/podcast/onward-to-the-unknown-podcast/id1234567890"
+  "apple_podcasts_url": "https://podcasts.apple.com/ca/podcast/onward-to-the-unknown-podcast/id1894682581"
 }
 ```
 
@@ -120,10 +177,17 @@ Spotify for Creators using the RSS feed and an email verification code.
 
 ### After Spotify Is Claimed
 
-1. Copy the public Spotify show URL.
-2. Add that URL to `podcast/manifest.json` as `spotify_url`.
-3. Rebuild and redeploy the site so the `Listen in Spotify` button appears on
-   `podcast.html`.
+Claim completed on April 19, 2026.
+
+- Public Spotify show URL: `https://open.spotify.com/show/5PB4LuCnaxbdb41l6M4IWd`
+- Manifest location: [podcast/manifest.json](/Users/cam/.codex/worktrees/cec2/onward-to-the-unknown-website/podcast/manifest.json:1)
+- Site state: `podcast.html` already renders the Spotify handoff from this URL
+
+If Spotify ever changes the canonical show URL:
+
+1. Replace `spotify_url` in `podcast/manifest.json`.
+2. Rebuild and redeploy the site.
+3. Recheck both the live site and the public Spotify URL.
 
 Example:
 
@@ -135,7 +199,7 @@ Example:
 
 ## Repo Follow-Through After Either Platform Goes Live
 
-Once you have a real Apple or Spotify listing URL:
+If either platform changes its canonical public URL later:
 
 1. Update [podcast/manifest.json](/Users/cam/.codex/worktrees/cec2/onward-to-the-unknown-website/podcast/manifest.json:1).
 2. Run:
@@ -145,10 +209,10 @@ make build-family-site
 ```
 
 3. Deploy the refreshed site with the normal repo deploy flow.
-4. Open `https://onward.copper-dog.com/podcast.html` and confirm the new
-   button appears.
+4. Open `https://onward.copper-dog.com/podcast.html` and confirm the updated
+   button still points at the right public listing.
 5. Open the platform listing and confirm the feed, art, and episode ordering
-   look right.
+   still look right.
 
 If both are live, the top of the manifest should look roughly like this:
 
@@ -158,8 +222,8 @@ If both are live, the top of the manifest should look roughly like this:
   "public_contact_email": "cam@example.com",
   "artwork_path": "feed-art.png",
   "artwork_output_path": "podcast/feed-art.png",
-  "apple_podcasts_url": "https://podcasts.apple.com/ca/podcast/onward-to-the-unknown-podcast/id1234567890",
-  "spotify_url": "https://open.spotify.com/show/abcdef1234567890"
+  "apple_podcasts_url": "https://podcasts.apple.com/ca/podcast/onward-to-the-unknown-podcast/id1894682581",
+  "spotify_url": "https://open.spotify.com/show/5PB4LuCnaxbdb41l6M4IWd"
 }
 ```
 
@@ -170,7 +234,8 @@ If both are live, the top of the manifest should look roughly like this:
 3. Submit the feed to Apple Podcasts.
 4. Claim the same feed on Spotify.
 5. Add the resulting Apple and Spotify URLs back into `podcast/manifest.json`.
-6. Rebuild and redeploy so the site shows the real platform buttons.
+6. Rebuild and redeploy so the site shows the real labeled platform buttons.
+7. Recheck Apple and Spotify episode ordering after their next feed refresh.
 
 ## Official Sources
 

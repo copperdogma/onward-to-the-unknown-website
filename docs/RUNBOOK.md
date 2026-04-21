@@ -232,11 +232,14 @@ metadata, square show-cover art, and stable public audio output paths. Keep
 the public paths ASCII safe so feed validators and older devices do not have
 to follow percent-escaped NotebookLM filenames.
 
-Apple Podcasts and Spotify listing URLs remain future metadata. Do not add
-those buttons to the site until the listing URLs are real and verified.
+Third-party listing URLs live in `podcast/manifest.json`. The verified Apple
+Podcasts and Spotify show URLs are now set there, and the site may render
+those labeled handoffs directly from the manifest. If either platform changes
+its canonical public URL later, update the manifest only after the replacement
+URL is real and verified.
 
-For the exact manual account-side submission steps, use
-`docs/runbooks/podcast-apple-and-spotify-submission.md`.
+For the exact manual account-side submission steps and the current setup log,
+use `docs/runbooks/podcast-apple-and-spotify-submission.md`.
 
 Dedicated audiobook-platform duplication is still optional later work. Under
 the current no-charge family constraint, the direct website flow and any future

@@ -1,5 +1,21 @@
 # Changelog
 
+## [2026-04-21-01] - Finished public Apple and Spotify podcast handoff
+
+### Changed
+- Wired the verified Apple Podcasts public URL into the podcast manifest and
+  updated the podcast page to show labeled `Apple Podcasts` and `Spotify`
+  buttons instead of icon-only controls.
+- Moved the podcast RSS handoff out of the reader-facing action row and kept it
+  available through the page's HTML alternate-feed link instead.
+- Adjusted the podcast feed metadata and publish dates so the manifest sends a
+  clearer serial listening order signal to Apple Podcasts and Spotify.
+
+### Fixed
+- Fixed the repo runbook and podcast submission guide so they now reflect the
+  live Apple/Spotify URLs, the labeled site handoff, and the current feed-order
+  strategy.
+
 ## [2026-04-18-02] - Added family site announcement copy
 
 ### Added
