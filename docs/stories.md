@@ -23,3 +23,4 @@ Current priority: refine the existing whole-book reading surface into a site tha
 - **Done** — `docs/stories/story-013-archive-source-library-and-download-links.md` — Archive Source Library And Download Links
 - **Done** — `docs/stories/story-014-first-on-site-podcast-listening-surface.md` — First On-Site Podcast Listening Surface
 - **Done** — `docs/stories/story-015-public-podcast-rss-feed-and-app-links.md` — Public Podcast RSS Feed And App Links
+- **Done** — `docs/stories/story-016-printed-book-index-links.md` — Printed Book Index Links

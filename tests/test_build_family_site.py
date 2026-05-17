@@ -21,6 +21,7 @@ from modules.build_family_site import (
     enhance_article_html,
     expand_entry_fragments,
     merge_absorbed_article_html,
+    printed_page_link_targets,
     probe_raster_image_dimensions,
 )
 
@@ -1679,6 +1680,106 @@ def test_enhance_article_html_rewrites_all_caps_page_heading():
     enhanced = enhance_article_html(entry, article_html, "Introduction and Dedication")
 
     assert '<h1 id="blk-page-009-0001">Introduction and Dedication</h1>' in enhanced
+
+
+def test_enhance_article_html_links_printed_book_index_targets():
+    page_entry = BundleEntry(
+        entry_id="page-008",
+        kind="page",
+        title="Page vii",
+        path="page-008.html",
+        order=13,
+        prev_entry_id="page-007",
+        next_entry_id="page-009",
+        source_pages=(8,),
+        printed_pages=(),
+        printed_page_start=None,
+        printed_page_end=None,
+    )
+    target_entries = [
+        BundleEntry(
+            entry_id="chapter-001",
+            kind="chapter",
+            title="The Ancestral Lineage of Moise and Sophie",
+            path="chapter-001.html",
+            order=2,
+            prev_entry_id="page-001",
+            next_entry_id="chapter-002",
+            source_pages=(10,),
+            printed_pages=(1,),
+            printed_page_start=1,
+            printed_page_end=1,
+        ),
+        BundleEntry(
+            entry_id="chapter-004",
+            kind="chapter",
+            title="The Reunion's Beginning",
+            path="chapter-004.html",
+            order=8,
+            prev_entry_id="page-004",
+            next_entry_id="chapter-005",
+            source_pages=(13,),
+            printed_pages=(4,),
+            printed_page_start=4,
+            printed_page_end=4,
+        ),
+        BundleEntry(
+            entry_id="chapter-009",
+            kind="chapter",
+            title="Alma Marie (L'Heureux) Alain",
+            path="chapter-009.html",
+            order=14,
+            prev_entry_id="chapter-008",
+            next_entry_id="chapter-010",
+            source_pages=(22, 23, 24, 25, 26, 27),
+            printed_pages=(13, 14, 15, 16, 17, 18),
+            printed_page_start=13,
+            printed_page_end=18,
+        ),
+        BundleEntry(
+            entry_id="chapter-021",
+            kind="chapter",
+            title="Wilfrid L'Heureux",
+            path="chapter-021.html",
+            order=26,
+            prev_entry_id="chapter-020",
+            next_entry_id="chapter-022",
+            source_pages=(102, 103, 104, 105, 106, 107),
+            printed_pages=(93, 94, 95, 96, 97, 98),
+            printed_page_start=93,
+            printed_page_end=98,
+        ),
+    ]
+    all_entries = [page_entry, *target_entries]
+    article_html = """
+    <h1 id="blk-page-008-0001">INDEX</h1>
+    <p id="blk-page-008-0002">Ancestral Lineage ................ 1</p>
+    <p id="blk-page-008-0005">Minutes of the First Reunion Meeting ................ 4</p>
+    <table id="blk-page-008-0010">
+      <thead><tr><th>Children</th><th>Birth</th><th>Descendants</th><th>Color</th></tr></thead>
+      <tbody>
+        <tr><td>Alma ........................</td><td>July 31, 1883 ............</td><td>172</td><td>Lt. Green ...............</td><td>18</td></tr>
+        <tr><td>Wilfred .....................</td><td>Mar 20, 1900 ............</td><td>90</td><td>Gold ........................</td><td>98</td></tr>
+        <tr><td></td><td>Total</td><td>1864</td><td></td><td></td></tr>
+      </tbody>
+    </table>
+    """
+
+    enhanced = enhance_article_html(
+        page_entry,
+        article_html,
+        "Page vii",
+        entry_paths_by_id={entry.entry_id: entry.path for entry in all_entries},
+        printed_page_paths=printed_page_link_targets(all_entries),
+    )
+
+    assert '<a href="chapter-001.html">Ancestral Lineage</a>' in enhanced
+    assert 'aria-label="Ancestral Lineage page 1">1</a>' in enhanced
+    assert '<a href="chapter-004.html">Minutes of the First Reunion Meeting</a>' in enhanced
+    assert '<td><a href="chapter-009.html">Alma</a></td>' in enhanced
+    assert '<td><a href="chapter-021.html">Wilfred</a></td>' in enhanced
+    assert 'aria-label="Wilfred page 98">98</a>' in enhanced
+    assert "<td>Total</td>" in enhanced
 
 
 def test_enhance_article_html_wraps_figure_images_with_links_and_drops_missing_artifacts():

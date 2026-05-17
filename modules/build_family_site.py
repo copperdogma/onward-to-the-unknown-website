@@ -43,6 +43,8 @@ H2_PATTERN = re.compile(r"<h2\b[^>]*>(.*?)</h2>", re.IGNORECASE | re.DOTALL)
 FIGCAPTION_PATTERN = re.compile(r"<figcaption\b[^>]*>(.*?)</figcaption>", re.IGNORECASE | re.DOTALL)
 PARAGRAPH_PATTERN = re.compile(r"<p\b[^>]*>(.*?)</p>", re.IGNORECASE | re.DOTALL)
 TABLE_PATTERN = re.compile(r"<table\b[^>]*>.*?</table>", re.IGNORECASE | re.DOTALL)
+TABLE_ROW_PATTERN = re.compile(r"<tr\b[^>]*>.*?</tr>", re.IGNORECASE | re.DOTALL)
+TABLE_DATA_CELL_PATTERN = re.compile(r"(<td\b[^>]*>)(.*?)(</td>)", re.IGNORECASE | re.DOTALL)
 PRIMARY_HEADING_PATTERN = re.compile(r"(<h1\b[^>]*>)(.*?)(</h1>)", re.IGNORECASE | re.DOTALL)
 IMG_TAG_PATTERN = re.compile(r"<img\b([^>]*)>", re.IGNORECASE)
 IMG_ALT_PATTERN = re.compile(r"<img\b[^>]*\balt=(?:\"([^\"]+)\"|'([^']+)')", re.IGNORECASE)
@@ -122,6 +124,32 @@ CHAPTER_024_PHOTO_TITLES = {
 }
 MERGED_ENTRY_TARGETS = {
     "page-002": "page-001",
+}
+PAGE_008_INDEX_TARGET_ENTRY_IDS_BY_LABEL = {
+    "ancestral lineage": "chapter-001",
+    "the first l heureux s in canada": "chapter-002",
+    "farm heritage award": "chapter-003",
+    "minutes of the first reunion meeting": "chapter-004",
+    "moise and sophie the first generation": "chapter-005",
+    "family portrait": "chapter-006",
+    "memories": "chapter-007",
+    "l heureux veterans": "chapter-008",
+    "alma": "chapter-009",
+    "arthur": "chapter-010",
+    "leonidas": "chapter-011",
+    "josephine": "chapter-012",
+    "paul": "chapter-013",
+    "george": "chapter-014",
+    "joe": "chapter-015",
+    "mathilda": "chapter-016",
+    "marie louise": "chapter-017",
+    "roseanna": "chapter-018",
+    "antoinette": "chapter-019",
+    "emilie": "chapter-020",
+    "wilfred": "chapter-021",
+    "wilfrid": "chapter-021",
+    "pierre": "chapter-022",
+    "antoine": "chapter-023",
 }
 HOME_ICON_SVG = (
     '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
@@ -2640,26 +2668,123 @@ def decorate_recipe_callout(entry: BundleEntry, article_html: str) -> str:
     return RECIPE_BLOCK_PATTERN.sub(r'<section class="recipe-callout">\1</section>', article_html, count=1)
 
 
-def clean_index_paragraphs(entry: BundleEntry, article_html: str) -> str:
+def printed_page_link_targets(entries: list[BundleEntry]) -> dict[int, str]:
+    targets: dict[int, str] = {}
+    for entry in entries:
+        for page in entry.printed_pages:
+            targets.setdefault(page, entry.path)
+    return targets
+
+
+def normalize_index_label(text: str) -> str:
+    normalized = unicodedata.normalize("NFKD", text)
+    ascii_text = normalized.encode("ascii", "ignore").decode("ascii")
+    ascii_text = ascii_text.replace("&", " and ")
+    ascii_text = re.sub(r"\.+", " ", ascii_text)
+    ascii_text = re.sub(r"[^a-zA-Z0-9]+", " ", ascii_text)
+    return ascii_text.lower().strip()
+
+
+def page_008_index_href(
+    label: str,
+    page: str | None,
+    *,
+    entry_paths_by_id: dict[str, str] | None,
+    printed_page_paths: dict[int, str] | None,
+) -> str | None:
+    normalized_label = normalize_index_label(label)
+    target_entry_id = PAGE_008_INDEX_TARGET_ENTRY_IDS_BY_LABEL.get(normalized_label)
+    if target_entry_id and entry_paths_by_id:
+        target_path = entry_paths_by_id.get(target_entry_id)
+        if target_path:
+            return target_path
+    if page and printed_page_paths:
+        page_match = re.search(r"\d+", page)
+        if page_match:
+            return printed_page_paths.get(int(page_match.group(0)))
+    return None
+
+
+def render_index_link(inner_html: str, href: str, *, aria_label: str | None = None) -> str:
+    text = plain_text_from_html(inner_html).strip()
+    if not text:
+        return inner_html
+    aria = f' aria-label="{escape(aria_label)}"' if aria_label else ""
+    return f'<a href="{escape(href)}"{aria}>{escape(text)}</a>'
+
+
+def clean_index_paragraphs(
+    entry: BundleEntry,
+    article_html: str,
+    *,
+    entry_paths_by_id: dict[str, str] | None = None,
+    printed_page_paths: dict[int, str] | None = None,
+) -> str:
     if entry.entry_id != "page-008":
         return article_html
 
-    items: list[tuple[str, str]] = []
+    items: list[tuple[str, str, str | None]] = []
     for match in PARAGRAPH_PATTERN.finditer(article_html):
         text = plain_text_from_html(match.group(1))
         dotted = re.match(r"^(.*?)\s*\.+\s*(\d+)$", text)
         if dotted:
-            items.append((dotted.group(1).strip(), dotted.group(2)))
+            label = dotted.group(1).strip()
+            page = dotted.group(2)
+            items.append(
+                (
+                    label,
+                    page,
+                    page_008_index_href(
+                        label,
+                        page,
+                        entry_paths_by_id=entry_paths_by_id,
+                        printed_page_paths=printed_page_paths,
+                    ),
+                )
+            )
 
     if items:
         list_html = '<ul class="clean-index-list">' + "".join(
-            f'<li><span>{escape(label)}</span><span>{escape(page)}</span></li>'
-            for label, page in items
+            (
+                f'<li><span><a href="{escape(href)}">{escape(label)}</a></span>'
+                f'<span><a href="{escape(href)}" aria-label="{escape(label)} page {escape(page)}">{escape(page)}</a></span></li>'
+                if href
+                else f'<li><span>{escape(label)}</span><span>{escape(page)}</span></li>'
+            )
+            for label, page, href in items
         ) + "</ul>"
         article_html = PARAGRAPH_PATTERN.sub("", article_html, count=len(items) + 1)
         insertion = article_html.find("</h1>")
         if insertion != -1:
             article_html = article_html[: insertion + len("</h1>")] + list_html + article_html[insertion + len("</h1>") :]
+
+    def link_table_row(match: re.Match[str]) -> str:
+        row_html = match.group(0)
+        cells = list(TABLE_DATA_CELL_PATTERN.finditer(row_html))
+        if len(cells) < 2:
+            return row_html
+        label = plain_text_from_html(cells[0].group(2)).strip()
+        page = plain_text_from_html(cells[-1].group(2)).strip()
+        href = page_008_index_href(
+            label,
+            page,
+            entry_paths_by_id=entry_paths_by_id,
+            printed_page_paths=printed_page_paths,
+        )
+        if not href:
+            return row_html
+        replacements = [
+            (
+                cells[-1].start(2),
+                cells[-1].end(2),
+                render_index_link(cells[-1].group(2), href, aria_label=f"{label} page {page}"),
+            ),
+            (cells[0].start(2), cells[0].end(2), render_index_link(cells[0].group(2), href)),
+        ]
+        linked_row = row_html
+        for start, end, replacement in sorted(replacements, reverse=True):
+            linked_row = linked_row[:start] + replacement + linked_row[end:]
+        return linked_row
 
     def clean_table(match: re.Match[str]) -> str:
         table_html = match.group(0)
@@ -2672,6 +2797,7 @@ def clean_index_paragraphs(entry: BundleEntry, article_html: str) -> str:
         cleaned = re.sub(r"([A-Za-z0-9])\s*\.+\s*", r"\1 ", table_html[len(opening_tag_match.group(0)) :])
         if "<th>Page</th>" not in cleaned:
             cleaned = cleaned.replace("</tr>", "<th>Page</th></tr>", 1)
+        cleaned = TABLE_ROW_PATTERN.sub(link_table_row, cleaned)
         return opening_tag + cleaned
 
     return TABLE_PATTERN.sub(clean_table, article_html, count=1)
@@ -2774,10 +2900,22 @@ def rewrite_primary_heading(article_html: str, display_title: str) -> str:
     return article_html[: match.start()] + replacement + article_html[match.end() :]
 
 
-def enhance_article_html(entry: BundleEntry, article_html: str, display_title: str) -> str:
+def enhance_article_html(
+    entry: BundleEntry,
+    article_html: str,
+    display_title: str,
+    *,
+    entry_paths_by_id: dict[str, str] | None = None,
+    printed_page_paths: dict[int, str] | None = None,
+) -> str:
     enhanced = decorate_genealogy_tables(article_html)
     enhanced = decorate_ancestry_table(entry, enhanced)
-    enhanced = clean_index_paragraphs(entry, enhanced)
+    enhanced = clean_index_paragraphs(
+        entry,
+        enhanced,
+        entry_paths_by_id=entry_paths_by_id,
+        printed_page_paths=printed_page_paths,
+    )
     enhanced = decorate_recipe_callout(entry, enhanced)
     enhanced = decorate_figures(entry, enhanced)
     return rewrite_primary_heading(enhanced, display_title)
@@ -3477,6 +3615,8 @@ def build_rendered_entries(
 ) -> list[RenderedEntry]:
     absorbed_entry_ids = absorbed_entry_ids or set()
     absorbed_entries_by_target_id = absorbed_entries_by_target_id or {}
+    entry_paths_by_id = {entry.entry_id: entry.path for entry in entries}
+    printed_page_paths = printed_page_link_targets(entries)
     rendered: list[RenderedEntry] = []
     for entry in entries:
         if entry.entry_id in absorbed_entry_ids:
@@ -3496,7 +3636,13 @@ def build_rendered_entries(
                 continue
             group = group_for_entry(fragment.entry)
             display_title = derive_display_title(fragment.entry, fragment.raw_article_html)
-            article_html = enhance_article_html(fragment.entry, fragment.raw_article_html, display_title)
+            article_html = enhance_article_html(
+                fragment.entry,
+                fragment.raw_article_html,
+                display_title,
+                entry_paths_by_id=entry_paths_by_id,
+                printed_page_paths=printed_page_paths,
+            )
             thumbnail_src, thumbnail_alt = card_thumbnail(fragment.entry, group, fragment.raw_article_html)
             rendered.append(
                 RenderedEntry(

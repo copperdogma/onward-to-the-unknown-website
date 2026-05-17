@@ -445,10 +445,15 @@
         "path": "docs/stories/story-015-public-podcast-rss-feed-and-app-links.md",
         "title": "Public Podcast RSS Feed And App Links",
         "status": "Done"
+      },
+      {
+        "path": "docs/stories/story-016-printed-book-index-links.md",
+        "title": "Printed Book Index Links",
+        "status": "Done"
       }
     ],
     "counts_by_status": {
-      "Done": 13,
+      "Done": 14,
       "Draft": 2
     }
   }

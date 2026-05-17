@@ -1,5 +1,14 @@
 # Changelog
 
+## [2026-05-17-01] - Linked the printed book index (Story 016)
+
+### Fixed
+- Linked the generated `page-008.html` printed index and family-branch summary
+  rows to their actual chapter pages, including OCR/name quirks such as
+  `Wilfred` pointing to Wilfrid's chapter.
+- Added regression coverage so rebuilt family-site output keeps the printed
+  index links instead of returning to unlinked dot-leader text.
+
 ## [2026-04-21-01] - Finished public Apple and Spotify podcast handoff
 
 ### Changed
