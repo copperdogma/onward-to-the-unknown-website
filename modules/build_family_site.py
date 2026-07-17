@@ -17,6 +17,16 @@ from textwrap import dedent
 from urllib.parse import quote, urlsplit
 import xml.etree.ElementTree as ET
 
+from modules.portable_editions import (
+    DEFAULT_MANIFEST_PATH as DEFAULT_PORTABLE_MANIFEST_PATH,
+    PortableCatalog,
+    PortableEditionError,
+    canonical_epub_documents as canonical_portable_source_inventory,
+    copy_portable_artifacts,
+    load_portable_catalog,
+    validate_epub,
+)
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SOURCE_DIR = REPO_ROOT / "input" / "doc-web-html" / "story206-onward-proof-r10"
 SUPPLEMENT_REGISTRY_PATH = REPO_ROOT / "input" / "doc-web-html" / "family-story-supplements.json"
@@ -30,6 +40,7 @@ DEFAULT_PODCAST_MANIFEST_PATH = REPO_ROOT / "podcast" / "manifest.json"
 DEFAULT_PODCAST_PAGE_PATH = "podcast.html"
 DEFAULT_PODCAST_FEED_PATH = "podcast/feed.xml"
 DEFAULT_SOURCE_LIBRARY_PAGE_PATH = "archive-sources.html"
+DEFAULT_READING_APPS_PAGE_PATH = "reading-apps.html"
 AUDIOBOOK_PUBLIC_ROOT = "audiobook"
 PODCAST_PUBLIC_ROOT = "podcast"
 SOURCE_LIBRARY_PUBLIC_ROOT = "source-files"
@@ -2723,13 +2734,14 @@ def clean_index_paragraphs(
     if entry.entry_id != "page-008":
         return article_html
 
-    items: list[tuple[str, str, str | None]] = []
+    items: list[tuple[str, str, str | None, str | None]] = []
     for match in PARAGRAPH_PATTERN.finditer(article_html):
         text = plain_text_from_html(match.group(1))
         dotted = re.match(r"^(.*?)\s*\.+\s*(\d+)$", text)
         if dotted:
             label = dotted.group(1).strip()
             page = dotted.group(2)
+            block_id = attribute_value(match.group(0).split(">", 1)[0], "id")
             items.append(
                 (
                     label,
@@ -2740,18 +2752,31 @@ def clean_index_paragraphs(
                         entry_paths_by_id=entry_paths_by_id,
                         printed_page_paths=printed_page_paths,
                     ),
+                    block_id,
                 )
             )
 
     if items:
-        list_html = '<ul class="clean-index-list">' + "".join(
-            (
-                f'<li><span><a href="{escape(href)}">{escape(label)}</a></span>'
-                f'<span><a href="{escape(href)}" aria-label="{escape(label)} page {escape(page)}">{escape(page)}</a></span></li>'
-                if href
-                else f'<li><span>{escape(label)}</span><span>{escape(page)}</span></li>'
+        def render_clean_index_item(
+            label: str,
+            page: str,
+            href: str | None,
+            block_id: str | None,
+        ) -> str:
+            id_attr = f' id="{escape(block_id)}"' if block_id else ""
+            if href:
+                return (
+                    f'<li{id_attr}><span><a href="{escape(href)}">{escape(label)}</a></span>'
+                    f'<span><a href="{escape(href)}" aria-label="{escape(label)} page '
+                    f'{escape(page)}">{escape(page)}</a></span></li>'
+                )
+            return (
+                f'<li{id_attr}><span>{escape(label)}</span><span>{escape(page)}</span></li>'
             )
-            for label, page, href in items
+
+        list_html = '<ul class="clean-index-list">' + "".join(
+            render_clean_index_item(label, page, href, block_id)
+            for label, page, href, block_id in items
         ) + "</ul>"
         article_html = PARAGRAPH_PATTERN.sub("", article_html, count=len(items) + 1)
         insertion = article_html.find("</h1>")
@@ -3994,6 +4019,143 @@ def render_index_podcast_panel(catalog: PodcastCatalog) -> str:
     ).strip()
 
 
+def render_portable_handoff(catalog: PortableCatalog, *, compact: bool = False) -> str:
+    """Render ordinary download links without app sniffing or deep-link promises."""
+    actions = render_action_row(
+        [
+            render_nav_link(
+                "Download EPUB",
+                catalog.epub.public_path,
+                primary=True,
+                download=True,
+                icon_svg=DOWNLOAD_ICON_SVG,
+            ),
+            render_nav_link(
+                "Download M4B",
+                catalog.m4b.public_path,
+                download=True,
+                icon_svg=DOWNLOAD_ICON_SVG,
+            ),
+            render_nav_link("Help with reading and listening apps", DEFAULT_READING_APPS_PAGE_PATH),
+        ]
+    )
+    summary = (
+        "Take the book or complete chaptered audiobook into another app, or open the short help page for simple steps."
+        if compact
+        else "Download the reflowable book for a reading app or the complete chaptered audiobook for a listening app. The help page explains the usual next step on Apple, Kindle, Kobo, Google, and other devices."
+    )
+    return dedent(
+        f"""\
+        <section class="panel section-panel portable-handoff" id="portable-editions">
+          <div class="section-header">
+            <p class="audio-kicker">Keep a copy</p>
+            {render_section_title("Read or listen in another app", icon_svg=BOOK_ICON_SVG)}
+          </div>
+          <p class="audio-summary">{escape(summary)}</p>
+          {actions}
+        </section>
+        """
+    ).strip()
+
+
+def render_reading_apps_page(
+    site_title: str,
+    catalog: PortableCatalog,
+    audiobook_catalog: AudiobookCatalog | None,
+    source_assets: tuple[PublishedSourceAsset, ...],
+) -> str:
+    featured_pdf = next((asset for asset in source_assets if asset.featured), None)
+    actions = [
+        render_nav_link(
+            "Download the EPUB book",
+            catalog.epub.public_path,
+            primary=True,
+            download=True,
+            icon_svg=DOWNLOAD_ICON_SVG,
+        ),
+        render_nav_link(
+            "Download the M4B audiobook",
+            catalog.m4b.public_path,
+            download=True,
+            icon_svg=DOWNLOAD_ICON_SVG,
+        ),
+    ]
+    if audiobook_catalog and audiobook_catalog.full_audiobook:
+        full = audiobook_catalog.full_audiobook
+        if full.is_available:
+            actions.append(
+                render_nav_link(
+                    "Download the MP3 audiobook",
+                    full.audio_output_path,
+                    download=True,
+                    icon_svg=DOWNLOAD_ICON_SVG,
+                )
+            )
+    actions.append(
+        render_nav_link(
+            "Choose individual MP3 tracks",
+            "audiobook.html",
+            icon_svg=AUDIOBOOK_ICON_SVG,
+        )
+    )
+    if featured_pdf:
+        actions.append(
+            render_nav_link(
+                "Open the searchable book PDF",
+                public_href(featured_pdf.public_output_path),
+                icon_svg=BOOK_ICON_SVG,
+            )
+        )
+    body = dedent(
+        f"""\
+        <main class="site-shell">
+          {render_site_header(site_title)}
+
+          <section class="hero audio-hero">
+            {render_kicker("A copy for your own device", icon_svg=BOOK_ICON_SVG)}
+            <h1>Read or listen in another app</h1>
+            <p class="audio-summary">Choose the file you want below. Your browser will download it first; then you can open, share, upload, or copy it into the app you already use.</p>
+            {render_action_row(actions)}
+          </section>
+
+          <div class="home-feature-grid reading-apps-grid">
+            <section class="panel section-panel">
+              <p class="audio-kicker">Apple Books</p>
+              <h2 class="section-title">On a Mac, iPhone, or iPad</h2>
+              <p>Download the EPUB or M4B. On a Mac, open Books and choose <strong>File → Import</strong>. On an iPhone or iPad, open the downloaded file and use Share or Open in Books.</p>
+            </section>
+            <section class="panel section-panel">
+              <p class="audio-kicker">Kindle</p>
+              <h2 class="section-title">Send the EPUB to Kindle</h2>
+              <p>Download the EPUB, then use Amazon's <a href="https://www.amazon.com/sendtokindle" target="_blank" rel="noopener noreferrer">Send to Kindle</a> page or app. Amazon accepts EPUB files up to 200 MB; using its service requires an Amazon account.</p>
+            </section>
+            <section class="panel section-panel">
+              <p class="audio-kicker">Kobo</p>
+              <h2 class="section-title">Copy the EPUB to a Kobo</h2>
+              <p>Download the EPUB, connect the Kobo to a computer with its cable, and drag the file onto the <strong>KOBOeReader</strong> drive. Eject it before unplugging.</p>
+            </section>
+            <section class="panel section-panel">
+              <p class="audio-kicker">Google Play Books</p>
+              <h2 class="section-title">Upload the EPUB</h2>
+              <p>Download the EPUB, open your Play Books library in a browser, choose <strong>Upload files</strong>, and select it. This optional route requires a Google account.</p>
+            </section>
+            <section class="panel section-panel">
+              <p class="audio-kicker">Other audiobook apps</p>
+              <h2 class="section-title">Open the chaptered M4B</h2>
+              <p>Download the M4B and choose Open or Share to send it to an audiobook app that accepts personal files. The 21 named chapters make it easy to return to a particular story.</p>
+            </section>
+            <section class="panel section-panel">
+              <p class="audio-kicker">No extra app needed</p>
+              <h2 class="section-title">Stay with the family website</h2>
+              <p>You can always <a href="book.html">read the book</a> or <a href="audiobook.html">listen chapter by chapter</a> here without installing anything or signing into another service.</p>
+            </section>
+          </div>
+        </main>
+        """
+    )
+    return render_layout(title=f"Reading and listening apps — {site_title}", body_html=body)
+
+
 def render_entry_audio_disclosure(
     *,
     summary_label: str,
@@ -4139,6 +4301,7 @@ def render_audiobook_page(
     site_title: str,
     catalog: AudiobookCatalog,
     rendered_entries: list[RenderedEntry],
+    portable_catalog: PortableCatalog | None = None,
 ) -> str:
     rendered_entries_by_id = {rendered.entry.entry_id: rendered for rendered in rendered_entries}
     track_cards = "\n".join(
@@ -4206,6 +4369,8 @@ def render_audiobook_page(
             <p class="audio-summary">Start with the full audiobook just below, or choose any individual track farther down the page to revisit one section at a time.</p>
             {render_ai_attribution("ElevenLabs", "https://elevenlabs.io/")}
           </section>
+
+          {render_portable_handoff(portable_catalog, compact=True) if portable_catalog else ""}
 
           {full_audiobook_html}
 
@@ -4370,6 +4535,7 @@ def render_book_page(
     manifest: dict,
     rendered_entries: list[RenderedEntry],
     source_assets: tuple[PublishedSourceAsset, ...],
+    portable_catalog: PortableCatalog | None = None,
 ) -> str:
     sections = {
         group.id: [rendered for rendered in rendered_entries if rendered.group.id == group.id]
@@ -4377,10 +4543,29 @@ def render_book_page(
     }
     featured_asset = next((asset for asset in source_assets if asset.featured), None)
     hero_actions = ""
-    if featured_asset:
-        hero_actions = render_action_row(
-            [render_nav_link("Open the Book PDF", public_href(featured_asset.public_output_path), primary=True)]
+    hero_links = []
+    if portable_catalog:
+        hero_links.extend(
+            [
+                render_nav_link(
+                    "Download EPUB",
+                    portable_catalog.epub.public_path,
+                    primary=True,
+                    download=True,
+                    icon_svg=DOWNLOAD_ICON_SVG,
+                ),
+                render_nav_link("Help with reading apps", DEFAULT_READING_APPS_PAGE_PATH),
+            ]
         )
+    if featured_asset:
+        hero_links.append(
+            render_nav_link(
+                "Open the Book PDF",
+                public_href(featured_asset.public_output_path),
+                primary=not portable_catalog,
+            )
+        )
+    hero_actions = render_action_row(hero_links)
     section_html = "\n".join(
         render_index_section(group, sections[group.id])
         for group in ENTRY_GROUPS
@@ -4403,6 +4588,8 @@ def render_book_page(
             </div>
           </section>
 
+          {render_portable_handoff(portable_catalog, compact=True) if portable_catalog else ""}
+
           {section_html}
         </main>
         """
@@ -4418,6 +4605,7 @@ def render_index_page(
     audiobook_catalog: AudiobookCatalog | None = None,
     podcast_catalog: PodcastCatalog | None = None,
     source_assets: tuple[PublishedSourceAsset, ...] = (),
+    portable_catalog: PortableCatalog | None = None,
 ) -> str:
     family_story_count = len([rendered for rendered in rendered_entries if rendered.group.id == "family-stories"])
     book_section_count = len(rendered_entries) - family_story_count
@@ -4427,7 +4615,7 @@ def render_index_page(
     if podcast_catalog:
         podcast_episode_count = len(podcast_catalog.episodes) + (1 if podcast_catalog.full_book_episode else 0)
     archive_file_count = len(source_assets)
-    hero_summary = "Begin here, then choose the book, archive sources, audiobook, or podcast."
+    hero_summary = "Begin here, then choose the book, archive sources, audiobook, podcast, or a copy for another app."
     hero_stats_items = [
         render_home_hero_stat(str(book_section_count), "Book pages and chapters"),
         render_home_hero_stat(str(family_story_count), "Family stories"),
@@ -4441,6 +4629,7 @@ def render_index_page(
         render_index_source_panel(source_assets),
         render_index_audiobook_panel(audiobook_catalog) if audiobook_catalog else "",
         render_index_podcast_panel(podcast_catalog) if podcast_catalog else "",
+        render_portable_handoff(portable_catalog, compact=True) if portable_catalog else "",
     ]
     home_feature_html = '<div class="home-feature-grid">' + "".join(panel for panel in feature_panels if panel) + "</div>"
 
@@ -4725,6 +4914,8 @@ def build_family_site(
     site_title: str = DEFAULT_SITE_TITLE,
     audiobook_manifest_path: Path | None = DEFAULT_AUDIOBOOK_MANIFEST_PATH,
     podcast_manifest_path: Path | None = DEFAULT_PODCAST_MANIFEST_PATH,
+    portable_manifest_path: Path | None = None,
+    require_portable_editions: bool = False,
 ) -> BuildResult:
     manifest = load_manifest(source_dir)
     all_entries = [bundle_entry_from_manifest(row) for row in manifest.get("entries", [])]
@@ -4732,6 +4923,10 @@ def build_family_site(
 
     ensure_clean_output_dir(output_dir)
     write_text(output_dir / "assets" / "family-site.css", SITE_STYLESHEET + "\n")
+    write_text(
+        output_dir / ".htaccess",
+        "AddType application/epub+zip .epub\nAddType audio/mp4 .m4b\n",
+    )
     internal_dir = output_dir / "_internal"
     write_text(internal_dir / "source-manifest.json", json.dumps(manifest, indent=2, sort_keys=True) + "\n")
 
@@ -4814,6 +5009,48 @@ def build_family_site(
             internal_dir / "audiobook" / "manifest.json",
             audiobook_catalog.manifest_path.read_text(encoding="utf-8"),
         )
+    portable_catalog: PortableCatalog | None = None
+    if portable_manifest_path is not None:
+        try:
+            candidate = load_portable_catalog(portable_manifest_path)
+            if require_portable_editions or candidate.is_available:
+                copy_portable_artifacts(
+                    candidate,
+                    output_dir,
+                    require_all=require_portable_editions,
+                )
+            if candidate.is_available:
+                from modules.build_m4b import validate_m4b
+
+                documents, source_ids = canonical_portable_source_inventory(source_dir)
+                epub_validation = validate_epub(
+                    candidate.epub.output_path,
+                    expected_document_count=len(documents),
+                    expected_main_source_ids=source_ids,
+                    maximum_bytes=int(candidate.epub.settings.get("maximum_bytes") or 0),
+                )
+                if not epub_validation.ok:
+                    raise PortableEditionError(
+                        "Portable EPUB failed release validation:\n"
+                        + "\n".join(f"- {error}" for error in epub_validation.errors)
+                    )
+                if audiobook_catalog is None:
+                    raise PortableEditionError(
+                        "Portable M4B validation requires the audiobook manifest."
+                    )
+                m4b_validation = validate_m4b(
+                    candidate.m4b.output_path,
+                    audiobook_catalog,
+                    candidate,
+                )
+                if not m4b_validation.ok:
+                    raise PortableEditionError(
+                        "Portable M4B failed release validation:\n"
+                        + "\n".join(f"- {error}" for error in m4b_validation.errors)
+                    )
+                portable_catalog = candidate
+        except PortableEditionError as exc:
+            raise SystemExit(str(exc)) from exc
     podcast_catalog = load_podcast_catalog(podcast_manifest_path)
     podcast_episode_by_entry_id: dict[str, PodcastEpisode] = {}
     if podcast_catalog:
@@ -4887,6 +5124,7 @@ def build_family_site(
                 site_title=site_title,
                 catalog=audiobook_catalog,
                 rendered_entries=rendered_entries,
+                portable_catalog=portable_catalog,
             ),
         )
 
@@ -4905,8 +5143,20 @@ def build_family_site(
             manifest=manifest,
             rendered_entries=rendered_entries,
             source_assets=published_source_assets,
+            portable_catalog=portable_catalog,
         ),
     )
+
+    if portable_catalog:
+        write_text(
+            output_dir / DEFAULT_READING_APPS_PAGE_PATH,
+            render_reading_apps_page(
+                site_title,
+                portable_catalog,
+                audiobook_catalog,
+                published_source_assets,
+            ),
+        )
 
     if podcast_catalog:
         write_text(
@@ -4927,8 +5177,28 @@ def build_family_site(
             audiobook_catalog=audiobook_catalog,
             podcast_catalog=podcast_catalog,
             source_assets=published_source_assets,
+            portable_catalog=portable_catalog,
         ),
     )
+
+    if require_portable_editions:
+        required_links = (portable_catalog.epub.public_path, portable_catalog.m4b.public_path)
+        for page_name in (
+            "index.html",
+            DEFAULT_BOOK_PAGE_PATH,
+            DEFAULT_AUDIOBOOK_PAGE_PATH,
+            DEFAULT_READING_APPS_PAGE_PATH,
+        ):
+            page_path = output_dir / page_name
+            if not page_path.is_file():
+                raise SystemExit(f"Portable release page is missing: {page_path}")
+            body = page_path.read_text(encoding="utf-8")
+            missing_links = [link for link in required_links if link not in body]
+            if missing_links:
+                raise SystemExit(
+                    f"Portable release page {page_name} is missing links: "
+                    + ", ".join(missing_links)
+                )
 
     return BuildResult(
         source_dir=source_dir,
@@ -4961,6 +5231,16 @@ def cli_main(argv: list[str] | None = None) -> int:
         default=DEFAULT_SITE_TITLE,
         help="Display title for the generated reading surface.",
     )
+    parser.add_argument(
+        "--portable-manifest",
+        default=str(DEFAULT_PORTABLE_MANIFEST_PATH),
+        help="Portable EPUB/M4B manifest. Artifacts are linked only when both exist.",
+    )
+    parser.add_argument(
+        "--release",
+        action="store_true",
+        help="Require and structurally validate both portable artifacts and all release links.",
+    )
     args = parser.parse_args(argv)
 
     source_dir = resolve_source_dir(args.source)
@@ -4970,6 +5250,8 @@ def cli_main(argv: list[str] | None = None) -> int:
         output_dir=output_dir,
         entry_ids=args.entry_ids,
         site_title=args.site_title,
+        portable_manifest_path=Path(args.portable_manifest).expanduser().resolve(),
+        require_portable_editions=args.release,
     )
     print(f"Built reading surface from {result.source_dir} into {result.output_dir}")
     print(f"Omission audit: {result.omission_audit_path}")

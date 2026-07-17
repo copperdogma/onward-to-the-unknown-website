@@ -33,6 +33,7 @@ Useful commands:
 
 ```bash
 python -m pip install -r requirements-deploy.txt
+python -m pip install -r requirements-portable.txt
 make skills-sync
 make methodology-compile
 make methodology-check
@@ -41,6 +42,8 @@ make lint
 make build-family-site
 make build-audiobook-script
 make build-full-audiobook
+make build-portable-editions
+make validate-portable-editions
 make refresh-omission-audit
 make preview-family-site
 make deploy-static
@@ -82,6 +85,11 @@ Current local build surface:
 - Input contract: `docs/input-contract.md`
 - Omission audit snapshot: `docs/omission-audit.json`
 - Audiobook asset manifest: `audiobook/manifest.json`
+- Portable-edition contract: `portable/manifest.json`
+- Reflowable EPUB build: `make build-epub`
+- Chaptered M4B build: `make build-m4b`
+- Release bundle with required portable files: `make build-family-site RELEASE=1`
+- Portable release runbook: `docs/runbooks/portable-editions.md`
 - ElevenLabs audiobook MP3 set: `audiobook/ElevenLabs_Onward_to_the_Unknown/`
 - Full merged audiobook build: `python scripts/build_full_audiobook.py`
   (or `make build-full-audiobook`); requires `ffmpeg` on `PATH`

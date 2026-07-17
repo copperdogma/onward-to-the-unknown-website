@@ -23,7 +23,10 @@ from modules.build_family_site import (
     merge_absorbed_article_html,
     printed_page_link_targets,
     probe_raster_image_dimensions,
+    render_portable_handoff,
+    render_reading_apps_page,
 )
+from modules.portable_editions import DEFAULT_MANIFEST_PATH, load_portable_catalog
 
 
 def write_fixture_audiobook_manifest(
@@ -223,6 +226,9 @@ def test_build_family_site_emits_reader_facing_pages_and_internal_audit(tmp_path
     assert (output_dir / "chapter-001.html").exists()
     assert (output_dir / "chapter-009.html").exists()
     assert (output_dir / "assets" / "family-site.css").exists()
+    assert (output_dir / ".htaccess").read_text(encoding="utf-8") == (
+        "AddType application/epub+zip .epub\nAddType audio/mp4 .m4b\n"
+    )
     assert (output_dir / "images" / "family-portrait.svg").exists()
     assert (output_dir / "_internal" / "provenance" / "blocks.jsonl").exists()
     assert (output_dir / "_internal" / "provenance" / "entries" / "page-001.json").exists()
@@ -338,6 +344,23 @@ def test_build_family_site_emits_reader_facing_pages_and_internal_audit(tmp_path
     assert omission_audit["entries"][0]["entry_id"] == "page-001"
     assert omission_audit["entries"][1]["group_id"] == "opening-pages"
     assert omission_audit["entries"][2]["group_id"] == "family-stories"
+
+
+def test_portable_help_uses_literal_downloads_platform_steps_and_no_javascript() -> None:
+    catalog = load_portable_catalog(DEFAULT_MANIFEST_PATH)
+
+    handoff = render_portable_handoff(catalog)
+    help_html = render_reading_apps_page("Fixture Reading Surface", catalog, None, ())
+
+    for path in (catalog.epub.public_path, catalog.m4b.public_path):
+        assert f'href="{path}"' in handoff
+        assert f'href="{path}"' in help_html
+    for label in ("Apple Books", "Send to Kindle", "Kobo", "Google Play Books"):
+        assert label in help_html
+    assert "navigator.userAgent" not in handoff + help_html
+    assert "javascript:" not in handoff + help_html
+    assert 'href="audiobook.html"' in help_html
+    assert "Choose individual MP3 tracks" in help_html
 
 
 def test_build_family_site_rejects_missing_requested_entry(tmp_path):
@@ -1774,8 +1797,10 @@ def test_enhance_article_html_links_printed_book_index_targets():
     )
 
     assert '<a href="chapter-001.html">Ancestral Lineage</a>' in enhanced
+    assert '<li id="blk-page-008-0002">' in enhanced
     assert 'aria-label="Ancestral Lineage page 1">1</a>' in enhanced
     assert '<a href="chapter-004.html">Minutes of the First Reunion Meeting</a>' in enhanced
+    assert '<li id="blk-page-008-0005">' in enhanced
     assert '<td><a href="chapter-009.html">Alma</a></td>' in enhanced
     assert '<td><a href="chapter-021.html">Wilfred</a></td>' in enhanced
     assert 'aria-label="Wilfred page 98">98</a>' in enhanced

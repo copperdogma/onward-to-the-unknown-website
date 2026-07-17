@@ -85,7 +85,8 @@ Canonical location: `.agents/skills/`
 
 ## Current Repo Reality
 
-This repo now has a verified DreamHost/Cloudflare deploy path and a thin local
-whole-book reading-surface builder with omission accounting, but it still does
-not have a fully generalized frontend stack or final site shell. Treat any
-broader runtime surface as genuinely missing, not implied.
+This repo now has a verified DreamHost/Cloudflare deploy path, a deployed
+whole-book reading surface with omission accounting, and validated portable
+EPUB/M4B release outputs built from the same book and audiobook contracts. It
+still does not have a fully generalized frontend stack or final site shell.
+Treat any broader runtime surface as genuinely missing, not implied.

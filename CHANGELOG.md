@@ -1,5 +1,29 @@
 # Changelog
 
+## [2026-07-17-01] - Published portable EPUB and chaptered audiobook (Story 017)
+
+### Added
+- Added a deterministic, source-accounted EPUB 3 containing all 37 main-book
+  entries, the Rolland Alain memoir, 42 referenced images, and all 520 visible
+  main-book source ids, plus a deterministic M4B with the 21 reviewed tracks as
+  named chapters.
+- Added direct EPUB, M4B, PDF, and individual-MP3 choices with plain Apple
+  Books, Kindle, Kobo, Google Play Books, and generic audiobook-app guidance.
+
+### Changed
+- Made strict static releases validate and copy both portable files, emit their
+  MIME declarations, and provide a maintained production validator for exact
+  byte lengths, MIME types, range delivery, and help-page links.
+- Updated the repo runbooks, spec, methodology state, and coverage inventory to
+  record the portable release contract and verified public paths.
+
+### Fixed
+- Constrained EPUB figures so large photographs and captions stay usable in
+  paginated readers after an independent renderer exposed a reflow defect that
+  EPUBCheck could not detect.
+- Made SFTP deployment wait for the real child exit status and reject failed or
+  unfinished transfers instead of accepting EOF with an unknown result.
+
 ## [2026-05-17-01] - Linked the printed book index (Story 016)
 
 ### Fixed

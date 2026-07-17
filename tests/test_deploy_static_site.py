@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import importlib.util
 from pathlib import Path
+from unittest.mock import patch
+
+import pytest
 
 
 def load_deploy_module():
@@ -12,6 +15,47 @@ def load_deploy_module():
     assert spec is not None and spec.loader is not None
     spec.loader.exec_module(module)
     return module
+
+
+class FakeSftpChild:
+    def __init__(self, *, exitstatus: int | None, transcript: str) -> None:
+        self._final_exitstatus = exitstatus
+        self.before = transcript
+        self.after = ""
+        self.exitstatus: int | None = None
+        self.signalstatus: int | None = None
+        self.closed = False
+
+    def expect(self, _patterns: list[object]) -> int:
+        return 2
+
+    def sendline(self, _value: str) -> None:
+        raise AssertionError("The EOF-only fixture should not prompt for input.")
+
+    def close(self) -> None:
+        self.closed = True
+        self.exitstatus = self._final_exitstatus
+
+
+def test_run_sftp_rejects_connection_failure_after_eof():
+    deploy = load_deploy_module()
+    child = FakeSftpChild(
+        exitstatus=255,
+        transcript="ssh: Could not resolve hostname example.test\nConnection closed\n",
+    )
+    with patch.object(deploy.pexpect, "spawn", return_value=child):
+        with pytest.raises(SystemExit, match="SFTP exited with 255"):
+            deploy.run_sftp("ls\n", "example.test", "reader", "secret")
+    assert child.closed
+
+
+def test_run_sftp_accepts_zero_exit_after_waiting_for_child():
+    deploy = load_deploy_module()
+    child = FakeSftpChild(exitstatus=0, transcript="sftp> ls index.html\nindex.html\n")
+    with patch.object(deploy.pexpect, "spawn", return_value=child):
+        transcript = deploy.run_sftp("ls\n", "example.test", "reader", "secret")
+    assert child.closed
+    assert "index.html" in transcript
 
 
 def test_collect_source_state_ignores_manifest_and_tracks_dirs(tmp_path):

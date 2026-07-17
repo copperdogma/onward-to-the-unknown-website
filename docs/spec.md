@@ -85,6 +85,12 @@ materials without obscuring what belongs to the core book.
 Companion assets need honest labeling, provenance, and page-level or
 chapter-level placement when appropriate.
 
+The first portable publication seam now packages the same omission-accounted
+book model as a reflowable EPUB and the reviewed 21-track narration as a
+chaptered M4B. `portable/manifest.json` owns their publication metadata and
+stable release paths; the existing PDF and individual MP3s remain first-class
+fallbacks.
+
 ### C4 Supplementary materials still need manual curation and packaging
 
 - Ideal: companion assets arrive with canonical metadata and clear placement
@@ -131,6 +137,11 @@ The repo should make imports, changes, and publication decisions inspectable.
 Maintainers should be able to see what was imported, what was curated, and what
 remains manual.
 
+Portable releases are deterministic and locally validated: EPUB entries retain
+source block ids and referenced figures, M4B chapters retain audiobook-manifest
+order, and release mode refuses missing or invalid generated files before a
+static deploy bundle can be assembled.
+
 ### C6 Publishing and editorial provenance are only partially defined
 
 - Ideal: every published surface can be traced to a canonical source record and
@@ -155,6 +166,10 @@ Accessibility, performance, and link integrity should be treated as product
 requirements, not late polish. For this project, accessibility explicitly
 includes large hit targets, strong legibility, and forgiving interactions for
 an audience that will skew 80+ years old across desktop and mobile use.
+
+The portable lane adds EPUBCheck, structural/source coverage checks, audio
+stream/chapter validation, representative decode checks, stable MIME and range
+proof, familiar-app inspection, and literal no-JavaScript download choices.
 
 ### C7 Public-readiness quality still lacks measured proof on real content
 

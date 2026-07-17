@@ -23,6 +23,15 @@ This writes the local slice to:
 build/family-site/
 ```
 
+The production release build requires the validated portable files and copies
+them into the same static bundle:
+
+```bash
+make build-portable-editions
+make validate-portable-editions
+make build-family-site RELEASE=1
+```
+
 Refresh the checked-in omission-audit snapshot when the accepted bundle changes:
 
 ```bash
@@ -34,6 +43,8 @@ make refresh-omission-audit
 ```bash
 make test
 make lint
+make test-portable-editions
+make validate-portable-editions
 make methodology-compile
 make methodology-check
 ```

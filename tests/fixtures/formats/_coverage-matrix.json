@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-04-18",
+  "updated_at": "2026-07-17",
   "surfaces": [
     {
       "id": "book-core-html",
@@ -28,6 +28,24 @@
       "status": "partial",
       "target_surface": "global book companion surface",
       "notes": "The local builder now emits a dedicated `audiobook.html` page, publishes a merged full-audiobook MP3 when built from `audiobook/manifest.json`, and exposes direct browser play/download controls. The current recommended first distribution lane is this site-hosted surface, with any off-site duplicate remaining optional follow-up work."
+    },
+    {
+      "id": "portable-ebook",
+      "label": "Portable reflowable ebook",
+      "kind": "companion-media",
+      "upstream": "accepted staged book bundle plus family-story supplement registry",
+      "status": "partial",
+      "target_surface": "generated EPUB 3 and stable public download",
+      "notes": "The portable manifest and deterministic builder now package all 37 rendered main-book entries plus the Rolland Alain memoir supplement, 520 visible main-book source ids, and every referenced figure into a validated EPUB. The website, searchable PDF, and source records remain canonical; storefront publication is intentionally out of scope."
+    },
+    {
+      "id": "chaptered-audiobook",
+      "label": "Portable chaptered audiobook",
+      "kind": "companion-media",
+      "upstream": "repo-owned audiobook manifest and 21 reviewed MP3 tracks",
+      "status": "partial",
+      "target_surface": "generated M4B and stable public download",
+      "notes": "The portable manifest and deterministic builder now assemble one AAC-LC M4B with the reviewed track order, manifest pauses, embedded cover and metadata, and exactly 21 named chapters. The source MP3s and on-site individual-track listener remain available; commercial catalog publication is out of scope."
     },
     {
       "id": "chapter-podcasts",

@@ -33,6 +33,7 @@ REQUIRED_ENV_KEYS = [
 ]
 IGNORED_NAMES = {".DS_Store", ".deploy-manifest.json", "_internal"}
 MANIFEST_NAME = ".deploy-manifest.json"
+DEFAULT_SFTP_TIMEOUT_SECONDS = 1800
 
 
 def parse_dotenv(dotenv_path: Path) -> dict[str, str]:
@@ -229,7 +230,7 @@ def run_sftp(batch_text: str, host: str, username: str, password: str) -> str:
             command[0],
             command[1:],
             encoding="utf-8",
-            timeout=60,
+            timeout=int(os.environ.get("DREAMHOST_SFTP_TIMEOUT_SECONDS", DEFAULT_SFTP_TIMEOUT_SECONDS)),
         )
         transcript_parts: list[str] = []
 
@@ -253,13 +254,21 @@ def run_sftp(batch_text: str, host: str, username: str, password: str) -> str:
             if index == 2:
                 break
             raise SystemExit(
-                "Timed out while waiting for SFTP to prompt for host confirmation or password."
+                "Timed out while waiting for SFTP to finish. "
+                "Set DREAMHOST_SFTP_TIMEOUT_SECONDS to a larger value if this bundle is unusually large."
             )
 
         tail = child.after if isinstance(child.after, str) else ""
         transcript = "".join(transcript_parts) + tail
-        if child.exitstatus not in (0, None) and child.exitstatus != 0:
-            raise SystemExit(f"SFTP exited with status {child.exitstatus}.\n{transcript}")
+        child.close()
+        if child.exitstatus != 0:
+            if child.exitstatus is not None:
+                status = str(child.exitstatus)
+            elif child.signalstatus is not None:
+                status = f"signal {child.signalstatus}"
+            else:
+                status = "unknown status"
+            raise SystemExit(f"SFTP exited with {status}.\n{transcript}")
         return transcript
     finally:
         try:

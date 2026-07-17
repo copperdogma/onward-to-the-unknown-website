@@ -1,0 +1,38 @@
+{
+  "schema_version": "onward_portable_editions_v1",
+  "publication": {
+    "identifier": "urn:uuid:6703d888-5554-4dd9-82f3-7c66b0cc5017",
+    "title": "Onward to the Unknown",
+    "subtitle": "A Genealogy and Biography of the L'Heureux Family",
+    "language": "en-CA",
+    "author": "The Centennial Book Committee under the leadership of Marcel L'Heureux",
+    "publisher": "The L'Heureux Family",
+    "original_publication_year": "1987",
+    "modified": "2026-07-17T22:00:00Z",
+    "description": "A genealogy and biography of the L'Heureux family, first printed for the 1987 family centennial and preserved here with its photographs, records, stories, and the Rolland Alain memoir found with one copy.",
+    "source_url": "https://onward.copper-dog.com/",
+    "cover_source_path": "input/doc-web-html/story206-onward-proof-r10/images/page-001-000.jpg",
+    "cover_output_path": "output/portable/onward-to-the-unknown-cover.jpg"
+  },
+  "epub": {
+    "output_path": "output/portable/onward-to-the-unknown.epub",
+    "public_path": "downloads/onward-to-the-unknown.epub",
+    "media_type": "application/epub+zip",
+    "maximum_bytes": 209715200,
+    "expected_main_document_count": 37,
+    "expected_companion_count": 1,
+    "expected_main_source_block_count": 520
+  },
+  "m4b": {
+    "output_path": "audiobook/generated/onward-to-the-unknown.m4b",
+    "public_path": "audiobook/onward-to-the-unknown.m4b",
+    "media_type": "audio/mp4",
+    "codec": "aac",
+    "profile": "AAC Low Complexity",
+    "bit_rate": "64k",
+    "sample_rate_hz": 44100,
+    "channels": 1,
+    "narrator": "ElevenLabs narration",
+    "expected_chapter_count": 21
+  }
+}

@@ -79,6 +79,13 @@ the real environment changes.
     the deploy helper excludes `_internal/` maintenance artifacts from the
     published payload and will publish any generated `audiobook/` or
     `podcast/` MP3 assets plus `audiobook.html` and `podcast.html`
+  - release builds now also require and validate the generated EPUB and M4B,
+    publish them at `downloads/onward-to-the-unknown.epub` and
+    `audiobook/onward-to-the-unknown.m4b`, and emit Apache MIME declarations
+    for `application/epub+zip` and `audio/mp4`
+  - `make validate-public-portable BASE_URL=https://onward.copper-dog.com/`
+    verifies the live portable files' MIME types, exact local byte lengths,
+    ranged delivery, and help-page links after deployment
   - the script keeps a remote `.deploy-manifest.json` so later deploys can
     remove paths that disappeared from the source bundle
   - the repo-local `/deploy` skill wraps that command and requires public
@@ -96,8 +103,25 @@ the real environment changes.
     directory lane; the published feed now uses manifest-driven category
     metadata and stable ASCII public audio paths even when the source MP3 files
     have messier local generator names
-  - the current live payload is the staged export bundle
-    `input/doc-web-html/story206-onward-proof-r10`
+  - the current live payload, deployed on 2026-07-17, is the strict generated
+    release bundle `build/family-site/`; it includes the complete website,
+    searchable source files, 21 individual audiobook tracks, podcast assets,
+    the EPUB, and the chaptered M4B
+
+## Portable release proof (2026-07-17)
+
+- `https://onward.copper-dog.com/downloads/onward-to-the-unknown.epub`
+  returned `application/epub+zip`, an exact `105785550` byte length, and a
+  valid `206` byte-range response.
+- `https://onward.copper-dog.com/audiobook/onward-to-the-unknown.m4b`
+  returned `audio/mp4`, an exact `89314472` byte length, and a valid `206`
+  byte-range response.
+- `reading-apps.html` publicly links the EPUB and M4B, and production browser
+  checks at `1280x900` and `390x844` covered the homepage, help page, book page,
+  and audiobook page with no horizontal overflow or console errors.
+- The SFTP deploy completed with exit status 0 and wrote the remote manifest;
+  the deploy helper now waits for and rejects non-zero post-EOF exit status so
+  an SSH/DNS failure cannot be reported as a successful release.
 
 ## Sources
 

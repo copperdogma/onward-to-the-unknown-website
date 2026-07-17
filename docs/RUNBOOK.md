@@ -175,6 +175,26 @@ or direct MP3 download with no app or account requirement. External platforms
 such as Spotify, ElevenReader, or Voices by INaudio are optional follow-up
 lanes, not prerequisites for shipping the current audiobook surface.
 
+## Portable EPUB and chaptered M4B
+
+The tracked contract at `portable/manifest.json` owns the stable EPUB and M4B
+paths, publication metadata, file-size ceiling, chapter count, and media
+profile. Install `requirements-portable.txt`, ensure `ffmpeg`, `ffprobe`, Java,
+and EPUBCheck 5.3.0 are available, then run:
+
+```bash
+make build-portable-editions
+make validate-portable-editions
+```
+
+For a deployable bundle, use `make build-family-site RELEASE=1`. Release mode
+validates both files before copying them to
+`downloads/onward-to-the-unknown.epub` and
+`audiobook/onward-to-the-unknown.m4b`. The generated `reading-apps.html` page
+keeps direct EPUB, M4B, PDF, and individual-MP3 choices visible without
+JavaScript. The complete operating and public-smoke procedure is in
+`docs/runbooks/portable-editions.md`.
+
 ## On-Site Podcast Surface
 
 The whole-book site build now also reads `podcast/manifest.json` when it
