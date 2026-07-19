@@ -1,5 +1,23 @@
 # Changelog
 
+## [2026-07-19-01] - Built reunion flyer and phone QR handoff (Story 018)
+
+### Added
+- Added one source-backed outreach contract and deterministic ReportLab workflow
+  for a letter-size reunion flyer, 300 ppi preview, standalone QR, phone card,
+  and build-evidence report.
+- Added exact geometry/content/source tests, independent final/stress QR
+  decoding, PDF/font/cover inspection, grayscale and toner checks, a complete
+  reproduction specification, and a hash-bound physical-validation sheet.
+
+### Changed
+- Recorded the first offline reunion-outreach coverage row and the current
+  partial physical-proof boundary without treating flyer artifacts as book
+  canon or as part of the deployed website.
+- Refined the flyer actions to familiar reader language—searchable PDF, eBook,
+  audiobook, and chapter-by-chapter listening—while the maintained contract
+  and public checks preserve the exact underlying formats.
+
 ## [2026-07-17-01] - Published portable EPUB and chaptered audiobook (Story 017)
 
 ### Added

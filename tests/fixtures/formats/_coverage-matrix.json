@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-07-17",
+  "updated_at": "2026-07-19",
   "surfaces": [
     {
       "id": "book-core-html",
@@ -46,6 +46,15 @@
       "status": "partial",
       "target_surface": "generated M4B and stable public download",
       "notes": "The portable manifest and deterministic builder now assemble one AAC-LC M4B with the reviewed track order, manifest pauses, embedded cover and metadata, and exactly 21 named chapters. The source MP3s and on-site individual-track listener remain available; commercial catalog publication is out of scope."
+    },
+    {
+      "id": "reunion-outreach",
+      "label": "Reunion flyer and phone QR handoff",
+      "kind": "derivative-outreach",
+      "upstream": "accepted book/cover/publication contracts and live first-party homepage",
+      "status": "partial",
+      "target_surface": "printed letter flyer and phone-display QR card",
+      "notes": "One tracked contract now deterministically builds and digitally validates a true-white letter PDF, 300 ppi preview, standalone QR, phone card, and evidence report. Title, names, cover, URL, and format claims trace to accepted sources; final printer and two-device acceptance remains pending and generated outreach files do not become book canon or deploy inputs."
     },
     {
       "id": "chapter-podcasts",

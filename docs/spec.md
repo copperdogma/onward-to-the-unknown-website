@@ -91,6 +91,12 @@ chaptered M4B. `portable/manifest.json` owns their publication metadata and
 stable release paths; the existing PDF and individual MP3s remain first-class
 fallbacks.
 
+The first offline reunion-outreach seam now derives a deterministic letter
+flyer and phone QR card from tracked book, cover, publication, and design
+contracts. It is digitally verified and hash-bound, but remains a derivative
+sharing surface rather than new book canon; physical printer/device acceptance
+is still explicitly pending.
+
 ### C4 Supplementary materials still need manual curation and packaging
 
 - Ideal: companion assets arrive with canonical metadata and clear placement
@@ -142,6 +148,11 @@ source block ids and referenced figures, M4B chapters retain audiobook-manifest
 order, and release mode refuses missing or invalid generated files before a
 static deploy bundle can be assembled.
 
+The reunion flyer follows the same provenance rule: title, family names, cover,
+URL, format claims, geometry, and final hashes are inspectable from one tracked
+contract and build report, while generated outreach binaries stay outside the
+source intake and deployment bundle.
+
 ### C6 Publishing and editorial provenance are only partially defined
 
 - Ideal: every published surface can be traced to a canonical source record and
@@ -170,6 +181,11 @@ an audience that will skew 80+ years old across desktop and mobile use.
 The portable lane adds EPUBCheck, structural/source coverage checks, audio
 stream/chapter validation, representative decode checks, stable MIME and range
 proof, familiar-app inspection, and literal no-JavaScript download choices.
+
+The outreach lane adds exact page/pixel checks, selectable-PDF/font/cover
+inspection, integer-module QR validation, independent final/stress decoding,
+grayscale/toner measurement, and a separate hash-bound print/device checklist.
+Digital checks do not satisfy its physical acceptance gate.
 
 ### C7 Public-readiness quality still lacks measured proof on real content
 

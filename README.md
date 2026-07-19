@@ -34,6 +34,7 @@ Useful commands:
 ```bash
 python -m pip install -r requirements-deploy.txt
 python -m pip install -r requirements-portable.txt
+python -m pip install -r requirements-outreach.txt
 make skills-sync
 make methodology-compile
 make methodology-check
@@ -44,6 +45,7 @@ make build-audiobook-script
 make build-full-audiobook
 make build-portable-editions
 make validate-portable-editions
+make reunion-flyer
 make refresh-omission-audit
 make preview-family-site
 make deploy-static
@@ -90,6 +92,12 @@ Current local build surface:
 - Chaptered M4B build: `make build-m4b`
 - Release bundle with required portable files: `make build-family-site RELEASE=1`
 - Portable release runbook: `docs/runbooks/portable-editions.md`
+- Reunion flyer/phone contract: `outreach/reunion-flyer.json`
+- Reunion flyer build and digital validation: `make reunion-flyer`
+- Generated print/phone handoff: `output/outreach/` (local, not tracked)
+- Reproduction and physical-proof guidance:
+  `outreach/reunion-flyer-design-spec.md` and
+  `outreach/reunion-flyer-physical-validation.md`
 - ElevenLabs audiobook MP3 set: `audiobook/ElevenLabs_Onward_to_the_Unknown/`
 - Full merged audiobook build: `python scripts/build_full_audiobook.py`
   (or `make build-full-audiobook`); requires `ffmpeg` on `PATH`

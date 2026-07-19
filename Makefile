@@ -6,7 +6,7 @@ FULL_AUDIOBOOK_MANIFEST ?= audiobook/manifest.json
 PORTABLE_MANIFEST ?= portable/manifest.json
 EPUBCHECK_JAR ?= .runtime/epubcheck-5.3.0/epubcheck.jar
 
-.PHONY: skills-sync skills-check methodology-compile methodology-check deploy-static test lint test-portable-editions build-family-site build-audiobook-script build-full-audiobook build-epub build-m4b build-portable-editions validate-portable-editions validate-public-portable preview-family-site refresh-omission-audit doc-web-contract doc-web-run-onward doc-web-import-run doc-web-import-bundle
+.PHONY: skills-sync skills-check methodology-compile methodology-check deploy-static test lint test-portable-editions test-reunion-flyer build-family-site build-audiobook-script build-full-audiobook build-epub build-m4b build-portable-editions validate-portable-editions validate-public-portable build-reunion-flyer validate-reunion-flyer reunion-flyer preview-family-site refresh-omission-audit doc-web-contract doc-web-run-onward doc-web-import-run doc-web-import-bundle
 
 skills-sync:
 	./scripts/sync-agent-skills.sh
@@ -31,6 +31,9 @@ lint:
 
 test-portable-editions:
 	$(PYTHON) -m pytest tests/test_portable_editions.py tests/test_build_m4b.py
+
+test-reunion-flyer:
+	$(PYTHON) -m pytest tests/test_reunion_flyer.py
 
 build-family-site:
 	$(PYTHON) scripts/build_family_site.py \
@@ -77,6 +80,14 @@ validate-public-portable:
 	$(PYTHON) scripts/portable_editions.py validate-public \
 		--manifest "$(PORTABLE_MANIFEST)" \
 		$(if $(BASE_URL),--base-url "$(BASE_URL)",)
+
+build-reunion-flyer:
+	$(PYTHON) scripts/reunion_flyer.py build
+
+validate-reunion-flyer:
+	$(PYTHON) scripts/reunion_flyer.py validate
+
+reunion-flyer: test-reunion-flyer build-reunion-flyer validate-reunion-flyer
 
 preview-family-site:
 	$(PYTHON) -m http.server "$(FAMILY_SITE_PORT)" --directory "$(FAMILY_SITE_OUTPUT)"

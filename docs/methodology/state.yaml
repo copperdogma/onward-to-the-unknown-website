@@ -11,10 +11,10 @@
     "spec:1": { "substrate": "partial", "last_reviewed": "2026-04-10" },
     "spec:2": { "substrate": "partial", "last_reviewed": "2026-07-17" },
     "spec:3": { "substrate": "partial", "last_reviewed": "2026-04-12" },
-    "spec:4": { "substrate": "partial", "last_reviewed": "2026-07-17" },
-    "spec:5": { "substrate": "partial", "last_reviewed": "2026-07-17" },
-    "spec:6": { "substrate": "partial", "last_reviewed": "2026-07-17" },
-    "spec:7": { "substrate": "partial", "last_reviewed": "2026-07-17" },
+    "spec:4": { "substrate": "partial", "last_reviewed": "2026-07-19" },
+    "spec:5": { "substrate": "partial", "last_reviewed": "2026-07-19" },
+    "spec:6": { "substrate": "partial", "last_reviewed": "2026-07-19" },
+    "spec:7": { "substrate": "partial", "last_reviewed": "2026-07-19" },
     "spec:8": { "substrate": "partial", "last_reviewed": "2026-04-09" },
     "spec:9": { "substrate": "exists", "last_reviewed": "2026-04-09" }
   },
@@ -22,18 +22,18 @@
     "C1": { "phase": "climb", "last_reviewed": "2026-04-09" },
     "C2": { "phase": "climb", "last_reviewed": "2026-07-17" },
     "C3": { "phase": "climb", "last_reviewed": "2026-04-12" },
-    "C4": { "phase": "climb", "last_reviewed": "2026-07-17" },
-    "C5": { "phase": "climb", "last_reviewed": "2026-07-17" },
-    "C6": { "phase": "climb", "last_reviewed": "2026-07-17" },
-    "C7": { "phase": "climb", "last_reviewed": "2026-07-17" },
+    "C4": { "phase": "climb", "last_reviewed": "2026-07-19" },
+    "C5": { "phase": "climb", "last_reviewed": "2026-07-19" },
+    "C6": { "phase": "climb", "last_reviewed": "2026-07-19" },
+    "C7": { "phase": "climb", "last_reviewed": "2026-07-19" },
     "B1": { "phase": "hold", "last_reviewed": "2026-04-09" },
     "B2": { "phase": "hold", "last_reviewed": "2026-04-09" },
     "B3": { "phase": "climb", "last_reviewed": "2026-04-09" }
   },
   "coverage_matrix": {
     "path": "tests/fixtures/formats/_coverage-matrix.json",
-    "last_reviewed": "2026-07-17",
-    "notes": "Canonical machine-readable inventory of upstream content surfaces, portable release formats, and companion archive inputs."
+    "last_reviewed": "2026-07-19",
+    "notes": "Canonical machine-readable inventory of upstream content surfaces, portable release formats, companion archive inputs, and derivative family-outreach surfaces."
   },
   "roadmap": {
     "active_focus": [

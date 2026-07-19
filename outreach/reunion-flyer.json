@@ -1,0 +1,113 @@
+{
+  "schema_version": "onward_reunion_flyer_v1",
+  "book": {
+    "title": "Onward to the Unknown",
+    "title_lines": [
+      "Onward to",
+      "the Unknown"
+    ],
+    "subtitle": "A Genealogy and Biography of the L'Heureux Family",
+    "eyebrow": "A L'HEUREUX FAMILY BOOK",
+    "free_headline": "The family book is online — free for everyone",
+    "camera_instruction": "Point your phone camera at the square",
+    "canonical_url": "https://onward.copper-dog.com/",
+    "display_hostname": "onward.copper-dog.com",
+    "actions": [
+      "Read the book online",
+      "Open the searchable PDF",
+      "Get eBook or audiobook",
+      "Listen chapter by chapter"
+    ],
+    "family_heading": "MOÏSE AND SOPHIE'S FIFTEEN CHILDREN",
+    "family_name_rows": [
+      "Alma • Arthur • Leonidas • Josephine • Paul",
+      "George • Joe • Mathilda • Marie-Louise • Roseanna",
+      "Antoinette • Emilie • Wilfred • Pierre • Antoine"
+    ],
+    "phone_availability": "Read • Search • Download • Listen",
+    "prohibited_wording": [
+      "No cost. No account needed."
+    ]
+  },
+  "cover": {
+    "source_path": "input/doc-web-html/story206-onward-proof-r10/images/page-001-000.jpg",
+    "width_pixels": 5096,
+    "height_pixels": 6772,
+    "sha256": "53ed0e7fd6403d8c42800f46b7aac056d4cc9a49a8f32368ccdf4ac0735516a2",
+    "print_height_points": 295.2,
+    "treatment": "unmodified-complete-cover-no-crop"
+  },
+  "palette": {
+    "paper": "#ffffff",
+    "ink": "#231c14",
+    "muted": "#675d52",
+    "light_rule": "#d7c7b3",
+    "deep": "#6f2e1d",
+    "secondary_deep": "#8a3e29",
+    "accent": "#6f2e1d",
+    "secondary_accent": "#8a3e29",
+    "qr": "#000000"
+  },
+  "typography": {
+    "family": "Bitstream Vera Sans",
+    "minimum_essential_print_points": 18,
+    "minimum_hostname_print_points": 23,
+    "print": {
+      "eyebrow": 15,
+      "title": 42,
+      "subtitle": 17,
+      "free_headline": 21,
+      "camera_instruction": 18,
+      "hostname": 23,
+      "actions": 18,
+      "family_heading": 13,
+      "family_names": 18
+    },
+    "phone": {
+      "eyebrow": 38,
+      "title": 84,
+      "subtitle": 34,
+      "free_headline": 43,
+      "camera_instruction": 32,
+      "hostname": 52,
+      "availability": 29
+    }
+  },
+  "qr": {
+    "error_correction": "Q",
+    "version": 4,
+    "data_modules": 33,
+    "quiet_zone_modules": 4,
+    "total_modules": 41,
+    "print_size_points": 295.2,
+    "phone_size_pixels": 820,
+    "standalone_module_pixels": 40,
+    "standalone_size_pixels": 1640
+  },
+  "surfaces": {
+    "letter": {
+      "width_points": 612,
+      "height_points": 792,
+      "preview_width_pixels": 2550,
+      "preview_height_pixels": 3300,
+      "preview_dpi": 300,
+      "safe_margin_points": 36,
+      "cover_qr_gap_points": 21.49,
+      "cover_qr_y_points": 256,
+      "maximum_non_white_ratio": 0.27
+    },
+    "phone": {
+      "width_pixels": 1080,
+      "height_pixels": 1920,
+      "safe_margin_pixels": 72,
+      "maximum_non_white_ratio": 0.2
+    }
+  },
+  "outputs": {
+    "letter_pdf": "output/outreach/onward-to-the-unknown-reunion-flyer-letter.pdf",
+    "letter_preview_png": "output/outreach/onward-to-the-unknown-reunion-flyer-letter-preview.png",
+    "phone_png": "output/outreach/onward-to-the-unknown-phone-qr.png",
+    "qr_png": "output/outreach/onward-to-the-unknown-qr.png",
+    "build_report_json": "output/outreach/reunion-flyer-build-report.json"
+  }
+}
